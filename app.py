@@ -626,6 +626,12 @@ def handle_generate_proposal_word(args, session):
         if base:
             doc.add_paragraph(f"ベース製品: {base.get('name', '')} ({base.get('maker', '')})")
             doc.add_paragraph(f"メーカー型番: {base.get('model', '')}")
+            if base.get('price'):
+                doc.add_paragraph(f"仕入れ先価格: {base.get('price')}")
+            if base.get('usage'):
+                doc.add_paragraph(f"用途: {base.get('usage')}")
+            if base.get('description'):
+                doc.add_paragraph(f"概要: {base.get('description')}")
 
         # PBカード
         doc.add_heading('2. PB製品仕様', level=1)
@@ -646,11 +652,25 @@ def handle_generate_proposal_word(args, session):
         for key, label in field_labels.items():
             row = table.add_row().cells
             row[0].text = label
-            row[1].text = str(pb.get(key, '—'))
+            row[1].text = str(pb.get(key) or '—')
+
+        # ベース製品スペック
+        if base and base.get('specs'):
+            doc.add_heading('3. ベース製品 詳細スペック', level=1)
+            spec_table = doc.add_table(rows=1, cols=2)
+            spec_table.style = 'Table Grid'
+            spec_hdr = spec_table.rows[0].cells
+            spec_hdr[0].text = '項目'
+            spec_hdr[1].text = '値'
+            for sk, sv in base['specs'].items():
+                row = spec_table.add_row().cells
+                row[0].text = str(sk)
+                row[1].text = str(sv)
 
         # フレームワーク分析
+        section_num = 4 if (base and base.get('specs')) else 3
         if fw:
-            doc.add_heading('3. フレームワーク分析', level=1)
+            doc.add_heading(f'{section_num}. フレームワーク分析', level=1)
             fw_names = {
                 '3c': '3C分析', 'swot': 'SWOT分析',
                 'positioning': 'ポジショニング', '5forces': '5Forces',
