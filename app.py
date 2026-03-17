@@ -564,9 +564,14 @@ def handle_generate_pim_excel(args, session):
             row = len(field_labels) + 3
             ws.cell(row=row, column=1, value="【ベース製品情報】").font = Font(bold=True)
             row += 1
-            for key in ['name', 'maker', 'model', 'category', 'usage']:
+            base_labels = {
+                'name': '製品名', 'maker': 'メーカー', 'model': '型番',
+                'category': 'カテゴリ', 'usage': '用途', 'price': '仕入れ先価格',
+                'description': '概要',
+            }
+            for key, label in base_labels.items():
                 if base.get(key):
-                    ws.cell(row=row, column=1, value=key).border = thin_border
+                    ws.cell(row=row, column=1, value=label).border = thin_border
                     ws.cell(row=row, column=2, value=base[key]).border = thin_border
                     row += 1
             if base.get('specs'):
@@ -1055,6 +1060,18 @@ def chat():
         return jsonify({"error": "APIキーが設定されていません"}), 500
 
     session = get_or_create_session(session_id)
+
+    # base_product自動復元（ワーカー切替・セッション消失対策）
+    if not session.get('base_product'):
+        maker_pn = session.get('pb_card', {}).get('maker_part_no')
+        if maker_pn:
+            db_results = _search_products(query=maker_pn)
+            for p in db_results:
+                if p.get('model') == maker_pn:
+                    session['base_product'] = p
+                    break
+            if not session.get('base_product') and db_results:
+                session['base_product'] = db_results[0]
 
     # 会話履歴にユーザーメッセージ追加
     session['history'].append({"role": "user", "content": user_msg})
