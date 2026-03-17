@@ -402,10 +402,23 @@ def handle_set_pb_field(args, session):
 
     # maker_part_noが設定されたらベース製品を自動リンク
     if field == 'maker_part_no' and value:
+        found = False
+        # まずlast_search_resultsから探す
         for p in session.get('last_search_results', []):
-            if p.get('model') == value or p.get('id', '').endswith(value.lower().replace('-', '_')):
+            if p.get('model') == value:
                 session['base_product'] = p
+                found = True
                 break
+        # 見つからなければDBを直接検索
+        if not found:
+            db_results = _search_products(query=value)
+            for p in db_results:
+                if p.get('model') == value:
+                    session['base_product'] = p
+                    found = True
+                    break
+            if not found and db_results:
+                session['base_product'] = db_results[0]
 
     filled = sum(1 for v in session['pb_card'].values() if v is not None)
     total = len(session['pb_card'])
@@ -445,6 +458,19 @@ def handle_analyze_framework(args, session):
 
     # 分析コンテキスト構築
     base = session.get('base_product')
+    if not base:
+        # PBカードのmaker_part_noからベース製品を自動復元
+        maker_pn = session.get('pb_card', {}).get('maker_part_no')
+        if maker_pn:
+            db_results = _search_products(query=maker_pn)
+            for p in db_results:
+                if p.get('model') == maker_pn:
+                    base = p
+                    session['base_product'] = p
+                    break
+            if not base and db_results:
+                base = db_results[0]
+                session['base_product'] = base
     if not base:
         return {"error": "ベース製品が未選択です。先に製品を検索・選択してください。"}
 
@@ -567,6 +593,21 @@ def handle_generate_proposal_word(args, session):
     """企画書Word生成"""
     pb = session.get('pb_card', {})
     base = session.get('base_product')
+
+    # ベース製品の自動復元
+    if not base:
+        maker_pn = pb.get('maker_part_no')
+        if maker_pn:
+            db_results = _search_products(query=maker_pn)
+            for p in db_results:
+                if p.get('model') == maker_pn:
+                    base = p
+                    session['base_product'] = p
+                    break
+            if not base and db_results:
+                base = db_results[0]
+                session['base_product'] = base
+
     fw = session.get('framework_results', {})
 
     try:
@@ -731,6 +772,19 @@ def handle_generate_catalog_html(args, session):
     pb = session.get('pb_card', {})
     base = session.get('base_product')
 
+    # ベース製品の自動復元
+    if not base:
+        maker_pn = pb.get('maker_part_no')
+        if maker_pn:
+            db_results = _search_products(query=maker_pn)
+            for p in db_results:
+                if p.get('model') == maker_pn:
+                    base = p
+                    session['base_product'] = p
+                    break
+            if not base and db_results:
+                base = db_results[0]
+                session['base_product'] = base
     if not base:
         return {"error": "ベース製品が未選択です"}
 
