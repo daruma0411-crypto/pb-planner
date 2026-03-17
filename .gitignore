@@ -11,3 +11,5 @@ tmp_*
 *.log
 .claude/
 downloads/
+.sessions/
+test_downloads/

@@ -39,7 +39,7 @@ os.makedirs(_DOWNLOADS_DIR, exist_ok=True)
 _TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
 # ================================================================
-# セッションストレージ（Redis / フォールバック: メモリ内）
+# セッションストレージ（ファイル永続化 / Redis / フォールバック: メモリ内）
 # ================================================================
 _SESSION_TTL = 3600  # 1時間
 
@@ -52,14 +52,18 @@ if _REDIS_URL:
         _redis_client.ping()
         print("[SESSION] Redis connected", flush=True, file=sys.stderr)
     except Exception as _e:
-        print(f"[SESSION] Redis connect failed: {_e}, falling back to memory",
+        print(f"[SESSION] Redis connect failed: {_e}, falling back to file",
               flush=True, file=sys.stderr)
         _redis_client = None
 else:
-    print("[SESSION] No REDIS_URL, using in-memory sessions",
+    print("[SESSION] No REDIS_URL, using file-based sessions",
           flush=True, file=sys.stderr)
 
-_SESSIONS = {}
+# ファイルベースセッション用ディレクトリ
+_SESSION_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.sessions')
+os.makedirs(_SESSION_DIR, exist_ok=True)
+
+_SESSIONS = {}  # メモリキャッシュ（高速アクセス用）
 
 
 # ================================================================
@@ -85,8 +89,15 @@ def _new_session_dict():
     }
 
 
+def _session_filepath(session_id):
+    """セッションIDからファイルパスを生成（安全なファイル名に変換）"""
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', session_id)[:100]
+    return os.path.join(_SESSION_DIR, f'{safe_id}.json')
+
+
 def get_or_create_session(session_id):
     """セッション取得 or 新規作成"""
+    # 1. Redis
     if _redis_client:
         try:
             raw = _redis_client.get(f'pb:{session_id}')
@@ -94,21 +105,57 @@ def get_or_create_session(session_id):
                 return json.loads(raw)
         except Exception:
             pass
-    elif session_id in _SESSIONS:
+
+    # 2. メモリキャッシュ
+    if session_id in _SESSIONS:
         return _SESSIONS[session_id]
+
+    # 3. ファイル（再デプロイ後の復元）
+    fpath = _session_filepath(session_id)
+    if os.path.exists(fpath):
+        try:
+            with open(fpath, 'r', encoding='utf-8') as f:
+                session = json.loads(f.read())
+            _SESSIONS[session_id] = session  # メモリキャッシュに戻す
+            print(f"[SESSION] Restored from file: {session_id}", flush=True, file=sys.stderr)
+            return session
+        except Exception as e:
+            print(f"[SESSION] File read error: {e}", flush=True, file=sys.stderr)
+
     return _new_session_dict()
 
 
 def save_session(session_id, session):
-    """セッション保存"""
+    """セッション保存（Redis + ファイル + メモリ）"""
+    # Redis
     if _redis_client:
         try:
             _redis_client.setex(f'pb:{session_id}', _SESSION_TTL,
                                 json.dumps(session, ensure_ascii=False))
-            return
         except Exception:
             pass
+
+    # メモリキャッシュ
     _SESSIONS[session_id] = session
+
+    # ファイル永続化（再デプロイ対策）
+    try:
+        fpath = _session_filepath(session_id)
+        with open(fpath, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(session, ensure_ascii=False))
+    except Exception as e:
+        print(f"[SESSION] File save error: {e}", flush=True, file=sys.stderr)
+
+    # 古いセッションファイルの掃除（100件超で古い順に削除）
+    try:
+        files = sorted(
+            [os.path.join(_SESSION_DIR, f) for f in os.listdir(_SESSION_DIR) if f.endswith('.json')],
+            key=os.path.getmtime
+        )
+        while len(files) > 100:
+            os.remove(files.pop(0))
+    except Exception:
+        pass
 
 
 # ================================================================
@@ -292,8 +339,9 @@ _PB_CONSULTANT_SYSTEM_PROMPT = """\
 2. PBカード項目の確定は必ず set_pb_field ツールを使用すること（口頭確認だけではNG）
 3. ユーザーが値を決めたら即座にset_pb_fieldで確定すること
 4. ベース製品が決まっていない段階でPBカードの項目を埋めようとしないこと
-5. 1ターンに1つの質問のみ（複数質問を一度にしない）
-6. 日本語で回答すること
+5. 日本語で回答すること
+6. **ユーザーが「確認」を求めていないのに「確定しますか？」と聞き返さないこと。ユーザーの発言から意図が明確なら即座に実行すること**
+7. **ユーザーが複数の値を一度に指示した場合、すべてを一度にset_pb_fieldで確定すること（一部だけ確定して残りを聞き返さない）**
 
 ## PB企画カードの7項目
 - asone_part_no: アズワン品番（例: 0-1234-01）
@@ -304,11 +352,17 @@ _PB_CONSULTANT_SYSTEM_PROMPT = """\
 - catchcopy: キャッチコピー（製品の訴求ポイント）
 - spec_diff: 仕様差分（ベース製品との違い）
 
+## ベース製品の扱い（重要）
+- ユーザーが特定の型番について会話している場合、その製品がベース製品であると判断し、**明示的な確認なしに**search_productsで検索してベース製品として設定すること
+- 「FLS-1000の特徴を教えて」→ まずsearch_productsでFLS-1000を検索。これがベース製品の候補になる
+- 「3C分析してください」「ポジショニング分析してください」→ 会話中の製品をベースにして即座にanalyze_frameworkを実行。「先にベースを確定してください」と聞き返さない
+- ユーザーに不要な確認を求めず、会話の流れから自然に判断して進めること
+
 ## 会話の進め方
-1. まずユーザーの目的を聞く（どのメーカーの何をPB化したいか）
+1. ユーザーの目的や興味のある製品を把握する
 2. search_productsでベース候補を検索・提示
-3. ベース製品が決まったら、PBカード7項目を順に確定
-4. 必要に応じてフレームワーク分析を提案
+3. 製品が特定されたら、PBカード7項目を順に確定（maker_part_noは自動設定可）
+4. フレームワーク分析はいつでも実行可能（ベース製品が会話で特定されていれば）
 5. 全項目確定後、アウトプット生成（Excel/Word/英訳/HTML）を提案
 
 ## 壁打ちの極意
