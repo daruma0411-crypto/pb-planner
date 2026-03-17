@@ -414,11 +414,22 @@ function renderScatterChart(data) {
     });
   }
 
+  // データ範囲を計算してスケールを最適化
+  var allX = [], allY = [];
+  chartDatasets.forEach(function(ds) {
+    ds.data.forEach(function(pt) { allX.push(pt.x); allY.push(pt.y); });
+  });
+  var xMin = Math.min.apply(null, allX), xMax = Math.max.apply(null, allX);
+  var yMin = Math.min.apply(null, allY), yMax = Math.max.apply(null, allY);
+  var xPad = Math.max((xMax - xMin) * 0.1, 5);
+  var yPad = Math.max((yMax - yMin) * 0.1, 5);
+
   new Chart(canvas, {
     type: 'scatter',
     data: { datasets: chartDatasets },
     options: {
       responsive: true,
+      aspectRatio: 1.4,
       plugins: {
         title: { display: true, text: '\u30DD\u30B8\u30B7\u30E7\u30CB\u30F3\u30B0: ' + data.axis_x + ' \u00D7 ' + data.axis_y, font: {size: 14} },
         legend: { position: 'bottom' },
@@ -434,8 +445,8 @@ function renderScatterChart(data) {
         }
       },
       scales: {
-        x: { title: { display: true, text: data.axis_x }, beginAtZero: false },
-        y: { title: { display: true, text: data.axis_y }, beginAtZero: false },
+        x: { title: { display: true, text: data.axis_x }, min: Math.max(0, xMin - xPad), max: xMax + xPad },
+        y: { title: { display: true, text: data.axis_y }, min: Math.max(0, yMin - yPad), max: yMax + yPad },
       }
     }
   });
