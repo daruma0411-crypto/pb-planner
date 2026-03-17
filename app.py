@@ -339,6 +339,20 @@ def _build_system_prompt(session):
         parts.append(f"- 製品名: {base.get('name', '不明')}")
         parts.append(f"- メーカー: {base.get('maker', '不明')}")
         parts.append(f"- 型番: {base.get('model', '不明')}")
+        if base.get('price'):
+            parts.append(f"- 価格: {base.get('price')}")
+        if base.get('description'):
+            parts.append(f"- 概要: {base.get('description')}")
+        if base.get('design_concept'):
+            parts.append(f"- 設計思想: {base.get('design_concept')}")
+        if base.get('features'):
+            parts.append(f"- 製品特長: {json.dumps(base['features'], ensure_ascii=False)}")
+        if base.get('operation_courses'):
+            parts.append(f"- 運転コース: {json.dumps(base['operation_courses'], ensure_ascii=False)}")
+        if base.get('options'):
+            parts.append(f"- オプション: {json.dumps(base['options'], ensure_ascii=False)}")
+        if base.get('storage_capacity'):
+            parts.append(f"- 収納量: {json.dumps(base['storage_capacity'], ensure_ascii=False)}")
         if base.get('specs'):
             parts.append(f"- スペック: {json.dumps(base['specs'], ensure_ascii=False)}")
 
@@ -383,6 +397,12 @@ def handle_search_products(args, session):
             item['specs'] = p['specs']
         if p.get('description'):
             item['description'] = p['description']
+        # リッチ製品データ（特長・オプション等）
+        for rich_key in ('design_concept', 'features', 'operation_courses',
+                         'safety', 'options', 'storage_capacity', 'maintenance',
+                         'regulatory_note'):
+            if p.get(rich_key):
+                item[rich_key] = p[rich_key]
         items.append(item)
 
     return {"found": len(results), "showing": len(items), "products": items}
