@@ -845,7 +845,7 @@ def _call_claude_simple(prompt, max_tokens=2000):
 
 
 def _call_claude_with_tools(messages, system_prompt, session):
-    """Claude API呼び出し（Function Calling付き）"""
+    """Claude API呼び出し（Function Calling付き）。download_urlを含む結果はリストで返す。"""
     import urllib.request
 
     payload = {
@@ -856,29 +856,31 @@ def _call_claude_with_tools(messages, system_prompt, session):
         "tools": FC_TOOLS,
     }
 
-    data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(
-        'https://api.anthropic.com/v1/messages',
-        data=data,
-        headers={
-            'Content-Type': 'application/json',
-            'x-api-key': CLAUDE_API_KEY,
-            'anthropic-version': '2023-06-01',
-        }
-    )
+    all_text_parts = []
+    download_urls = []
 
-    max_iterations = 5
+    max_iterations = 10
     for iteration in range(max_iterations):
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.anthropic.com/v1/messages',
+            data=data,
+            headers={
+                'Content-Type': 'application/json',
+                'x-api-key': CLAUDE_API_KEY,
+                'anthropic-version': '2023-06-01',
+            }
+        )
+
         try:
             with urllib.request.urlopen(req, timeout=120) as resp:
                 result = json.loads(resp.read().decode('utf-8'))
         except Exception as e:
-            return f"API呼び出しエラー: {str(e)}", []
+            return f"API呼び出しエラー: {str(e)}", download_urls
 
         # レスポンス解析
         text_parts = []
         tool_calls = []
-        tool_results_for_next = []
 
         for block in result.get('content', []):
             if block.get('type') == 'text':
@@ -888,7 +890,11 @@ def _call_claude_with_tools(messages, system_prompt, session):
 
         # ツール呼び出しがなければ完了
         if not tool_calls:
-            return '\n'.join(text_parts), tool_calls
+            all_text_parts.extend(text_parts)
+            return '\n'.join(all_text_parts), download_urls
+
+        # 中間テキストも保持
+        all_text_parts.extend(text_parts)
 
         # ツール実行
         tool_use_blocks = result.get('content', [])
@@ -909,6 +915,14 @@ def _call_claude_with_tools(messages, system_prompt, session):
             else:
                 result_data = {"error": f"Unknown tool: {tool_name}"}
 
+            # download_url を収集
+            if isinstance(result_data, dict) and result_data.get('download_url'):
+                download_urls.append({
+                    "tool": tool_name,
+                    "filename": result_data.get('filename', ''),
+                    "download_url": result_data['download_url'],
+                })
+
             tool_results.append({
                 "type": "tool_result",
                 "tool_use_id": tool_id,
@@ -916,21 +930,9 @@ def _call_claude_with_tools(messages, system_prompt, session):
             })
 
         messages.append({"role": "user", "content": tool_results})
-
-        # 次の反復用にリクエスト更新
         payload["messages"] = messages
-        data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(
-            'https://api.anthropic.com/v1/messages',
-            data=data,
-            headers={
-                'Content-Type': 'application/json',
-                'x-api-key': CLAUDE_API_KEY,
-                'anthropic-version': '2023-06-01',
-            }
-        )
 
-    return "最大反復回数に達しました。", []
+    return "最大反復回数に達しました。" + '\n'.join(all_text_parts), download_urls
 
 
 # ツールハンドラマッピング
@@ -991,7 +993,7 @@ def chat():
     system_prompt = _build_system_prompt(session)
 
     # Claude API呼び出し
-    reply_text, tool_calls = _call_claude_with_tools(
+    reply_text, download_urls = _call_claude_with_tools(
         list(session['history']),  # コピーを渡す
         system_prompt,
         session,
@@ -1010,15 +1012,8 @@ def chat():
         "pb_card": session.get('pb_card', {}),
         "base_product": session.get('base_product'),
         "framework_results": list(session.get('framework_results', {}).keys()),
+        "download_urls": download_urls,
     }
-
-    # ダウンロードURLがある場合は含める
-    if tool_calls:
-        for tc in tool_calls:
-            if isinstance(tc, dict) and tc.get('name') in ('generate_pim_excel', 'generate_proposal_word',
-                                                             'translate_to_english', 'generate_catalog_html'):
-                # ツール結果からdownload_urlを取得
-                pass  # ツール結果はreply_textに含まれる
 
     return jsonify(response)
 
