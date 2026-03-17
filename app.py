@@ -788,7 +788,7 @@ def handle_generate_proposal_word(args, session):
             if base.get('description'):
                 doc.add_paragraph(f"概要: {base.get('description')}")
 
-        # PBカード
+        # PBカード（仕様差分は諸元表で管理するため除外）
         doc.add_heading('2. PB製品仕様', level=1)
         field_labels = {
             'asone_part_no': 'アズワン品番',
@@ -797,7 +797,6 @@ def handle_generate_proposal_word(args, session):
             'maker_part_no': 'メーカー型番',
             'quantity': '入数',
             'catchcopy': 'キャッチコピー',
-            'spec_diff': '仕様差分',
         }
         table = doc.add_table(rows=1, cols=2)
         table.style = 'Table Grid'
@@ -809,21 +808,8 @@ def handle_generate_proposal_word(args, session):
             row[0].text = label
             row[1].text = str(pb.get(key) or '—')
 
-        # ベース製品スペック
-        if base and base.get('specs'):
-            doc.add_heading('3. ベース製品 詳細スペック', level=1)
-            spec_table = doc.add_table(rows=1, cols=2)
-            spec_table.style = 'Table Grid'
-            spec_hdr = spec_table.rows[0].cells
-            spec_hdr[0].text = '項目'
-            spec_hdr[1].text = '値'
-            for sk, sv in base['specs'].items():
-                row = spec_table.add_row().cells
-                row[0].text = str(sk)
-                row[1].text = str(sv)
-
         # フレームワーク分析
-        section_num = 4 if (base and base.get('specs')) else 3
+        section_num = 3
         if fw:
             doc.add_heading(f'{section_num}. フレームワーク分析', level=1)
             fw_names = {
