@@ -227,6 +227,13 @@ function sendMessage() {
 
     // フレームワーク更新
     if (data.framework_results) updateFrameworkBadges(data.framework_results);
+
+    // フレームワークビジュアル表示
+    if (data.framework_visuals && data.framework_visuals.length > 0) {
+      data.framework_visuals.forEach(function(vis) {
+        renderFrameworkVisual(vis);
+      });
+    }
   })
   .catch(function(err) {
     removeTyping();
@@ -339,3 +346,222 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+// ─── フレームワークビジュアル描画 ─────────────────────────────
+
+function renderFrameworkVisual(vis) {
+  if (!vis || !vis.type) return;
+  switch (vis.type) {
+    case 'swot': renderSwotGrid(vis.data); break;
+    case 'positioning': renderScatterChart(vis.data); break;
+    case '5forces': renderForcesChart(vis.data); break;
+    case 'price_map': renderPriceBar(vis.data); break;
+  }
+}
+
+function renderSwotGrid(data) {
+  var html = '<div class="swot-grid">';
+  var quadrants = [
+    {key: 'strengths', label: 'S 強み', cls: 'swot-s'},
+    {key: 'weaknesses', label: 'W 弱み', cls: 'swot-w'},
+    {key: 'opportunities', label: 'O 機会', cls: 'swot-o'},
+    {key: 'threats', label: 'T 脅威', cls: 'swot-t'},
+  ];
+  quadrants.forEach(function(q) {
+    html += '<div class="swot-cell ' + q.cls + '">';
+    html += '<div class="swot-label">' + q.label + '</div>';
+    html += '<ul>';
+    (data[q.key] || []).forEach(function(item) {
+      html += '<li>' + escHtml(item) + '</li>';
+    });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+  appendAIBubble(html);
+}
+
+function renderScatterChart(data) {
+  var container = document.createElement('div');
+  container.className = 'chart-container';
+  var canvas = document.createElement('canvas');
+  container.appendChild(canvas);
+
+  var msg = appendAIBubble('');
+  var bubble = msg.querySelector('.msg-bubble');
+  bubble.appendChild(container);
+
+  var chartDatasets = data.datasets.map(function(ds) {
+    return {
+      label: ds.label,
+      data: ds.data,
+      backgroundColor: ds.backgroundColor,
+      borderColor: ds.borderColor,
+      pointRadius: ds.pointRadius || 6,
+      pointHoverRadius: 8,
+    };
+  });
+
+  // ベース製品を★で強調
+  if (data.base_product) {
+    chartDatasets.push({
+      label: '\u2605 ' + (data.base_model || 'ベース製品'),
+      data: [data.base_product],
+      backgroundColor: 'rgba(230, 0, 18, 0.9)',
+      borderColor: '#E60012',
+      pointRadius: 10,
+      pointStyle: 'star',
+      pointHoverRadius: 14,
+    });
+  }
+
+  new Chart(canvas, {
+    type: 'scatter',
+    data: { datasets: chartDatasets },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: '\u30DD\u30B8\u30B7\u30E7\u30CB\u30F3\u30B0: ' + data.axis_x + ' \u00D7 ' + data.axis_y, font: {size: 14} },
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var dsIdx = ctx.datasetIndex;
+              var ds = data.datasets[dsIdx];
+              var model = ds && ds.models ? ds.models[ctx.dataIndex] : '';
+              return (model || ctx.dataset.label) + ' (' + ctx.parsed.x + ', ' + ctx.parsed.y + ')';
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: data.axis_x } },
+        y: { title: { display: true, text: data.axis_y } },
+      }
+    }
+  });
+  scrollBottom();
+}
+
+function renderForcesChart(data) {
+  function dots(score) {
+    var s = '';
+    for (var i = 0; i < 5; i++) s += i < score ? '\u25CF' : '\u25CB';
+    return s;
+  }
+  function scoreColor(score) {
+    if (score >= 4) return '#F44336';
+    if (score >= 3) return '#FF9800';
+    return '#4CAF50';
+  }
+
+  var html = '<div class="forces-grid">';
+  var ne = data.new_entrants;
+  html += '<div class="force-box force-top">';
+  html += '<div class="force-label">' + escHtml(ne.label) + '</div>';
+  html += '<div class="force-dots" style="color:' + scoreColor(ne.score) + '">' + dots(ne.score) + '</div>';
+  html += '<div class="force-detail">' + escHtml(ne.detail) + '</div></div>';
+
+  var sp = data.supplier_power;
+  html += '<div class="force-box force-left">';
+  html += '<div class="force-label">' + escHtml(sp.label) + '</div>';
+  html += '<div class="force-dots" style="color:' + scoreColor(sp.score) + '">' + dots(sp.score) + '</div>';
+  html += '<div class="force-detail">' + escHtml(sp.detail) + '</div></div>';
+
+  var ri = data.rivalry;
+  html += '<div class="force-box force-center">';
+  html += '<div class="force-label">' + escHtml(ri.label) + '</div>';
+  html += '<div class="force-dots" style="color:' + scoreColor(ri.score) + '">' + dots(ri.score) + '</div>';
+  html += '<div class="force-detail">' + escHtml(ri.detail) + '</div></div>';
+
+  var bp = data.buyer_power;
+  html += '<div class="force-box force-right">';
+  html += '<div class="force-label">' + escHtml(bp.label) + '</div>';
+  html += '<div class="force-dots" style="color:' + scoreColor(bp.score) + '">' + dots(bp.score) + '</div>';
+  html += '<div class="force-detail">' + escHtml(bp.detail) + '</div></div>';
+
+  var su = data.substitutes;
+  html += '<div class="force-box force-bottom">';
+  html += '<div class="force-label">' + escHtml(su.label) + '</div>';
+  html += '<div class="force-dots" style="color:' + scoreColor(su.score) + '">' + dots(su.score) + '</div>';
+  html += '<div class="force-detail">' + escHtml(su.detail) + '</div></div>';
+
+  html += '</div>';
+  appendAIBubble(html);
+}
+
+function renderPriceBar(data) {
+  var container = document.createElement('div');
+  container.className = 'chart-container chart-container-tall';
+  var canvas = document.createElement('canvas');
+  container.appendChild(canvas);
+
+  var msg = appendAIBubble('');
+  var bubble = msg.querySelector('.msg-bubble');
+  bubble.appendChild(container);
+
+  var plugins = [];
+  if (data.base_price) {
+    plugins.push({
+      id: 'basePriceLine',
+      afterDraw: function(chart) {
+        var xScale = chart.scales.x;
+        var ctx = chart.ctx;
+        var x = xScale.getPixelForValue(data.base_price);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(x, chart.chartArea.top);
+        ctx.lineTo(x, chart.chartArea.bottom);
+        ctx.strokeStyle = '#E60012';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#E60012';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('\u25BC ' + data.base_model, x + 4, chart.chartArea.top + 12);
+        ctx.restore();
+      }
+    });
+  }
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        label: '\u4FA1\u683C (\u5186)',
+        data: data.values,
+        backgroundColor: data.colors,
+        borderColor: data.borders,
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        title: { display: true, text: '\u4FA1\u683C\u5E2F\u30DE\u30C3\u30D7', font: {size: 14} },
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return '\u00A5' + ctx.parsed.x.toLocaleString();
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: '\u4FA1\u683C (\u5186)' },
+          ticks: {
+            callback: function(val) {
+              return '\u00A5' + val.toLocaleString();
+            }
+          }
+        },
+        y: { ticks: { font: { size: 11 } } }
+      }
+    },
+    plugins: plugins,
+  });
+  scrollBottom();
+}

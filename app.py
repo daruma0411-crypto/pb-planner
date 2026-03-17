@@ -779,6 +779,246 @@ def _get_axis_candidates(category_products):
     return candidates[:10]
 
 
+# ================================================================
+# フレームワーク分析ビジュアルデータ生成
+# ================================================================
+
+_MAKER_COLORS = {
+    'トミー精工': {'bg': 'rgba(33, 150, 243, 0.7)', 'border': '#2196F3'},
+    'ヒラヤマ': {'bg': 'rgba(244, 67, 54, 0.7)', 'border': '#F44336'},
+    'ヤマト科学': {'bg': 'rgba(76, 175, 80, 0.7)', 'border': '#4CAF50'},
+    'アルプ': {'bg': 'rgba(156, 39, 176, 0.7)', 'border': '#9C27B0'},
+}
+_DEFAULT_COLOR = {'bg': 'rgba(158, 158, 158, 0.7)', 'border': '#9E9E9E'}
+
+
+def _generate_framework_visual(framework, category_products, base_product, **kwargs):
+    """フレームワーク分析のビジュアルデータを生成"""
+    try:
+        if framework == 'swot':
+            return _gen_swot_visual(category_products, base_product)
+        elif framework == 'positioning':
+            return _gen_positioning_visual(
+                category_products, base_product,
+                kwargs.get('axis_x', ''), kwargs.get('axis_y', ''))
+        elif framework == '5forces':
+            return _gen_5forces_visual(category_products, base_product)
+        elif framework == 'price_map':
+            return _gen_price_map_visual(category_products, base_product)
+    except Exception as e:
+        print(f"[VISUAL] Error generating {framework}: {e}", flush=True, file=sys.stderr)
+    return None
+
+
+def _gen_swot_visual(category_products, base_product):
+    """SWOT 2x2グリッド用データ"""
+    base_maker = base_product.get('maker', '')
+    base_specs = base_product.get('specs', {})
+    base_price = base_product.get('price_numeric')
+
+    comp_prices = [p.get('price_numeric') for p in category_products
+                   if p.get('price_numeric') and p.get('maker') != base_maker]
+    all_prices = [p.get('price_numeric') for p in category_products if p.get('price_numeric')]
+    makers = set(p.get('maker', '') for p in category_products)
+
+    # Strengths
+    strengths = []
+    cap_text = base_specs.get('有効容量', base_specs.get('缶体有効内容積', ''))
+    if cap_text:
+        strengths.append(f'有効容量 {cap_text}')
+    temp_text = base_specs.get('使用温度範囲', base_specs.get('滅菌温度範囲', ''))
+    if temp_text:
+        strengths.append(f'温度範囲 {temp_text}')
+    if base_product.get('description'):
+        strengths.append(base_product['description'][:50])
+    if not strengths:
+        strengths.append(f'{base_maker}ブランド')
+
+    # Weaknesses
+    weaknesses = []
+    if base_price and comp_prices:
+        min_comp = min(comp_prices)
+        if base_price > min_comp:
+            weaknesses.append(f'最安競合比 +¥{base_price - min_comp:,.0f}')
+    if not base_price:
+        weaknesses.append('公開価格なし')
+    if not weaknesses:
+        weaknesses.append('改善ポイント要調査')
+
+    # Opportunities
+    opportunities = []
+    if all_prices:
+        sorted_p = sorted(all_prices)
+        for i in range(1, len(sorted_p)):
+            gap = sorted_p[i] - sorted_p[i - 1]
+            if gap > 100000:
+                opportunities.append(f'¥{sorted_p[i-1]:,.0f}〜¥{sorted_p[i]:,.0f}に空白帯')
+                break
+    opportunities.append('PBブランドでの差別化')
+
+    # Threats
+    threats = []
+    threats.append(f'競合{len(category_products)}機種/{len(makers)}社')
+    if comp_prices:
+        threats.append(f'最安¥{min(comp_prices):,.0f}の低価格攻勢')
+
+    return {
+        'type': 'swot',
+        'data': {
+            'strengths': strengths[:4],
+            'weaknesses': weaknesses[:4],
+            'opportunities': opportunities[:4],
+            'threats': threats[:4],
+        }
+    }
+
+
+def _gen_positioning_visual(category_products, base_product, axis_x, axis_y):
+    """ポジショニング散布図用データ"""
+    positioning_data = _build_positioning_data(category_products, axis_x, axis_y)
+    valid_points = [d for d in positioning_data
+                    if d['x_value'] is not None and d['y_value'] is not None]
+
+    by_maker = {}
+    base_model = base_product.get('model', '')
+    base_point = None
+
+    for d in valid_points:
+        maker = d['maker']
+        if maker not in by_maker:
+            by_maker[maker] = []
+        by_maker[maker].append({
+            'x': d['x_value'], 'y': d['y_value'], 'model': d['model']
+        })
+        if d['model'] == base_model:
+            base_point = {'x': d['x_value'], 'y': d['y_value']}
+
+    datasets = []
+    for maker, points in by_maker.items():
+        color = _MAKER_COLORS.get(maker, _DEFAULT_COLOR)
+        datasets.append({
+            'label': maker,
+            'data': [{'x': p['x'], 'y': p['y']} for p in points],
+            'models': [p['model'] for p in points],
+            'backgroundColor': color['bg'],
+            'borderColor': color['border'],
+            'pointRadius': 6,
+        })
+
+    return {
+        'type': 'positioning',
+        'data': {
+            'axis_x': axis_x,
+            'axis_y': axis_y,
+            'datasets': datasets,
+            'base_product': base_point,
+            'base_model': base_model,
+        }
+    }
+
+
+def _gen_5forces_visual(category_products, base_product):
+    """5Forces ダイヤモンド配置用データ"""
+    makers = set(p.get('maker', '') for p in category_products)
+    prices = [p.get('price_numeric') for p in category_products if p.get('price_numeric')]
+    num_products = len(category_products)
+    num_makers = len(makers)
+
+    # 業界内競争
+    if num_products >= 50:
+        rivalry = 5
+    elif num_products >= 30:
+        rivalry = 4
+    elif num_products >= 15:
+        rivalry = 3
+    elif num_products >= 5:
+        rivalry = 2
+    else:
+        rivalry = 1
+
+    # 新規参入の脅威（医療機器規制あり→低い）
+    new_entrants = 2
+
+    # 代替品の脅威（蒸気滅菌の代替は限定的）
+    substitutes = 2
+
+    # 買い手の交渉力
+    if prices:
+        price_range = max(prices) - min(prices)
+        avg = sum(prices) / len(prices)
+        cv = (price_range / avg) if avg > 0 else 0
+        if cv > 1.0:
+            buyer_power = 4
+        elif cv > 0.5:
+            buyer_power = 3
+        else:
+            buyer_power = 2
+    else:
+        buyer_power = 3
+
+    # 売り手の交渉力
+    if num_makers >= 5:
+        supplier_power = 2
+    elif num_makers >= 3:
+        supplier_power = 3
+    else:
+        supplier_power = 4
+
+    price_detail = ''
+    if prices:
+        price_detail = f'価格帯 ¥{min(prices):,.0f}〜¥{max(prices):,.0f}'
+
+    return {
+        'type': '5forces',
+        'data': {
+            'rivalry': {'score': rivalry, 'label': '業界内競争',
+                        'detail': f'{num_products}機種/{num_makers}社'},
+            'new_entrants': {'score': new_entrants, 'label': '新規参入の脅威',
+                             'detail': '医療機器規制あり'},
+            'substitutes': {'score': substitutes, 'label': '代替品の脅威',
+                            'detail': '蒸気滅菌の代替は限定的'},
+            'buyer_power': {'score': buyer_power, 'label': '買い手の交渉力',
+                            'detail': price_detail},
+            'supplier_power': {'score': supplier_power, 'label': '売り手の交渉力',
+                               'detail': f'{num_makers}メーカー'},
+        }
+    }
+
+
+def _gen_price_map_visual(category_products, base_product):
+    """価格帯マップ横棒チャート用データ"""
+    price_items = []
+    for p in category_products:
+        if p.get('price_numeric'):
+            price_items.append({
+                'maker': p.get('maker', ''),
+                'model': p.get('model', ''),
+                'price': p.get('price_numeric'),
+            })
+    price_items.sort(key=lambda x: x['price'])
+
+    # 最大30件に制限（上位15+下位15）
+    if len(price_items) > 30:
+        price_items = price_items[:15] + price_items[-15:]
+
+    labels = [f"{p['maker']}: {p['model']}" for p in price_items]
+    data = [p['price'] for p in price_items]
+    colors = [_MAKER_COLORS.get(p['maker'], _DEFAULT_COLOR)['bg'] for p in price_items]
+    borders = [_MAKER_COLORS.get(p['maker'], _DEFAULT_COLOR)['border'] for p in price_items]
+
+    return {
+        'type': 'price_map',
+        'data': {
+            'labels': labels,
+            'values': data,
+            'colors': colors,
+            'borders': borders,
+            'base_price': base_product.get('price_numeric'),
+            'base_model': base_product.get('model', ''),
+        }
+    }
+
+
 def handle_analyze_framework(args, session):
     """フレームワーク分析（競合DBファクトベース）"""
     framework = args.get('framework')
@@ -793,10 +1033,6 @@ def handle_analyze_framework(args, session):
     cache_key = framework
     if framework == 'positioning' and axis_x and axis_y:
         cache_key = f"positioning_{axis_x}_{axis_y}"
-    cached = session.get('framework_results', {}).get(cache_key)
-    if cached:
-        return {"framework": framework, "result": cached, "cached": True}
-
     # 分析コンテキスト構築
     base = session.get('base_product')
     if not base:
@@ -818,6 +1054,19 @@ def handle_analyze_framework(args, session):
     category_products = _search_products(category=base.get('category'))
     pb_card = session.get('pb_card', {})
     competitor_summary = _build_competitor_summary(category_products, base)
+
+    cached = session.get('framework_results', {}).get(cache_key)
+    if cached:
+        # キャッシュヒット時もビジュアルは生成
+        visual = _generate_framework_visual(
+            framework, category_products, base,
+            axis_x=axis_x, axis_y=axis_y,
+        )
+        if visual:
+            if '_pending_visuals' not in session:
+                session['_pending_visuals'] = []
+            session['_pending_visuals'].append(visual)
+        return {"framework": framework, "result": cached, "cached": True}
 
     # --- ポジショニング: 軸未指定時は候補を返す ---
     if framework == 'positioning' and (not axis_x or not axis_y):
@@ -948,6 +1197,16 @@ def handle_analyze_framework(args, session):
     if 'framework_results' not in session:
         session['framework_results'] = {}
     session['framework_results'][cache_key] = analysis_result
+
+    # ビジュアルデータ生成
+    visual = _generate_framework_visual(
+        framework, category_products, base,
+        axis_x=axis_x, axis_y=axis_y,
+    )
+    if visual:
+        if '_pending_visuals' not in session:
+            session['_pending_visuals'] = []
+        session['_pending_visuals'].append(visual)
 
     return {"framework": framework, "result": analysis_result, "cached": False}
 
@@ -1791,6 +2050,7 @@ def chat():
         "pb_card": session.get('pb_card', {}),
         "base_product": session.get('base_product'),
         "framework_results": list(session.get('framework_results', {}).keys()),
+        "framework_visuals": session.pop('_pending_visuals', []),
         "download_urls": download_urls,
         "confirmed_specs_count": len(session.get('confirmed_specs', [])),
         "spec_changes_count": len(session.get('spec_changes', [])),
