@@ -21,7 +21,10 @@ from flask import (Flask, Response, abort, jsonify, request,
 
 load_dotenv()
 
-CLAUDE_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+CLAUDE_API_KEY = (os.environ.get('ANTHROPIC_API_KEY')
+                  or os.environ.get('CLAUDE_API_KEY')
+                  or os.environ.get('API_KEY')
+                  or '')
 
 app = Flask(__name__, static_folder='static')
 
@@ -954,7 +957,12 @@ def index():
 
 @app.route('/api/health')
 def health():
-    return jsonify({"status": "ok", "service": "pb-planner"})
+    return jsonify({
+        "status": "ok",
+        "service": "pb-planner",
+        "api_key_set": bool(CLAUDE_API_KEY),
+        "api_key_prefix": CLAUDE_API_KEY[:10] + '...' if CLAUDE_API_KEY else 'NOT SET',
+    })
 
 
 @app.route('/api/chat', methods=['POST'])
