@@ -568,7 +568,7 @@ def _build_system_prompt(session):
 # ================================================================
 
 def handle_search_products(args, session):
-    """製品DB検索"""
+    """製品DB検索（1件ヒット時は自動的にベース製品としてリンク）"""
     results = _search_products(
         query=args.get('query'),
         category=args.get('category'),
@@ -579,6 +579,19 @@ def handle_search_products(args, session):
 
     if not results:
         return {"found": 0, "message": "該当する製品が見つかりませんでした。"}
+
+    # 型番完全一致 or 1件のみヒット → ベース製品として自動リンク
+    query = args.get('query', '')
+    auto_linked = None
+    if query:
+        for p in results:
+            if p.get('model', '').upper() == query.upper():
+                session['base_product'] = p
+                auto_linked = p.get('model')
+                break
+    if not auto_linked and len(results) == 1:
+        session['base_product'] = results[0]
+        auto_linked = results[0].get('model')
 
     # 結果フォーマット
     items = []
@@ -604,7 +617,10 @@ def handle_search_products(args, session):
                 item[rich_key] = p[rich_key]
         items.append(item)
 
-    return {"found": len(results), "showing": len(items), "products": items}
+    result = {"found": len(results), "showing": len(items), "products": items}
+    if auto_linked:
+        result["auto_linked_base_product"] = auto_linked
+    return result
 
 
 def handle_set_pb_field(args, session):
