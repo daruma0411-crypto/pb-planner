@@ -1,0 +1,19 @@
+# PB企画支援チャットボット — Dependencies
+
+# ── Web Framework ─────────────────────────────────────
+flask>=3.0.0
+gunicorn>=22.0.0
+
+# ── LLM Provider ─────────────────────────────────────
+anthropic>=0.40.0
+
+# ── Document Generation ──────────────────────────────
+openpyxl>=3.1.0
+python-docx>=1.1.0
+
+# ── Session Store ───────────────────────────────────
+redis>=5.0.0
+
+# ── Utilities ────────────────────────────────────────
+python-dotenv>=1.0.0
+requests>=2.32.0

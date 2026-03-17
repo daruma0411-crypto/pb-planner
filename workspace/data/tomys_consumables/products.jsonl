@@ -1,0 +1,3 @@
+{"id":"tomys-con-ac-1000","name":"洗浄液 AC-1000","model":"AC-1000","maker":"トミー精工","category":"consumable","usage":"汎用","description":"オートクレーブ用洗浄液。1L（5回分）。チャンバー内の水垢・スケール除去に。","specs":{"volume":"1L","usage_count":"5回分","type":"洗浄液"},"price":"¥8,900"}
+{"id":"tomys-con-ad-4000","name":"消臭剤 AD-4000","model":"AD-4000","maker":"トミー精工","category":"consumable","usage":"汎用","description":"オートクレーブ用消臭剤。4L。滅菌時の臭い対策に。","specs":{"volume":"4L","type":"消臭剤"},"price":"¥19,500"}
+{"id":"tomys-con-ad-18000","name":"消臭剤詰替 AD-18000","model":"AD-18000","maker":"トミー精工","category":"consumable","usage":"汎用","description":"オートクレーブ用消臭剤詰替用。18L。大容量でコスパに優れる。","specs":{"volume":"18L","type":"消臭剤詰替"},"price":"¥63,000"}
