@@ -434,8 +434,8 @@ function renderScatterChart(data) {
         }
       },
       scales: {
-        x: { title: { display: true, text: data.axis_x } },
-        y: { title: { display: true, text: data.axis_y } },
+        x: { title: { display: true, text: data.axis_x }, beginAtZero: false },
+        y: { title: { display: true, text: data.axis_y }, beginAtZero: false },
       }
     }
   });
