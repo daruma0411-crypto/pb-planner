@@ -812,19 +812,24 @@ _DEFAULT_COLOR = {'bg': 'rgba(158, 158, 158, 0.7)', 'border': '#9E9E9E'}
 
 def _generate_framework_visual(framework, category_products, base_product, **kwargs):
     """フレームワーク分析のビジュアルデータを生成"""
+    print(f"[VISUAL] Generating visual for: {framework}, products: {len(category_products)}, base: {base_product.get('model') if base_product else 'None'}", flush=True)
     try:
+        result = None
         if framework == 'swot':
-            return _gen_swot_visual(category_products, base_product)
+            result = _gen_swot_visual(category_products, base_product)
         elif framework == 'positioning':
-            return _gen_positioning_visual(
+            result = _gen_positioning_visual(
                 category_products, base_product,
                 kwargs.get('axis_x', ''), kwargs.get('axis_y', ''))
         elif framework == '5forces':
-            return _gen_5forces_visual(category_products, base_product)
+            result = _gen_5forces_visual(category_products, base_product)
         elif framework == 'price_map':
-            return _gen_price_map_visual(category_products, base_product)
+            result = _gen_price_map_visual(category_products, base_product)
+        print(f"[VISUAL] Result for {framework}: {'OK (type=' + result.get('type', '?') + ')' if result else 'None'}", flush=True)
+        return result
     except Exception as e:
-        print(f"[VISUAL] Error generating {framework}: {e}", flush=True, file=sys.stderr)
+        import traceback
+        print(f"[VISUAL] Error generating {framework}: {e}\n{traceback.format_exc()}", flush=True)
     return None
 
 
@@ -1946,12 +1951,16 @@ def _call_claude_with_tools(messages, system_prompt, session):
             tool_input = tc.get('input', {})
             tool_id = tc['id']
 
+            print(f"[TOOL] Calling: {tool_name}({json.dumps(tool_input, ensure_ascii=False)[:200]})", flush=True)
             handler = _TOOL_HANDLERS.get(tool_name)
             if handler:
                 try:
                     result_data = handler(tool_input, session)
+                    pending = session.get('_pending_visuals', [])
+                    print(f"[TOOL] {tool_name} done. _pending_visuals count: {len(pending)}", flush=True)
                 except Exception as e:
                     result_data = {"error": str(e)}
+                    print(f"[TOOL] {tool_name} ERROR: {e}", flush=True)
             else:
                 result_data = {"error": f"Unknown tool: {tool_name}"}
 
