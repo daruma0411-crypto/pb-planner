@@ -1237,7 +1237,14 @@ def handle_analyze_framework(args, session):
 def handle_generate_pim_excel(args, session):
     """PIMデータExcel生成"""
     pb = session.get('pb_card', {})
-    unfilled = [k for k, v in pb.items() if v is None]
+
+    # spec_diffをspec_changesから自動生成（未設定の場合）
+    spec_changes = session.get('spec_changes', [])
+    if not pb.get('spec_diff') and spec_changes:
+        pb['spec_diff'] = _generate_spec_diff_summary(spec_changes)
+
+    # spec_diff以外の未確定項目をチェック
+    unfilled = [k for k, v in pb.items() if v is None and k != 'spec_diff']
     if unfilled:
         return {"error": f"未確定項目があります: {', '.join(unfilled)}"}
 
@@ -2067,15 +2074,15 @@ def chat():
     # AIの返答を履歴に追加
     session['history'].append({"role": "assistant", "content": reply_text})
 
-    # セッション保存
-    save_session(session_id, session)
-
-    # spec_diffをspec_changesから自動生成（変更があればPBカードに反映）
+    # spec_diffをspec_changesから自動生成（save_sessionの前に実行）
     spec_changes = session.get('spec_changes', [])
     if spec_changes:
         pb_card = session.get('pb_card', {})
         pb_card['spec_diff'] = _generate_spec_diff_summary(spec_changes)
         session['pb_card'] = pb_card
+
+    # セッション保存（spec_diff反映後に保存）
+    save_session(session_id, session)
 
     # レスポンス構築
     response = {
