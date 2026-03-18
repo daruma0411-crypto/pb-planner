@@ -220,6 +220,10 @@ function sendMessage() {
   .then(function(data) {
     removeTyping();
     setSending(false);
+    console.log('[DEBUG] API response keys:', Object.keys(data));
+    console.log('[DEBUG] download_urls:', JSON.stringify(data.download_urls));
+    console.log('[DEBUG] pb_card catchcopy:', data.pb_card ? data.pb_card.catchcopy : 'no pb_card');
+    console.log('[DEBUG] pb_card spec_diff:', data.pb_card ? data.pb_card.spec_diff : 'no pb_card');
 
     // AIの返答表示
     if (data.reply) {
