@@ -675,6 +675,30 @@ header {
   color: #666;
 }
 
+/* ダウンロードリンク */
+.download-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+.download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--c-accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.download-link:hover {
+  background: #b91c1c;
+}
+
 /* Chart.js コンテナ */
 .chart-container {
   position: relative;

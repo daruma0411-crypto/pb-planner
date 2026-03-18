@@ -2070,6 +2070,13 @@ def chat():
     # セッション保存
     save_session(session_id, session)
 
+    # spec_diffをspec_changesから自動生成（変更があればPBカードに反映）
+    spec_changes = session.get('spec_changes', [])
+    if spec_changes:
+        pb_card = session.get('pb_card', {})
+        pb_card['spec_diff'] = _generate_spec_diff_summary(spec_changes)
+        session['pb_card'] = pb_card
+
     # レスポンス構築
     response = {
         "reply": reply_text,

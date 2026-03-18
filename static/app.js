@@ -149,11 +149,18 @@ function updatePbCard(card) {
     if (!el) return;
     var val = card[f];
     if (val) {
-      el.textContent = val;
+      // spec_diffは長いので省略表示
+      if (f === 'spec_diff' && val.length > 20) {
+        var changeCount = (val.match(/\uff0f/g) || []).length + 1; // ／で区切り
+        el.textContent = '\u25cf\u6e08 (' + changeCount + '\u4ef6)';
+        el.title = val; // ホバーで全文表示
+      } else {
+        el.textContent = val;
+      }
       el.className = 'pb-value confirmed';
       filled++;
     } else {
-      el.textContent = '—';
+      el.textContent = '\u2014';
       el.className = 'pb-value';
     }
   });
@@ -233,6 +240,17 @@ function sendMessage() {
       data.framework_visuals.forEach(function(vis) {
         renderFrameworkVisual(vis);
       });
+    }
+
+    // ダウンロードリンク表示
+    if (data.download_urls && data.download_urls.length > 0) {
+      var dlHtml = '<div class="download-links">';
+      data.download_urls.forEach(function(item) {
+        dlHtml += '<a class="download-link" href="' + escHtml(item.download_url) + '" target="_blank">' +
+                  '\uD83D\uDCE5 ' + escHtml(item.filename) + '</a>';
+      });
+      dlHtml += '</div>';
+      appendAIBubble(dlHtml);
     }
   })
   .catch(function(err) {
