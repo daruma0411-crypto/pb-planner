@@ -76,8 +76,8 @@ function simpleMarkdown(text) {
   // 段落
   s = s.replace(/\n\n/g, '</p><p>');
   s = s.replace(/\n/g, '<br>');
-  // ダウンロードリンク検出
-  s = s.replace(/\/api\/download\/([^\s<"]+)/g, '<a class="download-link" href="/api/download/$1" target="_blank">📥 ダウンロード: $1</a>');
+  // ダウンロードURL参照をテキストから除去（download_urlsハンドラで表示するため）
+  s = s.replace(/\[?[^\]]*\]?\(?\/api\/download\/[^\s<")\]]+\)?/g, '');
   return '<p>' + s + '</p>';
 }
 
