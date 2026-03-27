@@ -27,9 +27,9 @@ function escHtml(str) {
   return d.innerHTML;
 }
 
-function scrollBottom() {
+function scrollToLatest() {
   var el = document.getElementById('chat-messages');
-  if (el) el.scrollTop = el.scrollHeight;
+  if (el) el.scrollTop = 0;
 }
 
 function adjustHeight() {
@@ -95,8 +95,8 @@ function appendUserBubble(text) {
   msg.innerHTML =
     '<div class="msg-bubble">' + escHtml(text) + '</div>' +
     '<div class="msg-avatar">👤</div>';
-  container.appendChild(msg);
-  scrollBottom();
+  container.prepend(msg);
+  scrollToLatest();
 }
 
 function appendAIBubble(html) {
@@ -107,8 +107,8 @@ function appendAIBubble(html) {
   msg.innerHTML =
     '<div class="msg-avatar">🤖</div>' +
     '<div class="msg-bubble">' + html + '</div>';
-  container.appendChild(msg);
-  scrollBottom();
+  container.prepend(msg);
+  scrollToLatest();
   return msg;
 }
 
@@ -126,8 +126,8 @@ function appendTyping() {
     '<span class="typing-dot"></span>' +
     '<span class="typing-dot"></span>' +
     '</div></div>';
-  container.appendChild(msg);
-  scrollBottom();
+  container.prepend(msg);
+  scrollToLatest();
   return msg;
 }
 
@@ -468,7 +468,7 @@ function renderScatterChart(data) {
       }
     }
   });
-  scrollBottom();
+  scrollToLatest();
 }
 
 function renderForcesChart(data) {
@@ -592,5 +592,5 @@ function renderPriceBar(data) {
     },
     plugins: plugins,
   });
-  scrollBottom();
+  scrollToLatest();
 }

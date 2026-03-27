@@ -30,7 +30,7 @@ body {
   font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-outer);
   color: var(--c-text);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ================================================================
@@ -247,7 +247,7 @@ header {
 
 .msg {
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   gap: 8px;
 }
 
@@ -274,10 +274,10 @@ header {
 
 .msg-bubble {
   max-width: 80%;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 16px;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   word-break: break-word;
 }
 
@@ -294,7 +294,7 @@ header {
   border: 1px solid var(--c-border);
 }
 
-.msg-bubble p { margin: 0 0 8px; }
+.msg-bubble p { margin: 0 0 4px; }
 .msg-bubble p:last-child { margin-bottom: 0; }
 
 .msg-bubble ul, .msg-bubble ol {
@@ -606,53 +606,86 @@ header {
 .swot-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  border-radius: 8px;
+  gap: 6px;
+  border-radius: 12px;
   overflow: hidden;
-  margin: 8px 0;
+  margin: 12px 0;
 }
 .swot-cell {
-  padding: 12px;
-  min-height: 80px;
+  padding: 16px;
+  min-height: 100px;
+  border-radius: 10px;
+  border: 1px solid transparent;
 }
 .swot-cell ul {
-  margin: 4px 0 0 16px;
+  margin: 8px 0 0 4px;
   padding: 0;
-  font-size: 12px;
-  list-style: disc;
+  font-size: 13px;
+  list-style: none;
 }
 .swot-cell li {
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.4;
 }
+.swot-cell li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.swot-s li::before { background: #2E7D32; }
+.swot-w li::before { background: #C62828; }
+.swot-o li::before { background: #1565C0; }
+.swot-t li::before { background: #E65100; }
 .swot-label {
-  font-weight: 700;
-  font-size: 13px;
-  margin-bottom: 4px;
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.swot-s { background: #E8F5E9; color: #2E7D32; }
+.swot-label::before {
+  font-size: 16px;
+}
+.swot-s { background: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
 .swot-s .swot-label { color: #1B5E20; }
-.swot-w { background: #FFEBEE; color: #C62828; }
+.swot-s .swot-label::before { content: '💪'; }
+.swot-w { background: #FFEBEE; color: #C62828; border-color: #FFCDD2; }
 .swot-w .swot-label { color: #B71C1C; }
-.swot-o { background: #E3F2FD; color: #1565C0; }
+.swot-w .swot-label::before { content: '⚠️'; }
+.swot-o { background: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
 .swot-o .swot-label { color: #0D47A1; }
-.swot-t { background: #FFF3E0; color: #E65100; }
+.swot-o .swot-label::before { content: '🎯'; }
+.swot-t { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
 .swot-t .swot-label { color: #BF360C; }
+.swot-t .swot-label::before { content: '🔥'; }
 
 /* 5Forces ダイヤモンド配置 */
 .forces-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: auto auto auto;
-  gap: 4px;
-  margin: 8px 0;
-  padding: 8px;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 12px;
 }
 .force-box {
-  background: #F5F5F5;
-  border-radius: 8px;
-  padding: 10px;
+  background: #FAFAFA;
+  border-radius: 10px;
+  padding: 14px 10px;
   text-align: center;
   border: 1px solid #E0E0E0;
+  transition: border-color .2s, box-shadow .2s;
+}
+.force-box:hover {
+  border-color: var(--c-accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .force-top { grid-column: 2; grid-row: 1; }
 .force-left { grid-column: 1; grid-row: 2; }
@@ -661,18 +694,19 @@ header {
 .force-bottom { grid-column: 2; grid-row: 3; }
 .force-label {
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .force-dots {
-  font-size: 16px;
-  letter-spacing: 2px;
-  margin-bottom: 4px;
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
 }
 .force-detail {
-  font-size: 10px;
-  color: #666;
+  font-size: 11px;
+  color: #555;
+  line-height: 1.4;
 }
 
 /* ダウンロードリンク */
@@ -714,9 +748,15 @@ header {
 @media (max-width: 480px) {
   .swot-grid {
     grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .swot-cell {
+    padding: 12px;
+    min-height: auto;
   }
   .forces-grid {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
   .force-top, .force-left, .force-center, .force-right, .force-bottom {
     grid-column: 1;
