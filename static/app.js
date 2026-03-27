@@ -520,7 +520,11 @@ function renderForcesChart(data) {
 
 function renderPriceBar(data) {
   var container = document.createElement('div');
-  container.className = 'chart-container chart-container-tall';
+  container.className = 'chart-container';
+  // 製品数に応じた高さ（1製品あたり40px + 余白80px）
+  var barCount = (data.labels || []).length;
+  var chartHeight = Math.max(200, barCount * 40 + 80);
+  container.style.height = chartHeight + 'px';
   var canvas = document.createElement('canvas');
   container.appendChild(canvas);
 
@@ -529,6 +533,24 @@ function renderPriceBar(data) {
   bubble.appendChild(container);
 
   var plugins = [];
+  // バーの右端に価格ラベルを表示
+  plugins.push({
+    id: 'barValueLabels',
+    afterDatasetsDraw: function(chart) {
+      var ctx = chart.ctx;
+      ctx.save();
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = '#333';
+      ctx.textBaseline = 'middle';
+      chart.data.datasets[0].data.forEach(function(val, i) {
+        var meta = chart.getDatasetMeta(0);
+        var bar = meta.data[i];
+        var label = val >= 1000000 ? '\u00A5' + (val/10000).toFixed(0) + '\u4E07' : '\u00A5' + val.toLocaleString();
+        ctx.fillText(label, bar.x + 6, bar.y);
+      });
+      ctx.restore();
+    }
+  });
   if (data.base_price) {
     plugins.push({
       id: 'basePriceLine',
@@ -545,8 +567,8 @@ function renderPriceBar(data) {
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.fillStyle = '#E60012';
-        ctx.font = '11px sans-serif';
-        ctx.fillText('\u25BC ' + data.base_model, x + 4, chart.chartArea.top + 12);
+        ctx.font = '12px sans-serif';
+        ctx.fillText('\u25BC ' + data.base_model, x + 4, chart.chartArea.top + 14);
         ctx.restore();
       }
     });
@@ -562,13 +584,19 @@ function renderPriceBar(data) {
         backgroundColor: data.colors,
         borderColor: data.borders,
         borderWidth: 1,
+        barThickness: 24,
+        maxBarThickness: 32,
       }]
     },
     options: {
       indexAxis: 'y',
       responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: { right: 20 }
+      },
       plugins: {
-        title: { display: true, text: '\u4FA1\u683C\u5E2F\u30DE\u30C3\u30D7', font: {size: 14} },
+        title: { display: true, text: '\u4FA1\u683C\u5E2F\u30DE\u30C3\u30D7', font: {size: 14, weight: 'bold'}, padding: {bottom: 12} },
         legend: { display: false },
         tooltip: {
           callbacks: {
@@ -580,14 +608,21 @@ function renderPriceBar(data) {
       },
       scales: {
         x: {
-          title: { display: true, text: '\u4FA1\u683C (\u5186)' },
+          title: { display: true, text: '\u4FA1\u683C (\u5186)', font: {size: 12} },
           ticks: {
+            font: { size: 11 },
             callback: function(val) {
+              if (val >= 1000000) return '\u00A5' + (val / 10000).toFixed(0) + '\u4E07';
               return '\u00A5' + val.toLocaleString();
-            }
-          }
+            },
+            maxTicksLimit: 6,
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' },
         },
-        y: { ticks: { font: { size: 11 } } }
+        y: {
+          ticks: { font: { size: 12 }, padding: 4 },
+          grid: { display: false },
+        }
       }
     },
     plugins: plugins,

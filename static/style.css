@@ -737,11 +737,11 @@ header {
 .chart-container {
   position: relative;
   width: 100%;
-  max-width: 640px;
+  max-width: 100%;
   margin: 12px 0;
 }
 .chart-container-tall {
-  min-height: 420px;
+  min-height: 0;
 }
 
 /* レスポンシブ: ビジュアル */
