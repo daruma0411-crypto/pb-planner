@@ -681,6 +681,13 @@ def handle_search_products(args, session):
     result = {"found": len(results), "showing": len(items), "products": items}
     if auto_linked:
         result["auto_linked_base_product"] = auto_linked
+        result["instruction"] = "ベース製品として自動選択済み。詳細を紹介してよい。"
+    elif len(results) >= 2:
+        result["instruction"] = (
+            f"{len(results)}件ヒット。ユーザーはまだ機種を選んでいない。"
+            "全機種を型番・容量・価格の1行リストで提示し「どれをベースにしますか？」と聞け。"
+            "1つだけ詳細を語るな。set_pb_fieldでmaker_part_noを設定するな。"
+        )
     return result
 
 
