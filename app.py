@@ -424,15 +424,14 @@ FC_TOOLS = [
 _PB_CONSULTANT_SYSTEM_PROMPT = """\
 あなたはアズワンPB企画の専門コンサルタントです。仕入れ先の製品データを元に、PB化の壁打ちパートナーとしてユーザーと進めます。
 
-## 最重要ルール：会話の文脈を読め
+## 最重要ルール
 
-あなたの最大の仕事は「ユーザーの話を聞くこと」。以下を絶対に守れ：
-
-1. **聞き返すな、動け。** ユーザーの意図が文脈から分かるなら即座にツールを呼べ。「確定しますか？」「よろしいですか？」は禁止。
-2. **前の会話を忘れるな。** 会話で出た製品名・型番・価格・分析結果はすべて覚えていること。「先に製品を確定してください」と言い返すのは最悪の対応。
-3. **一度に処理しろ。** ユーザーが「品番：200003003、JAN：9000021、入数：1」と言ったら、3つとも一度にset_pb_fieldで確定。1つだけ確定して残りを聞き返すのは禁止。
-4. **既に確定した値を忘れるな。** PBカードに既に入っている値は触るな。新しく指示された値だけ追加・更新しろ。
-5. **ユーザーの指示した書式に従え。** 「連番ふって」→ 1,2,3...の通し番号を全項目に振れ（カテゴリで途切れさせるな）。「表にして」→ テーブル形式。「一覧」→ 全項目を漏れなく。ユーザーが後から「8番を変更」と言えるように番号は必ず振ること。
+1. **聞き返すな、動け。** 意図が分かるなら即ツール実行。「確定しますか？」禁止。
+2. **前の会話を忘れるな。** 製品名・型番・価格はすべて覚えていること。
+3. **一度に処理しろ。** 複数値は一度に全部set_pb_field。
+4. **値が決まったら即set_pb_field。** 価格「75万」→即set_pb_field(price, "750,000")。キャッチコピーをユーザーが選んだ→即set_pb_field(catchcopy, "...")。「次のステップ」の提案の前にまずツールを呼べ。
+5. **回答は短く。** 長文禁止。箇条書き3〜5個まで。「次は何から進めましょうか？」のようなメニュー提示は不要。
+6. **ファイル生成ツールは必ず呼べ。** 「Excelを生成して」→generate_pim_excelツールを呼ぶ。テキストで内容を説明するだけは禁止。ツールを呼べばダウンロードリンクが自動表示される。
 
 ## 具体的なNG/OK例
 
@@ -447,6 +446,18 @@ OK: （「90万円で」と言われたらset_pb_field即実行）
 
 NG: 品番設定後に「残り4項目を決めましょう！」と言って既に設定済みの項目を未確定表示
 OK: 既に確定済みの項目はそのまま維持し、新しく設定した項目だけ報告
+
+NG: ユーザー「75万円で」→「価格を75万円に設定しました。次はキャッチコピーを考えましょう！競合分析も...」と長文
+OK: set_pb_field(price,"750,000")を呼ぶ→「価格75万円で確定しました」の一行のみ
+
+NG: 「企画書を生成して」→ テキストで企画書の内容を説明する
+OK: generate_proposal_wordツールを呼ぶ（ダウンロードリンクが自動表示される）
+
+NG: 「PIMデータExcelを生成して」→ ツールを呼ばずに「Excelの内容は以下のとおりです...」
+OK: generate_pim_excelツールを呼ぶ
+
+NG: キャッチコピー案を3つ出して、ユーザーが「1番で」→テキストで「1番に決定しました！」
+OK: ユーザーが「1番で」→即set_pb_field(catchcopy, "選ばれたコピー")を呼ぶ
 
 NG: 「連番ふって」と言われてカテゴリ見出し+箇条書きで返す（番号なし）。**太字ラベル**や箇条書き(-)で返すのもNG。
 OK: 必ず以下の書式で返す：
@@ -830,7 +841,9 @@ def _generate_framework_visual(framework, category_products, base_product, **kwa
     print(f"[VISUAL] Generating visual for: {framework}, products: {len(category_products)}, base: {base_product.get('model') if base_product else 'None'}", flush=True)
     try:
         result = None
-        if framework == 'swot':
+        if framework == '3c':
+            result = _gen_3c_visual(category_products, base_product)
+        elif framework == 'swot':
             result = _gen_swot_visual(category_products, base_product)
         elif framework == 'positioning':
             result = _gen_positioning_visual(
@@ -846,6 +859,51 @@ def _generate_framework_visual(framework, category_products, base_product, **kwa
         import traceback
         print(f"[VISUAL] Error generating {framework}: {e}\n{traceback.format_exc()}", flush=True)
     return None
+
+
+def _gen_3c_visual(category_products, base_product):
+    """3C分析（Customer/Competitor/Company）グリッド用データ"""
+    base_maker = base_product.get('maker', '')
+    base_specs = base_product.get('specs', {})
+    comp_makers = set(p.get('maker', '') for p in category_products if p.get('maker') != base_maker)
+    comp_prices = [p.get('price_numeric') for p in category_products if p.get('price_numeric') and p.get('maker') != base_maker]
+
+    # Customer（顧客）
+    customer = []
+    usage = base_product.get('usage', '')
+    if usage:
+        customer.append(f'主要用途: {usage}')
+    customer.append(f'同カテゴリ {len(category_products)}製品から選定')
+    if base_product.get('design_concept'):
+        customer.append(base_product['design_concept'][:60])
+    if not customer:
+        customer.append('顧客ニーズ要調査')
+
+    # Competitor（競合）
+    competitor = []
+    competitor.append(f'競合 {len(comp_makers)}社: {", ".join(list(comp_makers)[:4])}')
+    if comp_prices:
+        competitor.append(f'価格帯 ¥{min(comp_prices):,.0f}〜¥{max(comp_prices):,.0f}')
+        competitor.append(f'競合{len(comp_prices)}機種/平均¥{sum(comp_prices)//len(comp_prices):,.0f}')
+
+    # Company（自社）
+    company = []
+    company.append(f'ベース: {base_product.get("name", base_product.get("model", ""))}')
+    base_price = base_product.get('price_numeric')
+    if base_price:
+        company.append(f'現行価格: ¥{base_price:,.0f}')
+    cap = base_specs.get('有効容量', base_specs.get('缶体有効内容積', ''))
+    if cap:
+        company.append(f'容量: {cap}')
+
+    return {
+        "type": "3c",
+        "data": {
+            "customer": customer,
+            "competitor": competitor,
+            "company": company,
+        }
+    }
 
 
 def _gen_swot_visual(category_products, base_product):
@@ -1924,7 +1982,7 @@ def _call_claude_with_tools(messages, system_prompt, session):
 
     payload = {
         "model": "claude-sonnet-4-20250514",
-        "max_tokens": 4096,
+        "max_tokens": 2048,
         "system": system_prompt,
         "messages": messages,
         "tools": FC_TOOLS,

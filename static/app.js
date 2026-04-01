@@ -370,11 +370,32 @@ document.addEventListener('DOMContentLoaded', function() {
 function renderFrameworkVisual(vis) {
   if (!vis || !vis.type) return;
   switch (vis.type) {
+    case '3c': render3cGrid(vis.data); break;
     case 'swot': renderSwotGrid(vis.data); break;
     case 'positioning': renderScatterChart(vis.data); break;
     case '5forces': renderForcesChart(vis.data); break;
     case 'price_map': renderPriceBar(vis.data); break;
   }
+}
+
+function render3cGrid(data) {
+  var sections = [
+    {key: 'customer', label: '👥 Customer（顧客）', cls: 'c3-customer'},
+    {key: 'competitor', label: '⚔️ Competitor（競合）', cls: 'c3-competitor'},
+    {key: 'company', label: '🏢 Company（自社）', cls: 'c3-company'},
+  ];
+  var html = '<div class="c3-grid">';
+  sections.forEach(function(s) {
+    html += '<div class="c3-cell ' + s.cls + '">';
+    html += '<div class="c3-label">' + s.label + '</div>';
+    html += '<ul>';
+    (data[s.key] || []).forEach(function(item) {
+      html += '<li>' + escHtml(item) + '</li>';
+    });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+  appendAIBubble(html);
 }
 
 function renderSwotGrid(data) {
