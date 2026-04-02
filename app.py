@@ -2238,7 +2238,7 @@ def chat():
     base = session.get('base_product')
     _base_after = (base or {}).get('model')
     _base_changed = (_base_before != _base_after and _base_after is not None)
-    _spec_keywords = any(w in user_msg for w in ['仕様', 'スペック', '諸元', '連番', '規格', '商品情報', '製品情報'])
+    _spec_keywords = any(w in user_msg for w in ['仕様', 'スペック', '諸元', '連番', '規格', '商品情報', '製品情報', '情報', 'スペ', '出して'])
     if base and base.get('specs') and (_base_changed or _spec_keywords):
         specs = base['specs']
         lines = []
