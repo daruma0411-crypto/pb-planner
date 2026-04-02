@@ -221,9 +221,21 @@ function sendMessage() {
     removeTyping();
     setSending(false);
 
-    // AIの返答表示
+    // AIの返答 + DLリンクを同じバブルに結合表示
+    var replyHtml = '';
     if (data.reply) {
-      appendAIBubble(simpleMarkdown(data.reply));
+      replyHtml += simpleMarkdown(data.reply);
+    }
+    if (data.download_urls && data.download_urls.length > 0) {
+      replyHtml += '<div class="download-links">';
+      data.download_urls.forEach(function(item) {
+        replyHtml += '<a class="download-link" href="' + escHtml(item.download_url) + '" target="_blank">' +
+                  '\uD83D\uDCE5 ' + escHtml(item.filename) + '</a>';
+      });
+      replyHtml += '</div>';
+    }
+    if (replyHtml) {
+      appendAIBubble(replyHtml);
     }
 
     // セッションID同期
@@ -240,17 +252,6 @@ function sendMessage() {
       data.framework_visuals.forEach(function(vis) {
         renderFrameworkVisual(vis);
       });
-    }
-
-    // ダウンロードリンク表示
-    if (data.download_urls && data.download_urls.length > 0) {
-      var dlHtml = '<div class="download-links">';
-      data.download_urls.forEach(function(item) {
-        dlHtml += '<a class="download-link" href="' + escHtml(item.download_url) + '" target="_blank">' +
-                  '\uD83D\uDCE5 ' + escHtml(item.filename) + '</a>';
-      });
-      dlHtml += '</div>';
-      appendAIBubble(dlHtml);
     }
   })
   .catch(function(err) {
