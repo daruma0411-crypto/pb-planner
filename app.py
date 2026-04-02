@@ -2212,9 +2212,8 @@ def chat():
     # セッション保存（spec_diff反映後に保存）
     save_session(session_id, session)
 
-    # --- 仕様諸元が含まれる場合、箇条書きを強制連番変換 ---
-    confirmed = session.get('confirmed_specs', [])
-    if confirmed and reply_text:
+    # --- 箇条書き→連番を無条件で強制変換 ---
+    if reply_text:
         import re
         lines = reply_text.split('\n')
         new_lines = []
@@ -2222,7 +2221,7 @@ def chat():
         for line in lines:
             stripped = line.strip()
             # 箇条書き（•, -, *）で始まり「項目名: 値」パターンの行を連番に変換
-            m = re.match(r'^[\u2022\-\*]\s+(.+?:\s*.+)$', stripped)
+            m = re.match(r'^[\u2022\-\*]\s+(.+?[:：]\s*.+)$', stripped)
             if m:
                 new_lines.append(f'{num}. {m.group(1)}')
                 num += 1

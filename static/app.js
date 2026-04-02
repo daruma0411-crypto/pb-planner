@@ -61,11 +61,16 @@ function simpleMarkdown(text) {
   if (!text) return '';
   // エスケープ
   var s = escHtml(text);
+  // 箇条書き(•/-/*)で「項目名: 値」パターン → 番号付きに強制変換
+  var specNum = 1;
+  s = s.replace(/^[•\-\*]\s+(.+?[:：]\s*.+)$/gm, function(match, p1) {
+    return (specNum++) + '. ' + p1;
+  });
   // 太字
   s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   // コード
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // リスト
+  // 残りの箇条書き（項目:値パターン以外）
   s = s.replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>');
   s = s.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
   // 番号リスト
