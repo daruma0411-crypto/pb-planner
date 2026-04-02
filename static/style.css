@@ -732,6 +732,29 @@ header {
   .c3-grid { grid-template-columns: 1fr; }
 }
 
+/* スペック連番リスト（サーバーサイド生成） */
+.spec-numbered {
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+.spec-numbered h4 {
+  color: #E60012;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+.spec-numbered ol {
+  margin: 0;
+  padding-left: 24px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.spec-numbered li {
+  padding: 2px 0;
+}
+
 /* ダウンロードリンク */
 .download-links {
   display: flex;

@@ -2189,6 +2189,9 @@ def chat():
     if len(session['history']) > 40:
         session['history'] = session['history'][-40:]
 
+    # ベース製品変更検知用
+    _base_before = (session.get('base_product') or {}).get('model')
+
     # システムプロンプト構築
     system_prompt = _build_system_prompt(session)
 
@@ -2229,12 +2232,27 @@ def chat():
                 new_lines.append(line)
         reply_text = '\n'.join(new_lines)
 
+    # --- ベース製品のスペック連番テキストをサーバーサイドで生成 ---
+    # 表示条件: ベース製品が新たに設定された or ユーザーがスペック/仕様を要求
+    spec_numbered_text = None
+    base = session.get('base_product')
+    _base_after = (base or {}).get('model')
+    _base_changed = (_base_before != _base_after and _base_after is not None)
+    _spec_keywords = any(w in user_msg for w in ['仕様', 'スペック', '諸元', '連番', '規格', '商品情報', '製品情報'])
+    if base and base.get('specs') and (_base_changed or _spec_keywords):
+        specs = base['specs']
+        lines = []
+        for i, (k, v) in enumerate(specs.items(), 1):
+            lines.append(f"{i}. {k}: {v}")
+        spec_numbered_text = "\n".join(lines)
+
     # レスポンス構築
     response = {
         "reply": reply_text,
         "session_id": session_id,
         "pb_card": session.get('pb_card', {}),
         "base_product": session.get('base_product'),
+        "spec_numbered": spec_numbered_text,
         "framework_results": list(session.get('framework_results', {}).keys()),
         "framework_visuals": session.pop('_pending_visuals', []),
         "download_urls": download_urls,

@@ -226,10 +226,19 @@ function sendMessage() {
     removeTyping();
     setSending(false);
 
-    // AIの返答 + DLリンクを同じバブルに結合表示
+    // AIの返答 + スペック連番 + DLリンクを同じバブルに結合表示
     var replyHtml = '';
     if (data.reply) {
       replyHtml += simpleMarkdown(data.reply);
+    }
+    // サーバー生成のスペック連番テキストを追加（AIフォーマットに依存しない）
+    if (data.spec_numbered) {
+      replyHtml += '<div class="spec-numbered"><h4>仕様諸元</h4><ol>';
+      data.spec_numbered.split('\n').forEach(function(line) {
+        var m = line.match(/^\d+\.\s+(.+)$/);
+        if (m) replyHtml += '<li>' + escHtml(m[1]) + '</li>';
+      });
+      replyHtml += '</ol></div>';
     }
     if (data.download_urls && data.download_urls.length > 0) {
       replyHtml += '<div class="download-links">';
