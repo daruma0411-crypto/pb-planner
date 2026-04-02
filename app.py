@@ -2215,25 +2215,7 @@ def chat():
     # セッション保存（spec_diff反映後に保存）
     save_session(session_id, session)
 
-    # --- 箇条書き→連番を無条件で強制変換 ---
-    if reply_text:
-        import re
-        lines = reply_text.split('\n')
-        new_lines = []
-        num = 1
-        for line in lines:
-            stripped = line.strip()
-            # 箇条書き（•, -, *）で始まり「項目名: 値」パターンの行を連番に変換
-            m = re.match(r'^[\u2022\-\*]\s+(.+?[:：]\s*.+)$', stripped)
-            if m:
-                new_lines.append(f'{num}. {m.group(1)}')
-                num += 1
-            else:
-                new_lines.append(line)
-        reply_text = '\n'.join(new_lines)
-
     # --- ベース製品のスペック連番テキストをサーバーサイドで生成 ---
-    # 表示条件: ベース製品が新たに設定された or ユーザーがスペック/仕様を要求
     spec_numbered_text = None
     base = session.get('base_product')
     _base_after = (base or {}).get('model')
@@ -2245,6 +2227,27 @@ def chat():
         for i, (k, v) in enumerate(specs.items(), 1):
             lines.append(f"{i}. {k}: {v}")
         spec_numbered_text = "\n".join(lines)
+
+    # --- spec_numberedを返す場合、AIの回答からスペック箇条書きを除去（二重表示防止） ---
+    if spec_numbered_text and reply_text:
+        import re
+        cleaned = []
+        for line in reply_text.split('\n'):
+            stripped = line.strip()
+            # 箇条書き or 番号付きで「項目: 値」パターン → 除去
+            if re.match(r'^[\u2022\-\*]\s+.+?[:：].+$', stripped):
+                continue
+            if re.match(r'^\d+\.\s+.+?[:：].+$', stripped):
+                continue
+            # 「仕様諸元」等の見出しも除去
+            if re.match(r'^(\*\*)?仕様諸元', stripped) or re.match(r'^(\*\*)?基本スペック', stripped):
+                continue
+            cleaned.append(line)
+        reply_text = '\n'.join(cleaned)
+        # 連続改行を整理
+        while '\n\n\n' in reply_text:
+            reply_text = reply_text.replace('\n\n\n', '\n\n')
+        reply_text = reply_text.strip()
 
     # レスポンス構築
     response = {
