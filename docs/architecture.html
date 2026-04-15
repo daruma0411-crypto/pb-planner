@@ -18,94 +18,137 @@
     --text: #e2e8f0;
     --text-dim: #94a3b8;
     --border: #334155;
-    --tooltip-bg: #0ea5e9;
-    --tooltip-text: #fff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 100%;
+  }
 
   body {
     font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.7;
-    padding: 0;
-  }
-
-  /* ===== Hero ===== */
-  .hero {
-    text-align: center;
-    padding: 60px 20px 40px;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1a1a3e 100%);
-    border-bottom: 1px solid var(--border);
-  }
-  .hero h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hero .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-dim);
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  .hero .badge-row {
-    margin-top: 20px;
+    height: 100vh;
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .badge {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid var(--border);
-    background: var(--card);
-  }
-  .badge.blue   { color: var(--accent);  border-color: var(--accent); }
-  .badge.purple { color: var(--accent2); border-color: var(--accent2); }
-  .badge.green  { color: var(--accent3); border-color: var(--accent3); }
-  .badge.orange { color: var(--accent4); border-color: var(--accent4); }
-
-  /* ===== Container ===== */
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 20px;
+    flex-direction: column;
   }
 
-  /* ===== Section ===== */
-  section {
-    margin-bottom: 56px;
+  /* ===== Slide Container ===== */
+  .slide-track {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
-  section > h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 8px;
+
+  .slide {
+    min-width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    scroll-snap-align: start;
+    overflow-y: auto;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .slide::after {
+    content: attr(data-page);
+    position: fixed;
+    bottom: 16px;
+    right: 24px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    pointer-events: none;
+    opacity: 0;
+  }
+  .slide:hover::after { opacity: 1; }
+
+  /* ===== Navigation Bar ===== */
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
   }
-  section > h2 .num {
+  .nav-bar a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .nav-bar a:hover,
+  .nav-bar a.active {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    background: rgba(30,41,59,0.85);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 1.6rem;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    backdrop-filter: blur(4px);
+  }
+  .nav-arrow:hover { background: var(--accent); color: var(--bg); }
+  .nav-arrow.prev { left: 16px; }
+  .nav-arrow.next { right: 16px; }
+
+  /* ===== Slide Title ===== */
+  .slide-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slide-title .num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     border-radius: 50%;
     background: var(--accent);
     color: var(--bg);
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 800;
     flex-shrink: 0;
   }
-  section > .section-lead {
+  .slide-lead {
     color: var(--text-dim);
     margin-bottom: 24px;
     font-size: 0.95rem;
@@ -158,14 +201,14 @@
   /* ===== Cards ===== */
   .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
   }
   .card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 24px;
+    padding: 20px;
     transition: border-color .2s, transform .15s;
   }
   .card:hover {
@@ -173,21 +216,54 @@
     transform: translateY(-2px);
   }
   .card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+    font-size: 1rem;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
   .card p, .card ul {
     color: var(--text-dim);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   .card ul { padding-left: 18px; }
-  .card ul li { margin-bottom: 4px; }
-  .card .icon {
-    font-size: 1.4rem;
-    flex-shrink: 0;
+  .card ul li { margin-bottom: 3px; }
+  .card .icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  /* ===== Glossary Section ===== */
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .glossary-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .glossary-item h4 {
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .glossary-item .en {
+    color: var(--accent2);
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  .glossary-item p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  .glossary-item .analogy {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.82rem;
+    color: var(--text);
   }
 
   /* ===== Mermaid ===== */
@@ -195,9 +271,9 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 32px 24px;
+    padding: 28px 20px;
     overflow-x: auto;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .mermaid { text-align: center; }
 
@@ -205,24 +281,22 @@
   .styled-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-    margin-top: 12px;
+    font-size: 0.85rem;
+    margin-top: 8px;
   }
   .styled-table th {
     background: var(--accent);
     color: var(--bg);
-    padding: 10px 14px;
+    padding: 8px 12px;
     text-align: left;
     font-weight: 700;
   }
   .styled-table td {
-    padding: 10px 14px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--border);
     color: var(--text-dim);
   }
-  .styled-table tr:hover td {
-    background: var(--card-hover);
-  }
+  .styled-table tr:hover td { background: var(--card-hover); }
 
   /* ===== Flow Steps ===== */
   .flow-steps {
@@ -247,16 +321,16 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 16px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
     transition: border-color .2s;
   }
   .flow-step:hover { border-color: var(--accent); }
   .flow-step::before {
     content: attr(data-step);
     position: absolute;
-    left: -32px;
-    top: 18px;
+    left: -17px;
+    top: 14px;
     width: 28px; height: 28px;
     border-radius: 50%;
     background: var(--accent);
@@ -267,230 +341,280 @@
     align-items: center;
     justify-content: center;
     transform: translateX(-50%);
-    left: -17px;
   }
-  .flow-step h4 { font-size: 1rem; margin-bottom: 6px; }
-  .flow-step p { color: var(--text-dim); font-size: 0.88rem; }
+  .flow-step h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-step p { color: var(--text-dim); font-size: 0.82rem; }
 
-  /* ===== Glossary Section ===== */
-  .glossary-grid {
+  /* ===== Code Block ===== */
+  .code-compare {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
+    margin-top: 12px;
   }
-  .glossary-item {
-    background: var(--card);
+  .code-block {
+    background: #0d1117;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    overflow: hidden;
   }
-  .glossary-item h4 {
-    color: var(--accent);
-    font-size: 1rem;
-    margin-bottom: 6px;
-  }
-  .glossary-item .en {
-    color: var(--accent2);
+  .code-block .code-header {
+    background: var(--card);
+    padding: 8px 14px;
     font-size: 0.8rem;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
   }
-  .glossary-item p {
+  .code-block pre {
+    padding: 12px 14px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    color: var(--text-dim);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    white-space: pre;
+  }
+  .code-block pre .key { color: #79c0ff; }
+  .code-block pre .str { color: #a5d6ff; }
+  .code-block pre .num { color: #f2cc60; }
+  .code-block pre .comment { color: #6e7681; }
+
+  /* ===== Anchor link style ===== */
+  .anchor-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+    font-weight: 600;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .anchor-link:hover {
+    color: var(--accent2);
+    border-color: var(--accent2);
+  }
+  .anchor-link::after {
+    content: ' →';
+    font-size: 0.85em;
+  }
+
+  /* ===== Highlight box ===== */
+  .highlight-box {
+    background: rgba(56,189,248,0.06);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 16px;
+  }
+  .highlight-box h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .highlight-box ul {
     color: var(--text-dim);
     font-size: 0.88rem;
+    padding-left: 18px;
   }
-  .glossary-item .analogy {
-    margin-top: 8px;
-    padding: 10px 14px;
-    background: rgba(56, 189, 248, 0.08);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-    font-size: 0.85rem;
-    color: var(--text);
-  }
+  .highlight-box ul li { margin-bottom: 4px; }
 
-  /* ===== Footer ===== */
-  footer {
-    text-align: center;
-    padding: 32px 20px;
-    color: var(--text-dim);
-    font-size: 0.8rem;
-    border-top: 1px solid var(--border);
+  /* ===== Railway box ===== */
+  .railway-box {
+    border: 2px solid var(--accent3);
+    border-radius: 16px;
+    padding: 20px;
+    background: rgba(52,211,153,0.04);
+    position: relative;
+  }
+  .railway-box .railway-label {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--bg);
+    padding: 0 10px;
+    color: var(--accent3);
+    font-weight: 700;
+    font-size: 0.9rem;
   }
 
   /* ===== Print ===== */
   @media print {
-    body { background: #fff; color: #222; }
-    .hero { background: #f0f4f8; border-bottom-color: #ccc; }
-    .hero h1 { -webkit-text-fill-color: #1e40af; }
-    .card, .mermaid-wrap, .flow-step, .glossary-item {
-      background: #fff; border-color: #ddd;
+    html { scroll-snap-type: none; overflow: auto; }
+    body { height: auto; }
+    .slide-track { flex-direction: column; overflow: visible; }
+    .slide {
+      min-width: auto; max-width: auto; height: auto;
+      page-break-after: always;
+      scroll-snap-align: none;
     }
+    .nav-bar, .nav-arrow { display: none; }
+    body { background: #fff; color: #222; }
+    .card, .mermaid-wrap, .flow-step, .glossary-item, .code-block { background: #fff; border-color: #ddd; }
     .term { color: #1e40af; }
     .styled-table th { background: #1e40af; color: #fff; }
   }
 
-  @media (max-width: 600px) {
-    .hero h1 { font-size: 1.5rem; }
+  @media (max-width: 768px) {
+    .slide { padding: 24px 20px; }
+    .slide-title { font-size: 1.3rem; }
     .card-grid { grid-template-columns: 1fr; }
     .glossary-grid { grid-template-columns: 1fr; }
-    .container { padding: 24px 16px; }
+    .code-compare { grid-template-columns: 1fr; }
+    .nav-arrow { display: none; }
     .term .tip { width: 260px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ==================== HERO ==================== -->
-<div class="hero">
-  <h1>PB企画プランナー</h1>
-  <p class="subtitle">
-    アズワン向け PB（プライベートブランド）企画支援チャットボット<br>
-    仕入れ先の製品データをもとに、AIと壁打ちしながらPB企画を進めるツール
-  </p>
-  <div class="badge-row">
-    <span class="badge blue">Flask + Python</span>
-    <span class="badge purple">Claude Sonnet 4</span>
-    <span class="badge green">Railway</span>
-    <span class="badge orange">Function Calling</span>
+<!-- ===== Navigation Arrows ===== -->
+<button class="nav-arrow prev" onclick="navigateSlide(-1)">&#8249;</button>
+<button class="nav-arrow next" onclick="navigateSlide(1)">&#8250;</button>
+
+<!-- ===== Slide Track ===== -->
+<div class="slide-track" id="slideTrack">
+
+<!-- ==================== SLIDE 0: TITLE ==================== -->
+<div class="slide" id="slide-title" data-page="1 / 9">
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <h1 style="font-size:2.6rem; font-weight:700; margin-bottom:16px; background:linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">PB企画プランナー</h1>
+    <p style="font-size:1.15rem; color:var(--text-dim); max-width:700px; margin-bottom:28px;">
+      アズワン向け PB（プライベートブランド）企画支援チャットボット<br>
+      仕入れ先の製品データをもとに、AIと壁打ちしながらPB企画を進めるツール
+    </p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+      <span style="display:inline-block; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; border:1px solid var(--accent); color:var(--accent); background:var(--card);">Flask + Python</span>
+      <span style="display:inline-block; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; border:1px solid var(--accent2); color:var(--accent2); background:var(--card);">Claude Sonnet 4</span>
+      <span style="display:inline-block; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; border:1px solid var(--accent3); color:var(--accent3); background:var(--card);">Railway</span>
+      <span style="display:inline-block; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; border:1px solid var(--accent4); color:var(--accent4); background:var(--card);">Function Calling</span>
+    </div>
+    <p style="margin-top:40px; color:var(--text-dim); font-size:0.85rem;">← → キーまたはスクロールでページ移動</p>
   </div>
 </div>
 
-<div class="container">
+<!-- ==================== SLIDE 1: 用語集 ==================== -->
+<div class="slide" id="slide-glossary" data-page="2 / 9">
+  <h2 class="slide-title"><span class="num">0</span> まず知っておきたい用語</h2>
+  <p class="slide-lead">このドキュメントで使われるAI・技術用語を、身近なたとえで解説します。</p>
 
-<!-- ==================== 0. 用語集 ==================== -->
-<section id="glossary">
-  <h2><span class="num">0</span> まず知っておきたい用語</h2>
-  <p class="section-lead">このドキュメントで使われるAI・技術用語を、身近なたとえで解説します。</p>
-
-  <div class="glossary-grid">
+  <div class="glossary-grid" style="flex:1;">
     <div class="glossary-item">
-      <h4>LLM（大規模言語モデル）</h4>
-      <div class="en">Large Language Model</div>
-      <p>大量のテキストデータから言語パターンを学習したAI。人間のように文章を理解し、生成できます。</p>
+      <h4>LLM / Claude Sonnet 4</h4>
+      <div class="en">Large Language Model — 本システムでは Anthropic 社の Claude Sonnet 4 を採用</div>
+      <p>大量のテキストデータから言語パターンを学習したAI。人間のように文章を理解し、生成できます。モデルにはサイズ違い（Haiku＜Sonnet＜Opus）があり、Sonnet はコストと性能のバランス型です。</p>
       <div class="analogy">
-        <strong>たとえ：</strong>世界中の本・論文・Webページを読んで育った、超博識な相談相手。ただし自分の記憶は持たない。
+        <strong>たとえ：</strong>世界中の本・論文・Webを読んで育った超博識な相談相手。ChatGPTの「GPT-4」に相当するもので、車でいえば車種名（カローラ、プリウス等）のようなもの。
       </div>
     </div>
 
-    <div class="glossary-item">
-      <h4>Claude Sonnet 4</h4>
-      <div class="en">Anthropic社の LLM モデル</div>
-      <p>本システムで使用しているLLMの具体的な製品名。Anthropic社が開発。複数のモデルサイズ（Haiku＜Sonnet＜Opus）があり、Sonnetはコストと性能のバランス型。</p>
-      <div class="analogy">
-        <strong>たとえ：</strong>ChatGPTの「GPT-4」にあたるもの。車でいえば車種名（カローラ、プリウス等）のようなもの。
-      </div>
-    </div>
-
-    <div class="glossary-item">
+    <div class="glossary-item" id="glossary-system-prompt">
       <h4>システムプロンプト</h4>
       <div class="en">System Prompt</div>
       <p>AIの「役割」「ルール」「性格」を定義する、ユーザーには見えない裏側の指示文。本システムでは約400行の詳細な指示でAIを「PB企画コンサルタント」に仕立てています。</p>
       <div class="analogy">
         <strong>たとえ：</strong>新人社員への研修マニュアル。「あなたはPB企画のプロです。お客様にはこう対応してください」という業務指示書。
       </div>
+      <p style="margin-top:8px;"><a class="anchor-link" href="#slide-ai-detail" onclick="goToSlide(4)">詳細を見る（AIの仕組み）</a></p>
     </div>
 
-    <div class="glossary-item">
+    <div class="glossary-item" id="glossary-fc">
       <h4>Function Calling（ツール呼び出し）</h4>
       <div class="en">Tool Use</div>
       <p>AIが「データベース検索」「Excel生成」などの<strong>外部機能を自分で判断して呼び出す</strong>仕組み。AIは文章生成だけでなく、システムの機能を操作できるようになります。</p>
       <div class="analogy">
-        <strong>たとえ：</strong>秘書が「調べておきますね」と言って自分で資料室に行って調べてくるイメージ。指示しなくても文脈から必要な行動を判断する。
+        <strong>たとえ：</strong>秘書が「調べておきますね」と言って自分で資料室に行って調べてくるイメージ。
       </div>
+      <p style="margin-top:8px;"><a class="anchor-link" href="#slide-ai-detail" onclick="goToSlide(4)">詳細を見る（AIの仕組み）</a></p>
     </div>
 
-    <div class="glossary-item">
+    <div class="glossary-item" id="glossary-api">
       <h4>API（エーピーアイ）</h4>
       <div class="en">Application Programming Interface</div>
       <p>ソフトウェア同士が通信するための「窓口」。本システムはClaude APIを通じてAIにテキストを送り、回答を受け取ります。</p>
       <div class="analogy">
         <strong>たとえ：</strong>レストランの注文カウンター。メニュー（仕様）に従って注文（リクエスト）すると料理（回答）が出てくる。
       </div>
+      <p style="margin-top:8px;"><a class="anchor-link" href="#slide-deploy" onclick="goToSlide(7)">デプロイ構成で確認する</a></p>
     </div>
 
-    <div class="glossary-item">
-      <h4>セッション</h4>
-      <div class="en">Session</div>
-      <p>ユーザーがシステムを使い始めてから終わるまでの「一連のやり取り」を記憶する仕組み。会話履歴やPBカードの状態を保持します。</p>
-      <div class="analogy">
-        <strong>たとえ：</strong>カフェでの打ち合わせ。席を立つまで（1時間）ノートに書いた内容が残る。別の日に来たら白紙からスタート。
-      </div>
-    </div>
-
-    <div class="glossary-item">
+    <div class="glossary-item" id="glossary-jsonl">
       <h4>JSONL（製品データ形式）</h4>
       <div class="en">JSON Lines</div>
       <p>1行に1製品の情報が入ったテキストファイル。Excelの1行＝1製品と同じ考え方で、プログラムが高速に読み書きできます。</p>
       <div class="analogy">
         <strong>たとえ：</strong>1行1枚の製品カード。Excelシートの行がそのままテキストファイルになったもの。
       </div>
+      <p style="margin-top:8px;"><a class="anchor-link" href="#slide-data" onclick="goToSlide(6)">実際のコード例を見る</a></p>
     </div>
 
-    <div class="glossary-item">
+    <div class="glossary-item" id="glossary-flask">
       <h4>Flask（フラスク）</h4>
       <div class="en">Python Webフレームワーク</div>
-      <p>Pythonでwebアプリを作るための軽量フレームワーク。URLごとに処理を割り振り、ブラウザからのリクエストに応答します。</p>
-      <div class="analogy">
-        <strong>たとえ：</strong>店舗の受付係。来店したお客様（ブラウザ）を適切な窓口（機能）に案内する。
-      </div>
+      <p>Pythonでwebアプリを作るための軽量フレームワーク。本システムでは以下の役割を担います:</p>
+      <ul style="font-size:0.82rem; color:var(--text-dim); padding-left:16px; margin-top:4px;">
+        <li><strong>/</strong> — チャット画面のHTML配信</li>
+        <li><strong>/api/chat</strong> — ユーザー入力をClaude APIに中継</li>
+        <li><strong>/api/download</strong> — 生成ファイルのダウンロード</li>
+        <li><strong>/api/reset</strong> — セッションのリセット</li>
+      </ul>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 1. 全体像 ==================== -->
-<section id="overview">
-  <h2><span class="num">1</span> システム全体像</h2>
-  <p class="section-lead">ユーザーのブラウザからAIが回答を返すまでの全体の流れです。</p>
+<!-- ==================== SLIDE 2: システム全体像 ==================== -->
+<div class="slide" id="slide-overview" data-page="3 / 9">
+  <h2 class="slide-title"><span class="num">1</span> システム全体像</h2>
+  <p class="slide-lead">ユーザーのブラウザからAIが回答を返すまでの全体の流れです。</p>
 
   <div class="mermaid-wrap">
     <pre class="mermaid">
 %%{init: {'theme': 'dark', 'themeVariables': { 'fontSize': '14px' }}}%%
 flowchart LR
-  subgraph USER["👤 ユーザー（ブラウザ）"]
+  subgraph USER["&#x1f464; ユーザー（ブラウザ）"]
     A["チャット入力\n例: 「FLS-1000でPB企画したい」"]
   end
 
   subgraph RAILWAY["☁️ Railway（クラウドサーバー）"]
     direction TB
     B["Flask サーバー\n（受付・制御）"]
-    C["セッション管理\n（会話の記憶）"]
     D["製品データベース\n（JSONL）"]
     E["ファイル生成\n（Excel/Word/HTML）"]
   end
 
-  subgraph AI["🤖 Claude Sonnet 4"]
+  subgraph AI["&#x1f916; Claude Sonnet 4"]
     F["システムプロンプト\n= PB企画コンサルタント"]
     G["Function Calling\n= 12のツール"]
   end
 
   A -->|"① チャット送信"| B
-  B -->|"② 会話履歴を取得"| C
-  B -->|"③ AI に送信"| F
+  B -->|"② AI に送信"| F
   F --> G
-  G -->|"④ 製品検索"| D
-  G -->|"⑤ ファイル生成"| E
-  F -->|"⑥ 回答テキスト"| B
-  B -->|"⑦ 画面に表示"| A
+  G -->|"③ 製品検索"| D
+  G -->|"④ ファイル生成"| E
+  F -->|"⑤ 回答テキスト"| B
+  B -->|"⑥ 画面に表示"| A
     </pre>
   </div>
 
-  <div class="card" style="background: rgba(56,189,248,0.06); border-color: var(--accent);">
-    <h3>この図のポイント</h3>
+  <div class="highlight-box" style="border-color: var(--accent3); background: rgba(52,211,153,0.06);">
+    <h3 style="color:var(--accent3);">一般的な RAG との違い — 本システムの工夫</h3>
     <ul>
-      <li><strong>①〜⑦</strong> が1回のチャットで起きる処理の流れ</li>
-      <li>AIは <span class="term" tabindex="0">システムプロンプト<span class="tip">約400行の指示文で「PB企画コンサルタント」として振る舞うよう設定。ユーザーには見えない裏側の設定です。</span></span> により「PB企画のプロ」として振る舞います</li>
-      <li>AIは自分で判断して <span class="term" tabindex="0">Function Calling<span class="tip">AIが「製品を検索する」「Excelを作る」などの機能を自分で選んで実行する仕組み。ユーザーは指示するだけでOK。</span></span> でデータ検索やファイル生成を行います</li>
-      <li>全てのデータは Railway のクラウドサーバー上で処理されます</li>
+      <li><strong>検索だけでなく「行動」する</strong> — 一般的なRAGは「検索→回答」の1方向。本システムはFunction Callingにより、検索・PBカード更新・Excel生成・分析チャート描画まで<strong>AIが自律的に実行</strong>します</li>
+      <li><strong>ベクトル検索不要の軽量設計</strong> — 一般的なRAGはEmbedding+ベクトルDBが必須。本システムは製品数が数百件規模のため、JONLファイルの全文検索で十分高速に動作し、インフラコストを大幅に削減しています</li>
+      <li><strong>構造化データをそのまま活用</strong> — RAGは非構造テキストからの断片検索が主流。本システムは製品スペック（型番・価格・寸法等）を構造化JSONで保持し、正確な数値比較・フレームワーク分析を可能にしています</li>
+      <li><strong>マルチステップの業務フロー</strong> — RAGは1問1答が基本。本システムは「検索→選定→分析→仕様調整→ドキュメント生成」の<strong>5段階ワークフロー</strong>を1つのチャットで完結させます</li>
     </ul>
   </div>
-</section>
+</div>
 
-<!-- ==================== 2. 技術スタック ==================== -->
-<section id="stack">
-  <h2><span class="num">2</span> 技術スタック</h2>
-  <p class="section-lead">このシステムを構成する技術の一覧です。</p>
+<!-- ==================== SLIDE 3: 技術スタック ==================== -->
+<div class="slide" id="slide-stack" data-page="4 / 9">
+  <h2 class="slide-title"><span class="num">2</span> 技術スタック</h2>
+  <p class="slide-lead">このシステムを構成する技術の一覧です。</p>
 
-  <div class="card-grid">
+  <div class="card-grid" style="flex:1;">
     <div class="card">
       <h3><span class="icon">🖥️</span> フロントエンド（画面）</h3>
       <ul>
@@ -503,8 +627,8 @@ flowchart LR
     <div class="card">
       <h3><span class="icon">⚙️</span> バックエンド（サーバー）</h3>
       <ul>
-        <li><strong>Python + Flask</strong> — Webサーバー</li>
-        <li><strong>Gunicorn</strong> — 本番用サーバー実行環境</li>
+        <li><strong>Python + <a class="anchor-link" href="#glossary-flask" onclick="goToSlide(1)" style="border:none;font-size:inherit;">Flask</a></strong> — Webサーバー（チャットAPI・ファイル配信・セッション管理）</li>
+        <li><strong>Gunicorn</strong> — 本番用WSGIサーバー</li>
         <li><strong>app.py</strong>（約2,100行）に全機能を集約</li>
       </ul>
     </div>
@@ -512,8 +636,8 @@ flowchart LR
     <div class="card">
       <h3><span class="icon">🧠</span> AI エンジン</h3>
       <ul>
-        <li><strong>Claude Sonnet 4</strong> — Anthropic社の <span class="term" tabindex="0">LLM<span class="tip">大規模言語モデル。大量のテキストから学習し、人間のように文章を理解・生成するAI。</span></span></li>
-        <li><strong>Function Calling</strong> — AIが12のツールを自律的に使用</li>
+        <li><strong><a class="anchor-link" href="#slide-ai-detail" onclick="goToSlide(4)" style="border:none;font-size:inherit;">Claude Sonnet 4</a></strong> — Anthropic社のLLM</li>
+        <li><strong><a class="anchor-link" href="#slide-ai-detail" onclick="goToSlide(4)" style="border:none;font-size:inherit;">Function Calling</a></strong> — AIが12のツールを自律的に使用</li>
         <li><strong>システムプロンプト</strong> — 424行のコンサルタント設定</li>
       </ul>
     </div>
@@ -521,7 +645,7 @@ flowchart LR
     <div class="card">
       <h3><span class="icon">💾</span> データ・ストレージ</h3>
       <ul>
-        <li><strong>JSONL</strong> — 仕入れ先の製品データ（6カテゴリ）</li>
+        <li><strong><a class="anchor-link" href="#slide-data" onclick="goToSlide(6)" style="border:none;font-size:inherit;">JSONL</a></strong> — 仕入れ先の製品データ（6カテゴリ）</li>
         <li><strong>Redis</strong> — セッション高速キャッシュ</li>
         <li><strong>ファイル</strong> — セッション永続化（バックアップ）</li>
       </ul>
@@ -545,33 +669,33 @@ flowchart LR
       </ul>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 3. AIの仕組み ==================== -->
-<section id="ai-detail">
-  <h2><span class="num">3</span> AIの仕組み（詳細）</h2>
-  <p class="section-lead">「ただのチャットAI」との違い — Function Callingで実際の業務を自動化します。</p>
+<!-- ==================== SLIDE 4: AIの仕組み ==================== -->
+<div class="slide" id="slide-ai-detail" data-page="5 / 9">
+  <h2 class="slide-title"><span class="num">3</span> AIの仕組み（詳細）</h2>
+  <p class="slide-lead">「ただのチャットAI」との違い — Function Callingで実際の業務を自動化します。</p>
 
   <div class="mermaid-wrap">
     <pre class="mermaid">
 %%{init: {'theme': 'dark', 'themeVariables': { 'fontSize': '13px' }}}%%
 sequenceDiagram
-  participant U as 👤 ユーザー
+  participant U as &#x1f464; ユーザー
   participant S as ⚙️ Flask サーバー
-  participant AI as 🧠 Claude Sonnet 4
-  participant DB as 💾 製品DB
+  participant AI as &#x1f9e0; Claude Sonnet 4
+  participant DB as &#x1f4be; 製品DB
 
   U->>S: 「FLS-1000でPB企画したい」
   S->>AI: メッセージ + システムプロンプト + 会話履歴
 
-  Note over AI: AIが判断：<br>「製品検索が必要だ」
+  Note over AI: AIが判断：製品検索が必要だ
 
   AI->>S: Function Call: search_products("FLS-1000")
   S->>DB: JSONL検索
   DB-->>S: FLS-1000のデータ
   S->>AI: 検索結果を返却
 
-  Note over AI: AIが判断：<br>「型番をPBカードに設定しよう」
+  Note over AI: AIが判断：型番をPBカードに設定しよう
 
   AI->>S: Function Call: set_pb_field("maker_part_no", "FLS-1000")
   S-->>AI: 設定完了
@@ -581,110 +705,99 @@ sequenceDiagram
     </pre>
   </div>
 
-  <div class="card" style="margin-bottom: 24px; background: rgba(167,139,250,0.06); border-color: var(--accent2);">
-    <h3>システムプロンプトの核心ルール</h3>
-    <p>約400行の指示文で、AIを「PB企画のプロ」に仕立てています。</p>
-    <table class="styled-table" style="margin-top: 16px;">
-      <thead>
-        <tr><th>ルール</th><th>内容</th><th>普通のチャットAIとの違い</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>聞き返すな、動け</strong></td>
-          <td>文脈から分かれば確認せず即座にツール実行</td>
-          <td>普通のAI: 「FLS-1000を検索しますか？」<br>本システム: 即検索して結果を表示</td>
-        </tr>
-        <tr>
-          <td><strong>前の会話を忘れるな</strong></td>
-          <td>製品名・型番・価格・分析結果を全て記憶</td>
-          <td>普通のAI: 前の話題を忘れがち<br>本システム: 全ての情報を引き継ぐ</td>
-        </tr>
-        <tr>
-          <td><strong>一度に処理しろ</strong></td>
-          <td>複数の値が指示されたらまとめて処理</td>
-          <td>普通のAI: 1つずつ確認<br>本システム: 3件同時にPBカード更新</td>
-        </tr>
-        <tr>
-          <td><strong>ユーザーの書式に従え</strong></td>
-          <td>「連番ふって」なら通し番号を振る</td>
-          <td>普通のAI: 自分の形式で出力<br>本システム: ユーザー指示の形式に従う</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div class="card" style="background: rgba(167,139,250,0.06); border-color: var(--accent2);">
+      <h3>システムプロンプトの核心ルール</h3>
+      <p style="margin-bottom:8px;">約400行の指示文で、AIを「PB企画のプロ」に仕立てています。</p>
+      <table class="styled-table">
+        <thead><tr><th>ルール</th><th>本システムの振る舞い</th></tr></thead>
+        <tbody>
+          <tr><td><strong>聞き返すな、動け</strong></td><td>文脈から判断し即座にツール実行</td></tr>
+          <tr><td><strong>前の会話を忘れるな</strong></td><td>製品名・価格・分析結果を全て記憶</td></tr>
+          <tr><td><strong>一度に処理しろ</strong></td><td>複数の値を同時にPBカード更新</td></tr>
+          <tr><td><strong>ユーザーの書式に従え</strong></td><td>指示された形式で出力</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-  <h3 style="margin-bottom: 16px;">AIが使える12のツール（Function Calling）</h3>
-  <div class="card-grid">
     <div class="card">
-      <h3><span class="icon">🔍</span> 情報取得系</h3>
+      <h3>AIが使える12のツール（Function Calling）</h3>
       <table class="styled-table">
-        <tr><td><strong>search_products</strong></td><td>製品データベースを検索</td></tr>
-        <tr><td><strong>get_pb_card</strong></td><td>現在のPBカード状態を取得</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h3><span class="icon">📝</span> データ設定系</h3>
-      <table class="styled-table">
-        <tr><td><strong>set_pb_field</strong></td><td>PBカード項目を確定</td></tr>
-        <tr><td><strong>save_spec_list</strong></td><td>仕様諸元リスト保存</td></tr>
-        <tr><td><strong>update_spec_item</strong></td><td>仕様項目を更新</td></tr>
-        <tr><td><strong>add_spec_item</strong></td><td>仕様項目を追加</td></tr>
-        <tr><td><strong>delete_spec_item</strong></td><td>仕様項目を削除</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h3><span class="icon">📊</span> 分析系</h3>
-      <table class="styled-table">
-        <tr><td><strong>analyze_framework</strong></td><td>3C / SWOT / ポジショニング / 5Forces / 価格帯マップ</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h3><span class="icon">📄</span> 出力生成系</h3>
-      <table class="styled-table">
-        <tr><td><strong>generate_pim_excel</strong></td><td>PIMデータExcel</td></tr>
-        <tr><td><strong>generate_proposal_word</strong></td><td>企画書Word</td></tr>
-        <tr><td><strong>translate_to_english</strong></td><td>英訳Excel</td></tr>
-        <tr><td><strong>generate_catalog_html</strong></td><td>カタログHTML</td></tr>
+        <thead><tr><th>カテゴリ</th><th>ツール名</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="2"><strong>🔍 取得</strong></td><td>search_products / get_pb_card</td></tr>
+          <tr><td></td></tr>
+          <tr><td><strong>📝 設定</strong></td><td>set_pb_field / save_spec_list / update_spec_item / add_spec_item / delete_spec_item</td></tr>
+          <tr><td><strong>📊 分析</strong></td><td>analyze_framework（3C / SWOT / 5Forces / ポジショニング / 価格帯マップ）</td></tr>
+          <tr><td><strong>📄 出力</strong></td><td>generate_pim_excel / generate_proposal_word / translate_to_english / generate_catalog_html</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 4. ユーザーワークフロー ==================== -->
-<section id="workflow">
-  <h2><span class="num">4</span> ユーザーワークフロー</h2>
-  <p class="section-lead">ユーザーがPB企画を完成させるまでの典型的な流れです。</p>
+<!-- ==================== SLIDE 5: ワークフロー ==================== -->
+<div class="slide" id="slide-workflow" data-page="6 / 9">
+  <h2 class="slide-title"><span class="num">4</span> ユーザーワークフロー</h2>
+  <p class="slide-lead">ユーザーがPB企画を完成させるまでの典型的な流れです。</p>
 
-  <div class="flow-steps">
-    <div class="flow-step" data-step="1">
-      <h4>製品検索・選定</h4>
-      <p>「トミー精工のオートクレーブを見せて」→ AIが製品DBを検索し、候補を提示。ベース製品を決定。</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; flex:1;">
+    <div class="flow-steps">
+      <div class="flow-step" data-step="1">
+        <h4>製品検索・選定</h4>
+        <p>「トミー精工のオートクレーブを見せて」→ AIが製品DBを検索し、候補を提示。ベース製品を決定。</p>
+      </div>
+      <div class="flow-step" data-step="2">
+        <h4>PBカード作成</h4>
+        <p>アズワン品番・販売価格・JANコード・メーカー型番・入数・キャッチコピーの7項目をAIと対話しながら埋めていく。</p>
+      </div>
+      <div class="flow-step" data-step="3">
+        <h4>フレームワーク分析</h4>
+        <p>3C分析・SWOT・ポジショニングマップ・5Forces・価格帯マップをワンクリックで実行。チャートも自動描画。</p>
+      </div>
+      <div class="flow-step" data-step="4">
+        <h4>仕様壁打ち</h4>
+        <p>「8番のチャンバー径をΦ460に変更」→ AIが仕様更新＋変更ログを自動記録。全変更履歴が追跡可能。</p>
+      </div>
+      <div class="flow-step" data-step="5">
+        <h4>アウトプット生成</h4>
+        <p>PIM Excel / 企画書Word / 英訳Excel / カタログHTML の4種をボタン一つで自動生成・ダウンロード。</p>
+      </div>
     </div>
-    <div class="flow-step" data-step="2">
-      <h4>PBカード作成</h4>
-      <p>アズワン品番・販売価格・JANコード・メーカー型番・入数・キャッチコピーの7項目をAIと対話しながら埋めていく。</p>
-    </div>
-    <div class="flow-step" data-step="3">
-      <h4>フレームワーク分析</h4>
-      <p>3C分析・SWOT・ポジショニングマップ・5Forces・価格帯マップをワンクリックで実行。チャートも自動描画。</p>
-    </div>
-    <div class="flow-step" data-step="4">
-      <h4>仕様壁打ち</h4>
-      <p>「8番のチャンバー径をΦ460に変更」→ AIが仕様更新＋変更ログを自動記録。全変更履歴が追跡可能。</p>
-    </div>
-    <div class="flow-step" data-step="5">
-      <h4>アウトプット生成</h4>
-      <p>PIM Excel / 企画書Word / 英訳Excel / カタログHTML の4種をボタン一つで自動生成・ダウンロード。</p>
+
+    <div>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontSize': '13px' }}}%%
+block-beta
+  columns 2
+
+  block:left:1
+    columns 1
+    A["💬 チャットエリア"]
+    B["AIとの対話\n（メッセージ送受信）"]
+    C["入力ボックス + 送信ボタン"]
+  end
+
+  block:right:1
+    columns 1
+    D["📋 PBカード進捗\n（0/7 ～ 7/7）"]
+    E["📊 フレームワーク分析ボタン\n3C / SWOT / ポジショニング\n5Forces / 価格帯マップ"]
+    F["📄 アウトプットボタン\nPIM Excel / 企画書Word\n英訳Excel / カタログHTML"]
+  end
+        </pre>
+      </div>
+      <p style="text-align:center; color:var(--text-dim); font-size:0.85rem; margin-top:8px;">画面構成イメージ</p>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 5. データ構造 ==================== -->
-<section id="data">
-  <h2><span class="num">5</span> データ構造</h2>
-  <p class="section-lead">システムが扱う主要なデータの構造です。</p>
+<!-- ==================== SLIDE 6: データ構造 ==================== -->
+<div class="slide" id="slide-data" data-page="7 / 9">
+  <h2 class="slide-title"><span class="num">5</span> データ構造</h2>
+  <p class="slide-lead">システムが扱う主要なデータの構造です。</p>
 
-  <div class="card-grid">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
     <div class="card">
       <h3><span class="icon">🏷️</span> PBカード（7項目）</h3>
       <p>PB企画の核となる情報。ユーザーとAIの対話で埋めていきます。</p>
@@ -709,96 +822,122 @@ sequenceDiagram
         <tr><td>ヤマト</td><td>オートクレーブ</td></tr>
       </table>
     </div>
+  </div>
 
-    <div class="card">
-      <h3><span class="icon">💬</span> セッション（3層構造）</h3>
-      <p>会話の状態を保持する仕組み。信頼性を3段階で確保。</p>
-      <table class="styled-table">
-        <tr><td><strong>第1層</strong></td><td>Redis（高速キャッシュ）</td></tr>
-        <tr><td><strong>第2層</strong></td><td>メモリキャッシュ（プロセス内）</td></tr>
-        <tr><td><strong>第3層</strong></td><td>ファイル保存（再デプロイ対策）</td></tr>
-      </table>
-      <p style="margin-top: 8px; font-size: 0.85rem;">有効期限: 1時間 / 最大100セッション保持</p>
+  <!-- JSONL vs CSV 実際のコード例 -->
+  <h3 style="margin-top:20px; margin-bottom:4px; font-size:1rem; color:var(--accent);">JSONL vs CSV — 実際の製品データで比較</h3>
+  <p style="color:var(--text-dim); font-size:0.82rem; margin-bottom:10px;">同じ製品データを2つの形式で表現した例です。JONLは「入れ子構造」を自然に扱えます。</p>
+
+  <div class="code-compare">
+    <div class="code-block">
+      <div class="code-header">✅ JSONL（本システムで採用）— 1行 = 1製品</div>
+      <pre>{
+  <span class="key">"maker"</span>: <span class="str">"トミー精工"</span>,
+  <span class="key">"model"</span>: <span class="str">"FLS-1000"</span>,
+  <span class="key">"name"</span>: <span class="str">"高圧蒸気滅菌器 FLS-1000"</span>,
+  <span class="key">"price_numeric"</span>: <span class="num">1080000</span>,
+  <span class="key">"features"</span>: {
+    <span class="key">"ローテーブル設計"</span>: <span class="str">"テーブルトップ高さ79cm"</span>,
+    <span class="key">"大口径チャンバー"</span>: <span class="str">"φ45cm×100L"</span>
+  },
+  <span class="key">"specs"</span>: {
+    <span class="key">"缶体容量"</span>: <span class="str">"100リットル"</span>,
+    <span class="key">"本体質量"</span>: <span class="str">"108kg"</span>,
+    <span class="key">"消費電力"</span>: <span class="str">"3.5kW"</span>
+  }
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">CSV（一般的な形式）— 同じデータを表現すると…</div>
+      <pre><span class="comment"># 入れ子構造（features, specs）が表現しにくい</span>
+<span class="comment"># カラム数が爆発し、読みづらくなる</span>
+
+maker,model,name,price_numeric,<span class="key">feature_1_name</span>,<span class="key">feature_1_val</span>,<span class="key">feature_2_name</span>,<span class="key">feature_2_val</span>,<span class="key">spec_缶体容量</span>,<span class="key">spec_本体質量</span>,<span class="key">spec_消費電力</span>
+トミー精工,FLS-1000,高圧蒸気滅菌器 FLS-1000,1080000,ローテーブル設計,テーブルトップ高さ79cm,大口径チャンバー,φ45cm×100L,100リットル,108kg,3.5kW
+
+<span class="comment"># 問題点:</span>
+<span class="comment"># ・製品ごとにスペック項目数が異なると列が合わない</span>
+<span class="comment"># ・features の数が可変だと列数が定まらない</span>
+<span class="comment"># ・入れ子(nested)データを扱えない</span></pre>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 6. 画面構成 ==================== -->
-<section id="ui">
-  <h2><span class="num">6</span> 画面構成</h2>
-  <p class="section-lead">ユーザーが操作するブラウザ画面の構造です。</p>
-
-  <div class="mermaid-wrap">
-    <pre class="mermaid">
-%%{init: {'theme': 'dark', 'themeVariables': { 'fontSize': '13px' }}}%%
-block-beta
-  columns 2
-
-  block:left:1
-    columns 1
-    A["💬 チャットエリア"]
-    B["AIとの対話\n（メッセージ送受信）"]
-    C["入力ボックス + 送信ボタン"]
-  end
-
-  block:right:1
-    columns 1
-    D["📋 PBカード進捗\n（0/7 ～ 7/7）"]
-    E["📊 フレームワーク分析ボタン\n3C / SWOT / ポジショニング\n5Forces / 価格帯マップ"]
-    F["📄 アウトプットボタン\nPIM Excel / 企画書Word\n英訳Excel / カタログHTML"]
-  end
-    </pre>
-  </div>
-</section>
-
-<!-- ==================== 7. デプロイ構成 ==================== -->
-<section id="deploy">
-  <h2><span class="num">7</span> デプロイ（本番環境）構成</h2>
-  <p class="section-lead">コードが本番環境で動くまでの仕組みです。</p>
+<!-- ==================== SLIDE 7: デプロイ構成 ==================== -->
+<div class="slide" id="slide-deploy" data-page="8 / 9">
+  <h2 class="slide-title"><span class="num">6</span> デプロイ（本番環境）構成</h2>
+  <p class="slide-lead">コードが本番環境で動くまでの仕組みです。</p>
 
   <div class="mermaid-wrap">
     <pre class="mermaid">
 %%{init: {'theme': 'dark', 'themeVariables': { 'fontSize': '14px' }}}%%
 flowchart LR
-  A["👨‍💻 開発者\nコード変更"] -->|git push| B["GitHub\nリポジトリ"]
-  B -->|自動検知| C["Railway\nNixpacks ビルド"]
-  C -->|デプロイ| D["本番サーバー\nGunicorn"]
-  D -->|HTTPS| E["👤 ユーザー\nブラウザ"]
+  A["&#x1f468;‍💻 開発者\nコード変更"] -->|git push| B["GitHub\nリポジトリ"]
+  B -->|自動検知| C["Railway\nビルド＆デプロイ"]
 
-  D -.->|API通信| F["Claude API\n(Anthropic)"]
-  D -.->|キャッシュ| G["Redis\n(Railway)"]
+  subgraph RW["☁️ Railway プラットフォーム（同一環境）"]
+    direction TB
+    D["Gunicorn\n本番WSGIサーバー"]
+    E["Flask アプリ\n(app.py)"]
+    F["Redis\nセッションキャッシュ"]
+    D --> E
+    E -.-> F
+  end
+
+  C --> RW
+  RW -->|HTTPS| G["&#x1f464; ユーザー\nブラウザ"]
+  E -.->|API通信| H["Claude API\n(Anthropic)"]
     </pre>
   </div>
 
-  <div class="card-grid">
-    <div class="card">
-      <h3><span class="icon">🔧</span> デプロイ設定</h3>
-      <table class="styled-table">
-        <tr><td>ビルダー</td><td>Nixpacks（自動判定）</td></tr>
-        <tr><td>実行コマンド</td><td>gunicorn app:app</td></tr>
-        <tr><td>ワーカー数</td><td>1</td></tr>
-        <tr><td>タイムアウト</td><td>120秒</td></tr>
-        <tr><td>再起動</td><td>失敗時自動（最大10回）</td></tr>
-      </table>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div class="railway-box">
+      <span class="railway-label">☁️ Railway 内のサービス構成</span>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:8px;">
+        <div class="card" style="margin:0; background:rgba(52,211,153,0.06);">
+          <h3 style="font-size:0.9rem;"><span class="icon">⚙️</span> Gunicorn</h3>
+          <p style="font-size:0.8rem;">WSGIサーバー<br>ワーカー: 1<br>タイムアウト: 120秒</p>
+        </div>
+        <div class="card" style="margin:0; background:rgba(52,211,153,0.06);">
+          <h3 style="font-size:0.9rem;"><span class="icon">🐍</span> Flask App</h3>
+          <p style="font-size:0.8rem;">app.py 2,100行<br>チャットAPI<br>ファイル生成</p>
+        </div>
+        <div class="card" style="margin:0; background:rgba(52,211,153,0.06);">
+          <h3 style="font-size:0.9rem;"><span class="icon">🔴</span> Redis</h3>
+          <p style="font-size:0.8rem;">セッション管理<br>高速キャッシュ<br>TTL: 1時間</p>
+        </div>
+      </div>
+      <p style="text-align:center; font-size:0.78rem; color:var(--accent3); margin-top:10px;">3つともRailwayプラットフォーム上で稼働（同一環境）</p>
     </div>
-    <div class="card">
-      <h3><span class="icon">🔑</span> 環境変数（秘匿情報）</h3>
-      <table class="styled-table">
-        <tr><td>ANTHROPIC_API_KEY</td><td>Claude API認証キー</td></tr>
-        <tr><td>REDIS_URL</td><td>Redisサーバー接続先</td></tr>
-        <tr><td>PORT</td><td>Railway自動設定</td></tr>
-      </table>
-      <p style="margin-top: 8px; font-size: 0.85rem; color: var(--accent4);">※ これらはコードに直接書かず、Railway管理画面で安全に設定</p>
+
+    <div>
+      <div class="card">
+        <h3><span class="icon">🔧</span> デプロイ設定</h3>
+        <table class="styled-table">
+          <tr><td>ビルダー</td><td>Nixpacks（自動判定）</td></tr>
+          <tr><td>実行コマンド</td><td>gunicorn app:app</td></tr>
+          <tr><td>再起動</td><td>失敗時自動（最大10回）</td></tr>
+        </table>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3><span class="icon">🔑</span> 環境変数（秘匿情報）</h3>
+        <table class="styled-table">
+          <tr><td>ANTHROPIC_API_KEY</td><td>Claude API認証キー</td></tr>
+          <tr><td>REDIS_URL</td><td>Redisサーバー接続先</td></tr>
+          <tr><td>PORT</td><td>Railway自動設定</td></tr>
+        </table>
+        <p style="margin-top:6px; font-size:0.8rem; color:var(--accent4);">※ コードに直接書かず、Railway管理画面で安全に設定</p>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ==================== 8. セキュリティ ==================== -->
-<section id="security">
-  <h2><span class="num">8</span> セキュリティ・制限事項</h2>
-  <p class="section-lead">安全に運用するための設計上の考慮事項です。</p>
+<!-- ==================== SLIDE 8: セキュリティ ==================== -->
+<div class="slide" id="slide-security" data-page="9 / 9">
+  <h2 class="slide-title"><span class="num">7</span> セキュリティ・制限事項</h2>
+  <p class="slide-lead">安全に運用するための設計上の考慮事項です。</p>
 
-  <div class="card-grid">
+  <div class="card-grid" style="flex:1; align-content:start;">
     <div class="card">
       <h3><span class="icon">🔒</span> セキュリティ対策</h3>
       <ul>
@@ -812,19 +951,31 @@ flowchart LR
       <h3><span class="icon">⚠️</span> 既知の制限</h3>
       <ul>
         <li><strong>同時利用</strong> — ワーカー1のため、同時に1ユーザーのみ処理</li>
-        <li><strong>セッション</strong> — 1時間で期限切れ（長時間作業は注意）</li>
         <li><strong>AI応答時間</strong> — 複雑な分析は最大120秒かかる場合あり</li>
         <li><strong>データ規模</strong> — 大量製品の全文検索には非対応（現状数百件規模）</li>
       </ul>
     </div>
   </div>
-</section>
 
+  <footer style="text-align:center; padding:24px 0; color:var(--text-dim); font-size:0.8rem; margin-top:auto; border-top:1px solid var(--border);">
+    PB企画プランナー アーキテクチャドキュメント — AKGNET — 2026年3月
+  </footer>
 </div>
 
-<footer>
-  PB企画プランナー アーキテクチャドキュメント — AKGNET — 2026年3月
-</footer>
+</div><!-- /slide-track -->
+
+<!-- ===== Navigation Bar ===== -->
+<div class="nav-bar">
+  <a href="#slide-title" onclick="goToSlide(0)">表紙</a>
+  <a href="#slide-glossary" onclick="goToSlide(1)">用語集</a>
+  <a href="#slide-overview" onclick="goToSlide(2)">全体像</a>
+  <a href="#slide-stack" onclick="goToSlide(3)">技術スタック</a>
+  <a href="#slide-ai-detail" onclick="goToSlide(4)">AIの仕組み</a>
+  <a href="#slide-workflow" onclick="goToSlide(5)">ワークフロー</a>
+  <a href="#slide-data" onclick="goToSlide(6)">データ構造</a>
+  <a href="#slide-deploy" onclick="goToSlide(7)">デプロイ</a>
+  <a href="#slide-security" onclick="goToSlide(8)">セキュリティ</a>
+</div>
 
 <script>
   mermaid.initialize({
@@ -834,6 +985,55 @@ flowchart LR
     flowchart: { curve: 'basis', padding: 20 },
     sequence: { mirrorActors: false, messageAlign: 'center' }
   });
+
+  const track = document.getElementById('slideTrack');
+  const slides = track.querySelectorAll('.slide');
+  const navLinks = document.querySelectorAll('.nav-bar a');
+  let currentSlide = 0;
+
+  function goToSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+    currentSlide = index;
+    slides[index].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+    updateNav();
+  }
+
+  function navigateSlide(delta) {
+    goToSlide(currentSlide + delta);
+  }
+
+  function updateNav() {
+    navLinks.forEach((link, i) => {
+      link.classList.toggle('active', i === currentSlide);
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateSlide(-1);
+    }
+  });
+
+  // Track scroll position to update nav
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const index = Array.from(slides).indexOf(entry.target);
+        if (index !== -1) {
+          currentSlide = index;
+          updateNav();
+        }
+      }
+    });
+  }, { root: track, threshold: 0.5 });
+
+  slides.forEach(slide => observer.observe(slide));
+  updateNav();
 </script>
 </body>
 </html>
