@@ -2355,6 +2355,11 @@ def page_project_detail(pid):
     return send_from_directory(_TEMPLATES_DIR, 'project_detail.html')
 
 
+@app.route('/projects/<pid>/report', methods=['GET'])
+def page_report(pid):
+    return send_from_directory(_TEMPLATES_DIR, 'report_3c.html')
+
+
 from scraper_orchestrator import run_scraping, get_progress  # noqa: E402
 
 

@@ -129,5 +129,20 @@ async function pollProgress() {
   if (p.status === 'running') setTimeout(pollProgress, 2000);
 }
 </script>
+
+<section>
+  <h2>3C 一発レポート</h2>
+  <label>ベース機種: <input id="base_model_input" placeholder="例: tomys/FLS-1000 (maker/model)"></label>
+  <p><button onclick="startReport()">3C 生成画面へ</button></p>
+</section>
+<script>
+function startReport() {
+  const v = document.getElementById('base_model_input').value.trim();
+  if (!v.includes('/')) { alert('maker/model 形式で入力してください'); return; }
+  const [maker, model] = v.split('/');
+  sessionStorage.setItem('base_model', JSON.stringify({ maker, model }));
+  location.href = `/projects/${pid}/report`;
+}
+</script>
 </body>
 </html>

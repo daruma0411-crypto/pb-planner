@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="utf-8"><title>3C レポート — PB企画プランナー</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", sans-serif; max-width: 960px; margin: 2em auto; padding: 0 1em; }
+#report { background: #fafafa; padding: 1em; border: 1px solid #ddd; border-radius: 6px; white-space: pre-wrap; font-size: 0.95em; }
+.status { padding: 0.4em 0.8em; background: #ffd; border-radius: 4px; display: inline-block; }
+button { padding: 0.5em 1em; background: #2a7; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+button:disabled { background: #aaa; cursor: not-allowed; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<h1>3C レポート</h1>
+<p><span class="status" id="status">準備中</span> &nbsp; <button id="pdf_btn" disabled>PDF エクスポート</button></p>
+<div id="report"></div>
+<script>
+const pid = location.pathname.split('/')[2];
+const baseModel = JSON.parse(sessionStorage.getItem('base_model') || '{}');
+let reportId = null;
+let mdAccum = "";
+async function start() {
+  document.getElementById('status').textContent = '生成中...';
+  const resp = await fetch(`/api/projects/${pid}/reports/3c`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ base_model: baseModel }),
+  });
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let idx;
+    while ((idx = buf.indexOf('\n\n')) >= 0) {
+      const line = buf.slice(0, idx).trim();
+      buf = buf.slice(idx + 2);
+      if (line.startsWith('data:')) {
+        try {
+          const payload = JSON.parse(line.slice(5).trim());
+          if (payload.text) {
+            if (payload.text.startsWith('[META]')) {
+              reportId = payload.text.replace('[META]', '').trim();
+            } else {
+              mdAccum += payload.text;
+              document.getElementById('report').innerHTML = marked.parse(mdAccum);
+            }
+          }
+          if (payload.done) {
+            document.getElementById('status').textContent = '完了';
+            const btn = document.getElementById('pdf_btn');
+            btn.disabled = false;
+            btn.onclick = () => location.href = `/api/projects/${pid}/reports/${reportId}/pdf`;
+          }
+        } catch (e) { console.warn(e); }
+      }
+    }
+  }
+}
+start();
+</script>
+</body>
+</html>
