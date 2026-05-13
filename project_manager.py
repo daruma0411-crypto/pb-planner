@@ -7,6 +7,9 @@ from datetime import datetime, timezone, timedelta
 
 JST = timezone(timedelta(hours=9))
 
+import re
+_PID_RE = re.compile(r'^prj_\d{8}_\d{6}_[0-9a-f]{6}$')
+
 
 class ProjectNotFound(Exception):
     pass
@@ -31,6 +34,8 @@ def _new_id() -> str:
 
 
 def _project_dir(pid: str) -> str:
+    if not _PID_RE.fullmatch(pid or ""):
+        raise ProjectNotFound(pid)
     return os.path.join(_projects_root(), pid)
 
 

@@ -2312,7 +2312,7 @@ def api_list_projects():
 
 @app.route('/api/projects', methods=['POST'])
 def api_create_project():
-    data = request.get_json(force=True) or {}
+    data = request.get_json(silent=True) or {}
     name = (data.get('name') or '').strip()
     category = (data.get('category') or '').strip()
     pb_concept = (data.get('pb_concept') or '').strip()
@@ -2332,7 +2332,7 @@ def api_get_project(pid):
 
 @app.route('/api/projects/<pid>/sources', methods=['POST'])
 def api_post_sources(pid):
-    sources = request.get_json(force=True) or {}
+    sources = request.get_json(silent=True) or {}
     try:
         _pm.add_or_replace_sources(pid, sources)
         return jsonify({"ok": True})

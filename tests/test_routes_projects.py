@@ -59,3 +59,30 @@ def test_post_sources_persists(client):
 def test_get_project_404_when_missing(client):
     resp = client.get("/api/projects/prj_nope")
     assert resp.status_code == 404
+
+
+def test_path_traversal_returns_404(client):
+    """pid に ../ を含むパス攻撃が 404 になる"""
+    resp = client.get("/api/projects/..%2F..%2Fetc%2Fpasswd")
+    assert resp.status_code == 404
+
+
+def test_create_project_400_when_name_empty(client):
+    resp = client.post("/api/projects", json={
+        "name": "", "category": "autoclave", "pb_concept": "",
+    })
+    assert resp.status_code == 400
+
+
+def test_create_project_400_when_category_empty(client):
+    resp = client.post("/api/projects", json={
+        "name": "x", "category": "", "pb_concept": "",
+    })
+    assert resp.status_code == 400
+
+
+def test_post_sources_404_when_pid_missing(client):
+    r = client.post("/api/projects/prj_nope/sources", json={
+        "asone": {"filter_urls": []}, "partner": [], "competitor": [],
+    })
+    assert r.status_code == 404
