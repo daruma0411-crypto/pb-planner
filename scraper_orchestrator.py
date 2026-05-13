@@ -25,8 +25,7 @@ def _scraped_dir(pid: str, sub: str) -> str:
 
 
 def _save_progress(pid: str, progress: dict) -> None:
-    with open(_progress_path(pid), "w", encoding="utf-8") as f:
-        json.dump(progress, f, ensure_ascii=False, indent=2)
+    _pm._atomic_write_json(_progress_path(pid), progress)
 
 
 def get_progress(pid: str) -> dict:
@@ -50,7 +49,7 @@ def _scrape_url_generic(url: str, dest_path: str, models=None) -> int:
     html = fetch(url)
     if html is None:
         return 0
-    with open(dest_path, "w", encoding="utf-8") as f:
+    with open(dest_path, "a", encoding="utf-8") as f:
         f.write(json.dumps({"maker": "", "model": "", "url": url,
                             "raw_html_len": len(html)}, ensure_ascii=False) + "\n")
     return 1
