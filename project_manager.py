@@ -1,7 +1,6 @@
 """案件 CRUD・ソース管理"""
 import json
 import os
-import time
 import uuid
 from datetime import datetime, timezone, timedelta
 
@@ -39,6 +38,14 @@ def _empty_sources() -> dict:
     return {"asone": {"filter_urls": []}, "partner": [], "competitor": []}
 
 
+def _atomic_write_json(path: str, obj: dict) -> None:
+    """tempfile + os.replace でアトミック書き込み（gunicorn マルチワーカー対策）"""
+    tmp = f"{path}.tmp.{uuid.uuid4().hex[:6]}"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, path)
+
+
 def create_project(name: str, category: str, pb_concept: str) -> str:
     pid = _new_id()
     pdir = _project_dir(pid)
@@ -52,10 +59,8 @@ def create_project(name: str, category: str, pb_concept: str) -> str:
         "created_at": _now_iso(),
         "updated_at": _now_iso(),
     }
-    with open(os.path.join(pdir, "meta.json"), "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=2)
-    with open(os.path.join(pdir, "sources.json"), "w", encoding="utf-8") as f:
-        json.dump(_empty_sources(), f, ensure_ascii=False, indent=2)
+    _atomic_write_json(os.path.join(pdir, "meta.json"), meta)
+    _atomic_write_json(os.path.join(pdir, "sources.json"), _empty_sources())
     return pid
 
 
@@ -63,12 +68,18 @@ def get_project(pid: str) -> dict:
     pdir = _project_dir(pid)
     if not os.path.exists(pdir):
         raise ProjectNotFound(pid)
-    with open(os.path.join(pdir, "meta.json"), encoding="utf-8") as f:
-        meta = json.load(f)
+    try:
+        with open(os.path.join(pdir, "meta.json"), encoding="utf-8") as f:
+            meta = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        raise ProjectNotFound(pid) from e
     spath = os.path.join(pdir, "sources.json")
     if os.path.exists(spath):
-        with open(spath, encoding="utf-8") as f:
-            sources = json.load(f)
+        try:
+            with open(spath, encoding="utf-8") as f:
+                sources = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            sources = _empty_sources()
     else:
         sources = _empty_sources()
     return {"meta": meta, "sources": sources}
@@ -82,8 +93,11 @@ def list_projects() -> list[dict]:
     for entry in sorted(os.listdir(root)):
         meta_path = os.path.join(root, entry, "meta.json")
         if os.path.exists(meta_path):
-            with open(meta_path, encoding="utf-8") as f:
-                out.append(json.load(f))
+            try:
+                with open(meta_path, encoding="utf-8") as f:
+                    out.append(json.load(f))
+            except (FileNotFoundError, json.JSONDecodeError):
+                continue
     return out
 
 
@@ -92,11 +106,9 @@ def add_or_replace_sources(pid: str, sources: dict) -> None:
     if not os.path.exists(pdir):
         raise ProjectNotFound(pid)
     spath = os.path.join(pdir, "sources.json")
-    with open(spath, "w", encoding="utf-8") as f:
-        json.dump(sources, f, ensure_ascii=False, indent=2)
+    _atomic_write_json(spath, sources)
     mpath = os.path.join(pdir, "meta.json")
     with open(mpath, encoding="utf-8") as f:
         meta = json.load(f)
     meta["updated_at"] = _now_iso()
-    with open(mpath, "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=2)
+    _atomic_write_json(mpath, meta)
