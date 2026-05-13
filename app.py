@@ -2300,6 +2300,47 @@ def static_files(filename):
 
 
 # ================================================================
+# 案件管理ルート（新機能: 機種選択→3C 一発レポート）
+# ================================================================
+import project_manager as _pm
+
+
+@app.route('/api/projects', methods=['GET'])
+def api_list_projects():
+    return jsonify(_pm.list_projects())
+
+
+@app.route('/api/projects', methods=['POST'])
+def api_create_project():
+    data = request.get_json(force=True) or {}
+    name = (data.get('name') or '').strip()
+    category = (data.get('category') or '').strip()
+    pb_concept = (data.get('pb_concept') or '').strip()
+    if not name or not category:
+        return jsonify({"error": "name と category は必須"}), 400
+    pid = _pm.create_project(name=name, category=category, pb_concept=pb_concept)
+    return jsonify({"id": pid})
+
+
+@app.route('/api/projects/<pid>', methods=['GET'])
+def api_get_project(pid):
+    try:
+        return jsonify(_pm.get_project(pid))
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+
+
+@app.route('/api/projects/<pid>/sources', methods=['POST'])
+def api_post_sources(pid):
+    sources = request.get_json(force=True) or {}
+    try:
+        _pm.add_or_replace_sources(pid, sources)
+        return jsonify({"ok": True})
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+
+
+# ================================================================
 # エントリポイント
 # ================================================================
 

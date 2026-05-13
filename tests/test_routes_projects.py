@@ -1,0 +1,61 @@
+"""案件管理ルートの統合テスト"""
+import json
+import pytest
+
+
+@pytest.fixture
+def client(tmp_projects_dir):
+    from app import app
+    app.config['TESTING'] = True
+    return app.test_client()
+
+
+def test_list_projects_empty(client):
+    resp = client.get("/api/projects")
+    assert resp.status_code == 200
+    assert resp.get_json() == []
+
+
+def test_create_project_returns_id(client):
+    resp = client.post("/api/projects", json={
+        "name": "案件X",
+        "category": "autoclave",
+        "pb_concept": "テスト用",
+    })
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["id"].startswith("prj_")
+
+
+def test_get_project_after_create(client):
+    cr = client.post("/api/projects", json={
+        "name": "案件Y", "category": "autoclave", "pb_concept": "",
+    })
+    pid = cr.get_json()["id"]
+    resp = client.get(f"/api/projects/{pid}")
+    assert resp.status_code == 200
+    proj = resp.get_json()
+    assert proj["meta"]["name"] == "案件Y"
+    assert proj["sources"]["competitor"] == []
+
+
+def test_post_sources_persists(client):
+    cr = client.post("/api/projects", json={
+        "name": "z", "category": "autoclave", "pb_concept": "",
+    })
+    pid = cr.get_json()["id"]
+    sources_payload = {
+        "asone": {"filter_urls": ["https://axel.as-1.co.jp/x"]},
+        "partner": [{"maker": "tomys", "url": "https://t.co/", "models": ["A"]}],
+        "competitor": [{"maker": "yamato", "url": "https://y.co/", "models": ["B"]}],
+    }
+    r = client.post(f"/api/projects/{pid}/sources", json=sources_payload)
+    assert r.status_code == 200
+
+    g = client.get(f"/api/projects/{pid}")
+    assert g.get_json()["sources"] == sources_payload
+
+
+def test_get_project_404_when_missing(client):
+    resp = client.get("/api/projects/prj_nope")
+    assert resp.status_code == 404
