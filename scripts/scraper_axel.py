@@ -85,12 +85,15 @@ def parse_product_detail(html: str) -> dict:
 
 
 def scrape_to_jsonl(filter_url: str, dest_path: str, max_items: int = 60) -> int:
-    """カテゴリ絞り URL から AS ONE/ナビス 製品を取得して JSONL に追記保存"""
+    """AXEL カテゴリ絞り URL から商品を取得して JSONL に追記保存。
+
+    呼び出し側は **AS ONE/ナビス でメーカー絞り込み済の URL** を渡す前提。
+    例: https://axel.as-1.co.jp/asone/s/G0000000/?maker=AS_ONE,NAVIS
+    """
     list_html = fetch(filter_url)
     if list_html is None:
         return 0
-    items = filter_pb_brands(parse_product_list(list_html))
-    items = items[:max_items]
+    items = parse_product_list(list_html)[:max_items]
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     count = 0
     with open(dest_path, "a", encoding="utf-8") as f:
