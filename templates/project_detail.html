@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="utf-8"><title>案件詳細 — PB企画プランナー</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", sans-serif; max-width: 960px; margin: 2em auto; padding: 0 1em; }
+section { border: 1px solid #ddd; padding: 1em; margin: 1em 0; border-radius: 6px; }
+h2 { margin-top: 0; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 0.5em; }
+input { width: 100%; box-sizing: border-box; padding: 0.4em; }
+button { padding: 0.5em 1em; background: #2a7; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+button.secondary { background: #888; }
+.row-actions { text-align: center; }
+</style></head>
+<body>
+<h1 id="title">案件詳細</h1>
+<p><a href="/projects">← 案件一覧</a></p>
+
+<section>
+  <h2>自社（AS ONE / ナビス）</h2>
+  <p>AXEL のカテゴリ絞り URL を 1 つ以上：</p>
+  <table id="asone_tbl">
+    <thead><tr><th>絞り URL</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="addAsoneRow()">+ URL 追加</button>
+</section>
+
+<section>
+  <h2>製造パートナー</h2>
+  <table id="partner_tbl">
+    <thead><tr><th>社名</th><th>公式 URL</th><th>主要型番（カンマ区切り）</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="addPartnerRow()">+ パートナー追加</button>
+</section>
+
+<section>
+  <h2>競合</h2>
+  <table id="competitor_tbl">
+    <thead><tr><th>社名</th><th>公式 URL</th><th>主要型番（カンマ区切り）</th><th></th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <button onclick="addCompetitorRow()">+ 競合追加</button>
+</section>
+
+<p><button onclick="saveSources()">ソースを保存</button></p>
+
+<script>
+const pid = location.pathname.split('/').pop();
+
+function row(html) { const tr = document.createElement('tr'); tr.innerHTML = html; return tr; }
+function addAsoneRow(url='') {
+  document.querySelector('#asone_tbl tbody').appendChild(row(
+    `<td><input class="asone_url" value="${url}"></td>
+     <td class="row-actions"><button class="secondary" onclick="this.closest('tr').remove()">削除</button></td>`
+  ));
+}
+function addPartnerRow(d={maker:'',url:'',models:''}) {
+  document.querySelector('#partner_tbl tbody').appendChild(row(
+    `<td><input class="p_maker" value="${d.maker}"></td>
+     <td><input class="p_url" value="${d.url}"></td>
+     <td><input class="p_models" value="${d.models}"></td>
+     <td class="row-actions"><button class="secondary" onclick="this.closest('tr').remove()">削除</button></td>`
+  ));
+}
+function addCompetitorRow(d={maker:'',url:'',models:''}) {
+  document.querySelector('#competitor_tbl tbody').appendChild(row(
+    `<td><input class="c_maker" value="${d.maker}"></td>
+     <td><input class="c_url" value="${d.url}"></td>
+     <td><input class="c_models" value="${d.models}"></td>
+     <td class="row-actions"><button class="secondary" onclick="this.closest('tr').remove()">削除</button></td>`
+  ));
+}
+function readSources() {
+  return {
+    asone: { filter_urls: Array.from(document.querySelectorAll('.asone_url')).map(i => i.value).filter(Boolean) },
+    partner: Array.from(document.querySelectorAll('#partner_tbl tbody tr')).map(tr => ({
+      maker: tr.querySelector('.p_maker').value,
+      url: tr.querySelector('.p_url').value,
+      models: tr.querySelector('.p_models').value.split(',').map(s => s.trim()).filter(Boolean),
+    })).filter(x => x.maker || x.url),
+    competitor: Array.from(document.querySelectorAll('#competitor_tbl tbody tr')).map(tr => ({
+      maker: tr.querySelector('.c_maker').value,
+      url: tr.querySelector('.c_url').value,
+      models: tr.querySelector('.c_models').value.split(',').map(s => s.trim()).filter(Boolean),
+    })).filter(x => x.maker || x.url),
+  };
+}
+async function saveSources() {
+  const sources = readSources();
+  const r = await fetch(`/api/projects/${pid}/sources`, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(sources),
+  });
+  alert(r.ok ? '保存しました' : '保存失敗');
+}
+
+fetch(`/api/projects/${pid}`).then(r => r.json()).then(proj => {
+  document.getElementById('title').textContent = `案件: ${proj.meta.name} (${proj.meta.category})`;
+  (proj.sources.asone.filter_urls || []).forEach(u => addAsoneRow(u));
+  if ((proj.sources.asone.filter_urls || []).length === 0) addAsoneRow('');
+  (proj.sources.partner || []).forEach(p => addPartnerRow({ ...p, models: (p.models || []).join(',') }));
+  if ((proj.sources.partner || []).length === 0) addPartnerRow();
+  (proj.sources.competitor || []).forEach(c => addCompetitorRow({ ...c, models: (c.models || []).join(',') }));
+  if ((proj.sources.competitor || []).length === 0) addCompetitorRow();
+});
+</script>
+</body>
+</html>

@@ -2350,6 +2350,11 @@ def page_project_new():
     return send_from_directory(_TEMPLATES_DIR, 'project_new.html')
 
 
+@app.route('/projects/<pid>', methods=['GET'])
+def page_project_detail(pid):
+    return send_from_directory(_TEMPLATES_DIR, 'project_detail.html')
+
+
 # ================================================================
 # エントリポイント
 # ================================================================

@@ -98,3 +98,11 @@ def test_get_project_new_page(client):
     resp = client.get("/projects/new")
     assert resp.status_code == 200
     assert b"<form" in resp.data
+
+
+def test_get_project_detail_page(client):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    resp = client.get(f"/projects/{pid}")
+    assert resp.status_code == 200
+    assert b"sources" in resp.data.lower() or b"\xe7\xab\xb6\xe5\x90\x88" in resp.data
