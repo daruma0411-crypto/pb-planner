@@ -134,3 +134,23 @@ def test_get_progress(client):
     r = client.get(f"/api/projects/{pid}/progress")
     assert r.status_code == 200
     assert r.get_json()["status"] == "pending"
+
+
+def test_post_report_3c_returns_sse(client, monkeypatch):
+    cr = client.post("/api/projects", json={
+        "name": "z", "category": "autoclave", "pb_concept": "",
+    })
+    pid = cr.get_json()["id"]
+
+    def fake_stream(pid_, base_model, save_report=True):
+        yield "[META] 3c_test\n"
+        yield "Customer "
+        yield "セクション。"
+
+    monkeypatch.setattr("app.generate_3c_stream", fake_stream)
+    resp = client.post(f"/api/projects/{pid}/reports/3c",
+                       json={"base_model": {"maker": "tomys", "model": "X"}})
+    assert resp.status_code == 200
+    body = resp.get_data(as_text=True)
+    assert "Customer" in body
+    assert "[META]" in body

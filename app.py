@@ -2377,6 +2377,26 @@ def api_progress(pid):
     return jsonify(get_progress(pid))
 
 
+from report_engine_3c import generate_3c_stream  # noqa: E402
+
+
+@app.route('/api/projects/<pid>/reports/3c', methods=['POST'])
+def api_generate_3c(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    data = request.get_json(silent=True) or {}
+    base_model = data.get("base_model") or {}
+
+    def event_stream():
+        for chunk in generate_3c_stream(pid, base_model=base_model):
+            yield f"data: {json.dumps({'text': chunk}, ensure_ascii=False)}\n\n"
+        yield "data: {\"done\": true}\n\n"
+
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
 # ================================================================
 # エントリポイント
 # ================================================================
