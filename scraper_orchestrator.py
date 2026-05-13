@@ -42,17 +42,48 @@ def _scrape_axel(url: str, dest_path: str, **kw) -> int:
     return scraper_axel.scrape_to_jsonl(url, dest_path)
 
 
-def _scrape_url_generic(url: str, dest_path: str, models=None) -> int:
-    """汎用スクレイパー（既存メーカーは Task 6.x で統合、未知メーカーはフォールバック）"""
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+def _yamato_adapter(url, dest_path, models=None):
+    from scripts import scraper_yamato  # noqa: F401
+    return _generic_via_base(url, dest_path, models)
+
+
+def _hirayama_adapter(url, dest_path, models=None):
+    from scripts import scraper_hirayama  # noqa: F401
+    return _generic_via_base(url, dest_path, models)
+
+
+def _alp_adapter(url, dest_path, models=None):
+    from scripts import scraper_alp  # noqa: F401
+    return _generic_via_base(url, dest_path, models)
+
+
+def _generic_via_base(url, dest_path, models=None):
+    """フォールバック: URL を取得して 1 行 JSON で保存"""
     from scripts.scraper_base import fetch
     html = fetch(url)
     if html is None:
         return 0
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     with open(dest_path, "a", encoding="utf-8") as f:
         f.write(json.dumps({"maker": "", "model": "", "url": url,
-                            "raw_html_len": len(html)}, ensure_ascii=False) + "\n")
+                            "raw_html_len": len(html),
+                            "models_requested": models or []},
+                           ensure_ascii=False) + "\n")
     return 1
+
+
+_SCRAPER_REGISTRY = {
+    "yamato": _yamato_adapter,
+    "hirayama": _hirayama_adapter,
+    "alp": _alp_adapter,
+}
+
+
+def _scrape_url_generic(url: str, dest_path: str, models=None, maker: str = "") -> int:
+    fn = _SCRAPER_REGISTRY.get((maker or "").lower())
+    if fn:
+        return fn(url, dest_path, models=models)
+    return _generic_via_base(url, dest_path, models=models)
 
 
 def run_scraping(pid: str, async_: bool = True) -> None:
@@ -99,7 +130,7 @@ def run_scraping(pid: str, async_: bool = True) -> None:
             name = f"partner:{p['maker']}"
             try:
                 dest = os.path.join(_scraped_dir(pid, "partner"), f"{p['maker']}.jsonl")
-                count = _scrape_url_generic(p["url"], dest, models=p.get("models"))
+                count = _scrape_url_generic(p["url"], dest, models=p.get("models"), maker=p["maker"])
                 _mark(name, status="completed", count=count)
             except Exception as e:
                 progress["errors"].append({"source": name, "error": str(e)})
@@ -110,7 +141,7 @@ def run_scraping(pid: str, async_: bool = True) -> None:
             try:
                 dest = os.path.join(_scraped_dir(pid, "competitor"),
                                     c["maker"], "products.jsonl")
-                count = _scrape_url_generic(c["url"], dest, models=c.get("models"))
+                count = _scrape_url_generic(c["url"], dest, models=c.get("models"), maker=c["maker"])
                 _mark(name, status="completed", count=count)
             except Exception as e:
                 progress["errors"].append({"source": name, "error": str(e)})
