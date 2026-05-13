@@ -86,3 +86,15 @@ def test_post_sources_404_when_pid_missing(client):
         "asone": {"filter_urls": []}, "partner": [], "competitor": [],
     })
     assert r.status_code == 404
+
+
+def test_get_projects_list_page(client):
+    resp = client.get("/projects")
+    assert resp.status_code == 200
+    assert b"projects_list" in resp.data or b"<html" in resp.data
+
+
+def test_get_project_new_page(client):
+    resp = client.get("/projects/new")
+    assert resp.status_code == 200
+    assert b"<form" in resp.data

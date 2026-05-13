@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="utf-8"><title>新規案件 — PB企画プランナー</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", sans-serif; max-width: 720px; margin: 2em auto; padding: 0 1em; }
+label { display: block; margin: 1em 0 0.3em; font-weight: 600; }
+input, select, textarea { width: 100%; padding: 0.5em; box-sizing: border-box; font-size: 1em; }
+button { padding: 0.6em 1.4em; background: #2a7; color: #fff; border: 0; border-radius: 4px; font-size: 1em; cursor: pointer; }
+</style></head>
+<body>
+<h1>新規案件</h1>
+<p><a href="/projects">← 案件一覧へ</a></p>
+<form id="form">
+  <label>案件名 <input name="name" required></label>
+  <label>対象カテゴリ
+    <select name="category" required>
+      <option value="">選択してください</option>
+      <option value="autoclave">オートクレーブ</option>
+      <option value="centrifuge">遠心機</option>
+      <option value="other">その他</option>
+    </select>
+  </label>
+  <label>PB コンセプト（任意）<textarea name="pb_concept" rows="3"></textarea></label>
+  <p><button type="submit">作成</button></p>
+</form>
+<script>
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  const resp = await fetch('/api/projects', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) { alert('作成失敗'); return; }
+  const data = await resp.json();
+  location.href = `/projects/${data.id}`;
+});
+</script>
+</body>
+</html>

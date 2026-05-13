@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>案件一覧 — PB企画プランナー</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", sans-serif; max-width: 960px; margin: 2em auto; padding: 0 1em; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 0.6em; text-align: left; }
+th { background: #f5f5f5; }
+a.btn { display: inline-block; padding: 0.5em 1em; background: #2a7; color: #fff; text-decoration: none; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>案件一覧</h1>
+<p><a class="btn" href="/projects/new">+ 新規案件</a> &nbsp; <a href="/">← チャット UI へ</a></p>
+<table id="projects_list">
+  <thead><tr><th>名前</th><th>カテゴリ</th><th>作成日</th><th></th></tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+<script>
+fetch('/api/projects').then(r => r.json()).then(items => {
+  const tb = document.getElementById('tbody');
+  if (items.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4">案件がありません</td></tr>';
+    return;
+  }
+  tb.innerHTML = items.map(p =>
+    `<tr><td>${p.name}</td><td>${p.category}</td><td>${p.created_at.slice(0, 10)}</td>
+     <td><a href="/projects/${p.id}">詳細 →</a></td></tr>`
+  ).join('');
+});
+</script>
+</body>
+</html>

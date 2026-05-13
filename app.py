@@ -2340,6 +2340,16 @@ def api_post_sources(pid):
         return jsonify({"error": "not found"}), 404
 
 
+@app.route('/projects', methods=['GET'])
+def page_projects_list():
+    return send_from_directory(_TEMPLATES_DIR, 'projects_list.html')
+
+
+@app.route('/projects/new', methods=['GET'])
+def page_project_new():
+    return send_from_directory(_TEMPLATES_DIR, 'project_new.html')
+
+
 # ================================================================
 # エントリポイント
 # ================================================================
