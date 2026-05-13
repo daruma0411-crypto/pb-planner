@@ -106,3 +106,31 @@ def test_get_project_detail_page(client):
     resp = client.get(f"/projects/{pid}")
     assert resp.status_code == 200
     assert b"sources" in resp.data.lower() or b"\xe7\xab\xb6\xe5\x90\x88" in resp.data
+
+
+def test_post_scrape_triggers_scraping(client, monkeypatch):
+    cr = client.post("/api/projects", json={
+        "name": "z", "category": "autoclave", "pb_concept": "",
+    })
+    pid = cr.get_json()["id"]
+    client.post(f"/api/projects/{pid}/sources", json={
+        "asone": {"filter_urls": []}, "partner": [], "competitor": [],
+    })
+    called = {}
+    def mock_run(pid_, async_=True):
+        called['pid'] = pid_
+        called['async_'] = async_
+    monkeypatch.setattr("app.run_scraping", mock_run)
+    resp = client.post(f"/api/projects/{pid}/scrape")
+    assert resp.status_code == 200
+    assert called['pid'] == pid
+
+
+def test_get_progress(client):
+    cr = client.post("/api/projects", json={
+        "name": "z", "category": "autoclave", "pb_concept": "",
+    })
+    pid = cr.get_json()["id"]
+    r = client.get(f"/api/projects/{pid}/progress")
+    assert r.status_code == 200
+    assert r.get_json()["status"] == "pending"

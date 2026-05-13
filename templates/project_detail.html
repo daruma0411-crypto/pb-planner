@@ -106,5 +106,28 @@ fetch(`/api/projects/${pid}`).then(r => r.json()).then(proj => {
   if ((proj.sources.competitor || []).length === 0) addCompetitorRow();
 });
 </script>
+
+<section>
+  <h2>スクレイピング</h2>
+  <p><button onclick="startScraping()">スクレイピング開始</button></p>
+  <div id="progress"></div>
+</section>
+<script>
+async function startScraping() {
+  const r = await fetch(`/api/projects/${pid}/scrape`, {method: 'POST'});
+  if (!r.ok) { alert('起動失敗'); return; }
+  pollProgress();
+}
+async function pollProgress() {
+  const r = await fetch(`/api/projects/${pid}/progress`);
+  const p = await r.json();
+  document.getElementById('progress').innerHTML =
+    `<p>状態: ${p.status}</p><ul>` +
+    (p.items || []).map(it =>
+      `<li>${it.source}: ${it.status} (${it.count || 0} 件)</li>`).join('') +
+    `</ul>`;
+  if (p.status === 'running') setTimeout(pollProgress, 2000);
+}
+</script>
 </body>
 </html>

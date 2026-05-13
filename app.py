@@ -2355,6 +2355,28 @@ def page_project_detail(pid):
     return send_from_directory(_TEMPLATES_DIR, 'project_detail.html')
 
 
+from scraper_orchestrator import run_scraping, get_progress  # noqa: E402
+
+
+@app.route('/api/projects/<pid>/scrape', methods=['POST'])
+def api_scrape(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    run_scraping(pid, async_=True)
+    return jsonify({"ok": True, "status": "running"})
+
+
+@app.route('/api/projects/<pid>/progress', methods=['GET'])
+def api_progress(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(get_progress(pid))
+
+
 # ================================================================
 # エントリポイント
 # ================================================================
