@@ -1,0 +1,15 @@
+{
+  "id": "prj_20260514_120000_abcdef",
+  "name": "デモ案件：アズワン PB woman-friendly 100L オートクレーブ",
+  "category": "autoclave",
+  "pb_concept": "100L クラス × 人間工学（女性研究者・若手職員配慮）",
+  "base_model_candidates": [
+    {
+      "maker": "tomys",
+      "model": "FLS-1000",
+      "price": 1080000
+    }
+  ],
+  "created_at": "2026-05-14T12:00:00+09:00",
+  "updated_at": "2026-05-14T12:00:00+09:00"
+}

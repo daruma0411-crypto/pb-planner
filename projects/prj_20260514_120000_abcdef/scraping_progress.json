@@ -1,0 +1,33 @@
+{
+  "completed_at": "2026-05-14T12:00:00+09:00",
+  "started_at": "2026-05-14T12:00:00+09:00",
+  "status": "completed",
+  "errors": [],
+  "items": [
+    {
+      "count": 25,
+      "source": "asone",
+      "status": "completed"
+    },
+    {
+      "count": 12,
+      "source": "partner:tomys",
+      "status": "completed"
+    },
+    {
+      "count": 14,
+      "source": "competitor:yamato",
+      "status": "completed"
+    },
+    {
+      "count": 27,
+      "source": "competitor:hirayama",
+      "status": "completed"
+    },
+    {
+      "count": 23,
+      "source": "competitor:alp",
+      "status": "completed"
+    }
+  ]
+}

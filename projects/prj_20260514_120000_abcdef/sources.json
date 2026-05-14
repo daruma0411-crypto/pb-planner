@@ -1,0 +1,52 @@
+{
+  "asone": {
+    "filter_urls": [
+      "https://axel.as-1.co.jp/asone/s/G0000000/"
+    ]
+  },
+  "partner": [
+    {
+      "maker": "tomys",
+      "url": "https://www.tomys.co.jp/",
+      "models": [
+        "FLS-1000"
+      ]
+    }
+  ],
+  "competitor": [
+    {
+      "maker": "yamato",
+      "url": "https://www.yamato-net.co.jp/",
+      "models": [
+        "SX-700"
+      ]
+    },
+    {
+      "maker": "hirayama",
+      "url": "https://www.hirayama-hmc.co.jp/",
+      "models": [
+        "HV-50"
+      ]
+    },
+    {
+      "maker": "alp",
+      "url": "https://www.alpscience.co.jp/",
+      "models": [
+        "TR-XX"
+      ]
+    }
+  ],
+  "pos": {
+    "csv_text": "",
+    "summary_note": "アズワン取扱の研究用滅菌器カテゴリ、月間販売数 平均 35 台、価格帯 ¥40-90万 が約 60%。リピート購買は大学・公的研究機関で 30%、製薬企業で 50%。100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸びている。"
+  },
+  "sns": {
+    "queries": [
+      "オートクレーブ 重い",
+      "滅菌器 おすすめ ラボ",
+      "オートクレーブ 100L"
+    ],
+    "accounts": [],
+    "summary_note": "X(旧 Twitter) / Instagram 観測:『蓋が重い』『取り出し時の蒸気が怖い』『女性 1 人だと開閉できない』『タッチパネル文字が小さい』『100L 縦型が欲しいが設置スペース足りない』が頻出。女性研究者発信が約 60%。"
+  }
+}
