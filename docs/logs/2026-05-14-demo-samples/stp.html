@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>③ STP 設計レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>アズワン PB 100L オートクレーブ：STP 分析と空白地帯マップ</h1>
+<hr />
+<h2>0. 前提整理（ハルシネーション防止チェック）</h2>
+<table>
+<thead>
+<tr>
+<th>軸</th>
+<th>NB（FLS-1000）の状態</th>
+<th>PB での扱い</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>woman-friendly / 片手開閉 / ローテーブル</td>
+<td>PB コンセプト前提では「NB が satisfy 済み」（3C §3-3、KSF §1 注記）</td>
+<td><strong>継承</strong>（独自軸にしない）</td>
+</tr>
+<tr>
+<td>100L 容量・0.193MPa・105〜123℃</td>
+<td>NB スペック明示（3C §2-2）</td>
+<td><strong>継承</strong></td>
+</tr>
+<tr>
+<td>GMP/IQ-OQ 文書</td>
+<td>全社データに記載なし＝業界空白（3C §2-5、KSF #1）</td>
+<td><strong>PB で上書き候補</strong></td>
+</tr>
+<tr>
+<td>データ可搬性（USB/LAN/クラウド）</td>
+<td>全社データに記載なし＝業界空白（3C §2-5、KSF #2）</td>
+<td><strong>PB で上書き候補</strong></td>
+</tr>
+<tr>
+<td>多言語 UI</td>
+<td>全社データに記載なし（KSF #5）</td>
+<td><strong>PB で上書き候補</strong></td>
+</tr>
+<tr>
+<td>消耗品サブスク</td>
+<td>NB は本体単売（KSF #4）</td>
+<td><strong>PB 独占機会</strong></td>
+</tr>
+<tr>
+<td>価格圧縮 -15〜25%</td>
+<td>NB ¥1,080,000（3C §2-2）</td>
+<td><strong>PB ケイパビリティあり</strong></td>
+</tr>
+</tbody>
+</table>
+<p>→ 本レポートでは「woman-friendly 軸の単純拡張」は STP から排除し、<strong>NB 弱点軸との掛け合わせ</strong>のみを差別化候補とする。</p>
+<hr />
+<h2>1. Segmentation</h2>
+<h3>軸の選定</h3>
+<ul>
+<li><strong>軸X（縦）：滅菌記録の外部要件強度</strong>＝「IQ-OQ / 電子記録 / トレーサビリティ」がどれだけ業務上必須か（GMP・査察・ISO・HACCP 文脈）</li>
+<li><strong>軸Y（横）：ハード単価感度 × 周辺消耗品の月次回転</strong>＝「本体は安く / 消耗品は継続消費」がどれだけ強いか</li>
+</ul>
+<p>この2軸は、NB 全社の弱点（GMP 記録・サブスク／消耗品同梱）と直結し、かつ NB の人間工学訴求軸（woman-friendly 等）と独立しているため、PB の独自軸の発見に適する。</p>
+<h3>セグメント・マトリクス（3×3 = 9 セグ）</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>消耗品回転：低・単発購買</th>
+<th>消耗品回転：中・四半期発注</th>
+<th>消耗品回転：高・月次定常消費</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>記録要件：高（GMP/査察）</strong></td>
+<td>S1: 製薬・CDMO 試作ラボ</td>
+<td>S2: 製薬 QC・治験原料製造</td>
+<td>S3: 受託試験機関（GLP/GMP）</td>
+</tr>
+<tr>
+<td><strong>記録要件：中（ISO/HACCP）</strong></td>
+<td>S4: 院内ラボ・臨床検査</td>
+<td>S5: 食品検査ラボ（自治体・民間）</td>
+<td>S6: 食品工場 QC ライン</td>
+</tr>
+<tr>
+<td><strong>記録要件：低（学術・自由運用）</strong></td>
+<td>S7: 国公立大学講座・公的研究機関</td>
+<td>S8: バイオベンチャー・再生医療スタートアップ</td>
+<td>S9: 私大教育実習・大規模教育機関</td>
+</tr>
+</tbody>
+</table>
+<p>※ 3C §1-2、§1-3 のセグメント・ペルソナを 2 軸で再分類。</p>
+<hr />
+<h2>2. Targeting</h2>
+<h3>評価マトリクス（9 セグ全件）</h3>
+<p>「狙いやすさ」「戦略適合性」「NB 競合度」を 5 段階（◎◯△▲×）で評価。NB 競合度は「FLS-1000 / tomys LPS / hirayama HV / yamato HVA / alp CLG 等が既にそのセグメントを正面訴求しているか」で判定。</p>
+<table>
+<thead>
+<tr>
+<th>セグ</th>
+<th>規模感（POS推定）</th>
+<th>狙いやすさ</th>
+<th>戦略適合性（PB強み活用）</th>
+<th>NB 競合度</th>
+<th>総合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1 製薬・CDMO 試作</td>
+<td>中（POSリピート50%層）</td>
+<td>◯</td>
+<td>◎（IQ-OQ×データ可搬性）</td>
+<td><strong>中</strong>（alp が GMP 親和、ただし IQ-OQ 明示なし）</td>
+<td><strong>★★★</strong></td>
+</tr>
+<tr>
+<td>S2 製薬 QC</td>
+<td>小〜中</td>
+<td>△（査察ハードル高）</td>
+<td>◯</td>
+<td>中</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S3 GLP/GMP 受託試験</td>
+<td>小</td>
+<td>△</td>
+<td>◎</td>
+<td>低</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S4 院内ラボ</td>
+<td>中</td>
+<td>△（医療調達フロー別）</td>
+<td>△</td>
+<td>中</td>
+<td>★</td>
+</tr>
+<tr>
+<td>S5 食品検査ラボ</td>
+<td>中（POS 100L 引き合い1.4倍の一部）</td>
+<td>◎</td>
+<td>◎（HACCP記録×消耗品サブスク）</td>
+<td><strong>低</strong>（NB 各社 HACCP記録訴求なし）</td>
+<td><strong>★★★</strong></td>
+</tr>
+<tr>
+<td>S6 食品工場 QC</td>
+<td>中</td>
+<td>△（設備投資サイクル長）</td>
+<td>◯</td>
+<td>中</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S7 国公立大学</td>
+<td>大（POSリピート30%、ボリュームゾーン）</td>
+<td>◎</td>
+<td>◎（価格-20%×消耗品同梱）</td>
+<td><strong>高</strong>（hirayama/yamato が直撃済み）</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S8 バイオベンチャー</td>
+<td>中（成長中）</td>
+<td>◎</td>
+<td>◎（多言語×データ可搬性×サブスク）</td>
+<td><strong>低</strong>（NB 各社が拾えていない新興層）</td>
+<td><strong>★★★</strong></td>
+</tr>
+<tr>
+<td>S9 私大教育実習</td>
+<td>中</td>
+<td>◯</td>
+<td>◯（最廉価×安全）</td>
+<td>高</td>
+<td>★★</td>
+</tr>
+</tbody>
+</table>
+<h3>優先ターゲット 3 パターン</h3>
+<table>
+<thead>
+<tr>
+<th>優先</th>
+<th>ターゲット</th>
+<th>選定理由</th>
+<th>NB 弱点補強軸</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T-A</strong></td>
+<td><strong>S1 製薬・CDMO 試作ラボ</strong>（40代QA担当）</td>
+<td>リピート率 50%、IQ-OQ × データ可搬性は業界全社空白（KSF #1, #2）</td>
+<td>GMP/IQ-OQ・USB/LAN・電子署名</td>
+</tr>
+<tr>
+<td><strong>T-B</strong></td>
+<td><strong>S5 食品検査ラボ</strong>（ラボ管理者）</td>
+<td>100L 引き合い 1.4 倍の中核、HACCP 記録要求が制度的に強まる、消耗品（滅菌バッグ）月次定常消費とサブスク親和性極大</td>
+<td>HACCP記録テンプレ・USBログ・滅菌バッグ定期同梱</td>
+</tr>
+<tr>
+<td><strong>T-C</strong></td>
+<td><strong>S8 バイオベンチャー・再生医療スタートアップ</strong>（若手 PI・海外人材混在）</td>
+<td>NB 各社未到達、多言語 UI × データ可搬性 × サブスクの三重弱点を同時補強できる唯一の層</td>
+<td>多言語UI・クラウド通知・消耗品サブスク・価格圧縮</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>補足：S7（大学）は最大ボリュームだが NB 競合度が <strong>高</strong>（hirayama HV-110Ⅱ ¥990,000、yamato HVA-110LB ¥742,000 が同軸訴求済み）。PB は「価格 -20%」のみでは独自性が弱く、優先順位を落とす。</p>
+</blockquote>
+<hr />
+<h2>3. Positioning</h2>
+<h3>T-A：製薬・CDMO 試作ラボ向け</h3>
+<blockquote>
+<p><strong>誰に</strong>：IQ-OQ 文書とデータ可搬性を要件とする製薬・CDMO の QA / 試作ラボ担当者に
+<strong>何を</strong>：FLS-1000 ベースの 100L オートクレーブに、<strong>IQ-OQ ドキュメント標準同梱 + USB/LAN ロギング + 電子署名対応</strong>をワンパッケージで提供し
+<strong>なぜ独自か</strong>：NB 全社（tomys, alp, hirayama, yamato）が現データ上 IQ-OQ 文書を明示同梱していない（3C §2-5「業界全体の空白地帯」）。アズワンは代理店ドキュメント配布力と消耗品サプライ網を併せ持つため、本体購入時点で<strong>バリデーション一式が動き出す</strong>唯一の選択肢になれる。</p>
+</blockquote>
+<h3>T-B：食品検査ラボ向け</h3>
+<blockquote>
+<p><strong>誰に</strong>：HACCP / ISO 22000 を要件とし、培地調製〜廃棄滅菌を日次運用する食品検査ラボに
+<strong>何を</strong>：100L 容量を継承しつつ、<strong>USB ログ + HACCP 帳票テンプレート + プロシェア滅菌バッグ SPS-1〜7 の定期同梱サブスク</strong>をバンドルし、本体価格は ¥850,000 帯（-21%）で提供
+<strong>なぜ独自か</strong>：NB 各社は本体単売モデル（KSF #4）。アズワンのみが滅菌バッグ 7 規格・洗剤・ブラシ・バスケットを PB で保有し（3C §3-1）、「滅菌ワークフロー丸ごと月額化」を実装可能。</p>
+</blockquote>
+<h3>T-C：バイオベンチャー・再生医療スタートアップ向け</h3>
+<blockquote>
+<p><strong>誰に</strong>：海外人材を含む少数精鋭で、設備投資を低く・運用を軽くしたいバイオベンチャー / 再生医療スタートアップに
+<strong>何を</strong>：<strong>多言語 UI（日英中）+ クラウド通知（スマホで滅菌完了確認）+ 消耗品サブスク + 本体 ¥850,000 帯</strong>の「スタートアップ・パッケージ」
+<strong>なぜ独自か</strong>：NB 各社は多言語・クラウド・サブスクのいずれも明示訴求していない（KSF #2, #5）。新興ラボの「人が少ない／海外人材混在／キャッシュフロー優先」という構造ペインに、NB のハード単売モデルでは到達できない。</p>
+</blockquote>
+<hr />
+<h2>4. 空白地帯マップ</h2>
+<h3>マップ構造</h3>
+<ul>
+<li><strong>縦軸：NB が既に訴求済みの軸</strong>（woman-friendly / 100L 大容量 / 高速昇温 3.5kW / 5コースメモリ運用）</li>
+<li><strong>横軸：NB の弱点軸</strong>（GMP・IQ-OQ / データ可搬性 USB-LAN-クラウド / 消耗品サブスク / 多言語 UI / 横置き省設置）</li>
+</ul>
+<h3>クロス表（◎=PB 独自で攻める空白、◯=部分空白、▲=NB 既訴求と重複・空白ではない、×=ニーズ薄）</h3>
+<p>| NB 訴求軸 ＼</p>
+</body></html>

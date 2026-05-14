@@ -1,0 +1,498 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>① 3C 分析レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>3C 分析レポート</h1>
+<h2>デモ案件：アズワン PB 100L オートクレーブ（FLS-1000 ベース・差別化軸を再探索）</h2>
+<hr />
+<h2>1. Customer 分析</h2>
+<h3>1-1. 市場規模・成長性</h3>
+<p>国内研究用オートクレーブ市場は、ライフサイエンス研究投資の継続的拡大、再生医療・細胞培養分野の伸長、製薬企業の GMP 投資、食品微生物検査の強化を背景に、年率 3〜5% 程度の成長が見込まれる成熟＋拡張市場である（一般的市場観、定量裏付けデータは本案件データに記載なし）。アズワン社内 POS では <strong>「研究用滅菌器カテゴリで月間平均 35 台販売」「100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長」</strong>（POSデータ手入力サマリ）と明示されており、<strong>中〜大容量帯（85〜120L）が現在の成長ドライバ</strong>であることが裏付けられる。価格帯では ¥40-90 万がボリュームゾーン（POS 約 60%）で、100L クラスはこのレンジ上限〜超に位置し、PB として ¥90-110 万帯に降ろせれば一気にボリューム化できる蓋然性が高い。</p>
+<h3>1-2. セグメント別プロファイル</h3>
+<table>
+<thead>
+<tr>
+<th>セグメント</th>
+<th>主要 JTBD</th>
+<th>購買動機の核</th>
+<th>価格感度</th>
+<th>リピート率（POS）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大学・公的研究機関</td>
+<td>培地・器具・廃棄物滅菌を安全に回す</td>
+<td>コスパ・操作の簡単さ・耐久</td>
+<td>高</td>
+<td>30%</td>
+</tr>
+<tr>
+<td>製薬・CDMO</td>
+<td>バリデーション付き・記録の電子化</td>
+<td>IQ-OQ・データ可搬性・GMP 準拠</td>
+<td>中</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>食品検査</td>
+<td>培地調製〜廃棄滅菌の日次運用</td>
+<td>大容量・サイクル短縮・横置き性</td>
+<td>高</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>医療・院内ラボ</td>
+<td>器具・布類滅菌、感染廃棄</td>
+<td>安全装置・トレーサビリティ</td>
+<td>中</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>バイオベンチャー</td>
+<td>細胞培養関連器具・培地</td>
+<td>設置自由度・電源（100V/200V）・拡張性</td>
+<td>高</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<h3>1-3. ペルソナ別ペインと VOC</h3>
+<ul>
+<li><strong>女性研究者（30 代・大学ポスドク）</strong>：「蓋が重い」「女性 1 人だと開閉できない」「取り出し時の蒸気が怖い」（SNS 観測サマリ）。SNS 発信者の約 60% が女性研究者という偏りは、<strong>現場の実害が女性労働力に集中</strong>していることを示す。</li>
+<li><strong>製薬 QA 担当（40 代）</strong>：「IQ-OQ ドキュメントが欲しい」「USB / LAN で記録を抜きたい」（業界一般の VOC、本データには明示記載なし=データに記載なし）。</li>
+<li><strong>食品検査ラボ管理者</strong>：「100L 縦型が欲しいが設置スペース足りない」（SNS）。<strong>容量は欲しいが床面積が無い</strong> という構造的ペインが顕在化。</li>
+<li><strong>共通</strong>：「タッチパネル文字が小さい」（SNS）→ UI のアクセシビリティ未充足。</li>
+</ul>
+<h3>1-4. 未充足ニーズ仮説（NB がまだ拾っていない領域）</h3>
+<ol>
+<li><strong>GMP/IQ-OQ 文書同梱・電子記録対応</strong>：ベース機種 FLS-1000 のスペックには記載なし。製薬リピート率 50% の顧客層に直撃する未充足。</li>
+<li><strong>データ可搬性（USB / LAN / クラウド / スマホ通知）</strong>：FLS-1000 スペックに通信 I/F 記載なし。</li>
+<li><strong>省設置面積 × 100L 容量</strong>：「100L 欲しいが置けない」VOC（SNS）に対する設計回答が NB 側で見当たらない。</li>
+<li><strong>多言語 UI</strong>：留学生・海外人材比率上昇に対するベース機種側の言及なし。</li>
+<li><strong>消耗品サブスク（滅菌バッグ・インジケータの定期同梱）</strong>：アズワン PB「プロシェア滅菌バッグ」7 規格を保有しており、ハードと消耗品を束ねた提案が NB 側からは出ていない。</li>
+</ol>
+<hr />
+<h2>2. Competitor 分析</h2>
+<h3>2-1. 競合マッピング（記述）</h3>
+<p>縦軸＝「バリデーション/GMP 対応の厚み」、横軸＝「人間工学・現場フレンドリー度」で取ると、
+- <strong>右下（人間工学◎・GMP △）</strong>：tomys FLS-1000（ベース機種）／ヤマト ST シリーズ
+- <strong>右上（人間工学◎・GMP ○）</strong>：tomys LPS / MPS / BSX（7 インチ液晶＋メモリ）
+- <strong>左上（GMP ◎・人間工学△）</strong>：alp CLG-DVP シリーズ（前面扉式・SUS316L・横開き）
+- <strong>中央</strong>：hirayama HV/HVN/HG シリーズ（コース数・メモリ豊富、価格レンジ広い）</p>
+<p><strong>真空乾燥領域</strong>は hirayama HVP-50LB / HVP-50N、<strong>横型</strong>は alp MCY-40L / tomys 横型なし、<strong>レトルト食品向け</strong>は tomys SR-240 が独自セグメント。</p>
+<h3>2-2. TOP 機種スペック比較表（100L 級・近傍含む）</h3>
+<table>
+<thead>
+<tr>
+<th>機種</th>
+<th>メーカー</th>
+<th>容量</th>
+<th>最高圧力</th>
+<th>滅菌温度</th>
+<th>ドアタイプ</th>
+<th>UI</th>
+<th>価格(税別)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FLS-1000（ベース）</td>
+<td>tomys</td>
+<td>缶体Φ450×678</td>
+<td>0.193MPa</td>
+<td>105〜123℃</td>
+<td>上開き（推定）</td>
+<td>デジタル温度＋アナログ圧力</td>
+<td>¥1,080,000</td>
+</tr>
+<tr>
+<td>LPS-700</td>
+<td>tomys</td>
+<td>データ記載なし</td>
+<td>0.250MPa</td>
+<td>105〜133℃</td>
+<td>データ記載なし</td>
+<td>7"液晶タッチ＋5プリセット</td>
+<td>¥980,000</td>
+</tr>
+<tr>
+<td>BSX-500</td>
+<td>tomys</td>
+<td>データ記載なし</td>
+<td>0.263MPa</td>
+<td>105〜135℃</td>
+<td>データ記載なし</td>
+<td>7"液晶タッチ</td>
+<td>¥1,210,000</td>
+</tr>
+<tr>
+<td>CLG-DVP40L</td>
+<td>alp</td>
+<td>117L</td>
+<td>0.22MPa</td>
+<td>100〜140℃</td>
+<td>前面扉式（横開き）</td>
+<td>データ記載なし</td>
+<td>データ記載なし</td>
+</tr>
+<tr>
+<td>CLG-40L</td>
+<td>alp</td>
+<td>117L</td>
+<td>0.22MPa</td>
+<td>100〜140℃</td>
+<td>前面扉式（横開き）</td>
+<td>データ記載なし</td>
+<td>データ記載なし</td>
+</tr>
+<tr>
+<td>MCY-40L</td>
+<td>alp</td>
+<td>118L 横型</td>
+<td>0.22MPa</td>
+<td>100〜124℃</td>
+<td>前面扉式</td>
+<td>データ記載なし</td>
+<td>データ記載なし</td>
+</tr>
+<tr>
+<td>HV-110Ⅱ</td>
+<td>hirayama</td>
+<td>110L</td>
+<td>データ記載なし</td>
+<td>105〜128℃</td>
+<td>データ記載なし</td>
+<td>5コース×8メモリ</td>
+<td>¥990,000</td>
+</tr>
+<tr>
+<td>HV-110ⅡLB</td>
+<td>hirayama</td>
+<td>110L</td>
+<td>データ記載なし</td>
+<td>105〜128℃</td>
+<td>データ記載なし</td>
+<td>同上</td>
+<td>¥965,000</td>
+</tr>
+<tr>
+<td>HVA-110LB</td>
+<td>hirayama/yamato</td>
+<td>110L</td>
+<td>データ記載なし</td>
+<td>105〜123/128℃</td>
+<td>データ記載なし</td>
+<td>3コース</td>
+<td>¥742,000</td>
+</tr>
+</tbody>
+</table>
+<p>※ alp は本データ内に価格未記載が大半（KYR-2346=¥348,000 のみ確認）。</p>
+<h3>2-3. 各社の design_concept / features 構造化</h3>
+<h4>tomys（ベース機種候補・直接競合でもある）</h4>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>FLS-1000 の現状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>訴求軸</td>
+<td>100L 級スタンダード機（容量・3.5kW 高速昇温）</td>
+</tr>
+<tr>
+<td>人間工学</td>
+<td>缶体寸法 Φ450×678（上開き想定）。<strong>woman-friendly / 片手開閉 / ローテーブル等の具体訴求は本データのスペック欄に記載なし</strong>（PB コンセプト前提では「NB が既に satisfy 済み」と提示されているが、本データに明示記載なし、コンセプト前提として扱う）</td>
+</tr>
+<tr>
+<td>データ可搬性</td>
+<td>USB/LAN/クラウド：<strong>データに記載なし（=非搭載と推定）</strong></td>
+</tr>
+<tr>
+<td>GMP/バリデーション</td>
+<td>IQ-OQ ドキュメント：<strong>データに記載なし</strong></td>
+</tr>
+<tr>
+<td>価格帯</td>
+<td>¥1,080,000（税別）。LPS-700（¥980,000）と近接</td>
+</tr>
+<tr>
+<td>サポート</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<h4>alp</h4>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>訴求軸</td>
+<td><strong>前面扉式（横開き）× SUS316L</strong> の高耐食・GMP 親和設計。CLG-DVP シリーズ、CLG シリーズ、MCS、MCY（横型）、KYR/KTR（簡易）と幅広いラインアップ</td>
+</tr>
+<tr>
+<td>人間工学</td>
+<td>前面扉式は腰高アクセス可、ただし上開きより設置面積大</td>
+</tr>
+<tr>
+<td>データ可搬性</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>GMP/バリデーション</td>
+<td>SUS316L（CLG-DVP/CLG 系）、ドアインターロック、安全弁・空焚き・過温・過圧防止と<strong>安全装置を明示列挙</strong>。GMP/IQ-OQ 文書の明示はデータに記載なし</td>
+</tr>
+<tr>
+<td>価格帯</td>
+<td>大半価格データに記載なし。KYR-2346（簡易）¥348,000、KYR-2346D（乾燥付）¥428,000</td>
+</tr>
+<tr>
+<td>サポート</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<h4>hirayama</h4>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>訴求軸</td>
+<td><strong>5 コース × 8 メモリ</strong>（液体・器具・廃棄物・寒天・溶解）でラボの多用途運用に最適化。HV/HVN（高機能）、HVE/HVA（廉価）、HVP（真空乾燥）、HG（横長缶体）、HLM（大型）、HF（小型・乾燥付）、HB-305M（高圧）と<strong>最も広いラインアップ</strong></td>
+</tr>
+<tr>
+<td>人間工学</td>
+<td>缶体内寸を機種別に明示。HG シリーズは Φ364 と短身缶体で<strong>設置高さを抑える志向</strong></td>
+</tr>
+<tr>
+<td>データ可搬性</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>GMP/バリデーション</td>
+<td>フタロック温度を可変式で明示、コース別フタロック条件記載。IQ-OQ 文書はデータに記載なし</td>
+</tr>
+<tr>
+<td>価格帯</td>
+<td>25L=¥500,000〜110L=¥990,000、真空乾燥=¥1,250,000、HLM-36ELB=¥2,700,000 と幅広い</td>
+</tr>
+<tr>
+<td>サポート</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<h4>yamato</h4>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>訴求軸</td>
+<td>SN（高機能・可変温度）、SQ（横長缶体）、ST（固定 121℃・廉価）で<strong>価格帯 × グレード</strong>を整理。HVA-110LB / HVA-85LB は hirayama OEM 相当の併売</td>
+</tr>
+<tr>
+<td>人間工学</td>
+<td>本体寸法・質量を全機種開示（85〜95kg 帯）。<strong>搬入計画の透明性</strong>は高い</td>
+</tr>
+<tr>
+<td>データ可搬性</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>GMP/バリデーション</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>価格帯</td>
+<td>ST201=¥461,000〜HVA-110LB=¥742,000 と<strong>100L 級で最安水準</strong></td>
+</tr>
+<tr>
+<td>サポート</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<h3>2-4. シェア推定・サポート密度</h3>
+<p>明示シェアデータは提供データに記載なし。POS 上アズワンの取扱比率からは hirayama / yamato 系が大学チャネルで強く、alp は製薬・大型 GMP 系で強い、tomys は中容量〜大容量で強い、という業界一般の構図（推定）。</p>
+<h3>2-5. 直近 12-24 ヶ月動向</h3>
+<ul>
+<li><strong>100L クラスへの引き合い 1.4 倍</strong>（自社 POS）→ メーカー各社が 100L 級ライン拡充。hirayama HV-110Ⅱ / ⅡLB の併売、yamato HVA-110LB の継続販売、alp CLG-DVP40L / 40L の 117L 帯が該当。</li>
+<li>7 インチ液晶＋メモリ化が tomys LPS/MPS/BSX で進行 → <strong>UI モダナイズが NB の主戦場</strong>。</li>
+<li><strong>データ可搬性 / GMP IQ-OQ / 多言語 / サブスク</strong> の明示訴求はいずれのメーカーデータにも見当たらず、<strong>業界全体の空白地帯</strong>として残存。</li>
+</ul>
+<hr />
+<h2>3. Company（アズワン PB ＝ AS ONE + ナビス）分析</h2>
+<h3>3-1. PB ブランドの強み</h3>
+<ul>
+<li><strong>総合カタログ × 販社チャネル</strong>：全国の理科学・医療代理店経由で<strong>即時見積・即納</strong>できる物流網。100L 級の重量物でも、既存代理店物流に乗せやすい。</li>
+<li><strong>消耗品ポートフォリオ</strong>：プロシェア滅菌バッグ 7 規格（SPS-1〜7、57×130〜305×460mm、各 200 枚入）、超音波洗浄器 MCS シリーズ（2〜27L）、フラスコブラシ、プラ角型バスケット、ガラス容器洗浄機 GS-01、業務用洗剤など、<strong>滅菌前後の周辺フロー全体</strong>を PB で保有。→ ハード単体販売の NB と差別化できる<strong>「滅菌ワークフロー丸ごと提案」</strong>が可能。</li>
+<li><strong>価格交渉力</strong>：ボリューム調達・OEM 開発の実績により、NB 同等スペックを <strong>-15〜25%</strong> で出すケイパビリティ（PB コンセプト前提）。</li>
+</ul>
+<h3>3-2. 既存ラインアップとの整合（共食い検証）</h3>
+<p>本データ上、AS ONE / ナビス側に<strong>100L 級オートクレーブ本体の自社品番は確認されない</strong>（提供データ内ではプロシェア＝消耗品、MCS＝超音波洗浄器、GS-01＝ガラス洗浄機）。すなわち<strong>カテゴリ内本体ラインで共食いは発生しない</strong>。むしろ消耗品（滅菌バッグ）と<strong>バンドル販売で同時購買率を引き上げる</strong>機会。</p>
+<h3>3-3. PB 既存ラインアップ vs ベース機種 NB（FLS-1000）の訴求差分</h3>
+<table>
+<thead>
+<tr>
+<th>軸</th>
+<th>NB（tomys FLS-1000）の現状</th>
+<th>PB として「同じにする」か「上書きするか」</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>容量・基本性能（100L 級・0.193MPa・105〜123℃）</td>
+<td>スペック明示</td>
+<td><strong>同じにする</strong>（性能継承）</td>
+</tr>
+<tr>
+<td>人間工学（woman-friendly / 片手開閉 / ローテーブル）</td>
+<td>PB コンセプト前提では「NB が既に satisfy」※本データ内では訴求文として明示記載なし</td>
+<td><strong>継承</strong>（PB の独自差別化軸にしない）</td>
+</tr>
+<tr>
+<td>データ可搬性（USB / LAN / クラウド）</td>
+<td>データに記載なし＝非対応と推定</td>
+<td><strong>PB で上書き追加</strong></td>
+</tr>
+<tr>
+<td>GMP / IQ-OQ 文書</td>
+<td>データに記載なし</td>
+<td><strong>PB で上書き追加</strong>（製薬リピート 50% 層に直撃）</td>
+</tr>
+<tr>
+<td>多言語 UI</td>
+<td>データに記載なし</td>
+<td><strong>PB で上書き追加</strong></td>
+</tr>
+<tr>
+<td>価格</td>
+<td>¥1,080,000</td>
+<td><strong>PB で -15〜25%（¥810,000〜¥918,000 帯）</strong></td>
+</tr>
+<tr>
+<td>消耗品同梱・サブスク</td>
+<td>NB は本体販売のみ</td>
+<td><strong>PB のみ実装可能</strong>（プロシェア SPS シリーズ束ね）</td>
+</tr>
+<tr>
+<td>サポート/保守</td>
+<td>データに記載なし</td>
+<td><strong>アズワン代理店網で密度UP</strong></td>
+</tr>
+</tbody>
+</table>
+<h3>3-4. 製造パートナー</h3>
+<p>tomys（トミー精工）。FLS-1000 をベースに UI 基板・通信モジュール・ドキュメンテーション追加で OEM 化する想定（コンセプト前提）。</p>
+<hr />
+<h2>4. 未充足ニーズ × 自社強み クロス（KSF/4P は別レポート）</h2>
+<table>
+<thead>
+<tr>
+<th>未充足ニーズ</th>
+<th>NB 現状</th>
+<th>アズワン PB の強み</th>
+<th>クロス機会の強度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① GMP/IQ-OQ 文書同梱</td>
+<td>各社で明示記載なし＝空白地帯</td>
+<td>製薬リピート 50% 顧客基盤、代理店ドキュメント配布力</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>② データ可搬性（USB/LAN/クラウド）</td>
+<td>各社で記載なし＝空白地帯</td>
+<td>OEM 仕様追加・周辺機器カタログ連携</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>③ 多言語 UI</td>
+<td>各社で記載なし</td>
+<td>海外人材在籍ラボ向け追加価値</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>④ -15〜25% PB 価格</td>
+<td>NB ¥1,080,000</td>
+<td>OEM 価格圧縮ケイパビリティ</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>⑤ 消耗品サブスク（滅菌バッグ同梱）</td>
+<td>NB は本体単売</td>
+<td>プロシェア SPS-1〜7 を自社保有</td>
+<td>★★★（PB 独占機会）</td>
+</tr>
+<tr>
+<td>⑥ 省設置面積 × 100L</td>
+<td>「100L 欲しいが置けない」VOC</td>
+<td>OEM 設計変更余地（横型・短身缶体検討）</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>⑦ アクセシブル UI（文字大）</td>
+<td>「タッチパネル文字小さい」VOC</td>
+<td>UI 仕様の上書き発注余地</td>
+<td>★★</td>
+</tr>
+</tbody>
+</table>
+<p><strong>次レポート（KSF/4P）に渡す差別化軸候補（3 案）</strong>：
+- <strong>A 案：GMP/IQ-OQ × データ可搬性</strong>（製薬・CDMO 直撃、価格プレミアム維持）
+- <strong>B 案：価格 -20% × 消耗品サブスク同梱</strong>（大学・食品検査ボリューム狙い、PB 王道）
+- <strong>C 案：省設置 100L × アクセシブル UI（多言語含む）</strong>（現場 VOC 直結、女性・国際ラボ層）</p>
+<p>→ 次フェーズで「狙いやすさ × 戦略適合性 × NB 弱点補強度」で比較選定。</p>
+<hr />
+<h3>出典・注記</h3>
+<ul>
+<li>自社 POS / SNS 観測 / 競合・自社製品スペック：本案件提供データ（「顧客（アズワン）POS データ」「SNS の声」「自社製品一覧」「製造パートナー製品」「競合製品」セクション）に基づく。</li>
+<li>市場規模年率・業界一般動向のうち、提供データに直接記載のない箇所は「一般観測・推定」「データに記載なし」を明示。</li>
+<li>競合シェア定量値、サポート密度の数値、各社 IQ-OQ 対応有無の最終確認、Web 検索ベースの VOC 引用 URL：本セッションでは Web 検索結果が提供されていないため、<strong>該当箇所すべて「データに記載なし」</strong>として扱い、ハルシネーションを回避した。</li>
+</ul>
+</body></html>

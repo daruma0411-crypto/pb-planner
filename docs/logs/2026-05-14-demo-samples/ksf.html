@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>② KSF 抽出レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>アズワン PB 100L オートクレーブ：ペイン抽出・KSF・STP 論点整理</h1>
+<hr />
+<h2>1. 既存 NB に対する顧客ペイン 10 個</h2>
+<p><strong>前提整理</strong>：ベース機種 FLS-1000 の design_concept / features 欄には、woman-friendly / 片手開閉 / ローテーブル等の具体訴求文は本データ内に明示記載なし（3C §2-3 tomys、§3-3）。PB コンセプト前提では「NB が既に satisfy 済み」とされているため、本ペイン表では<strong>人間工学系ペインは「NB 側で一定程度カバー済み（前提）」として強度を下方修正</strong>し、NB が未解決のペインを優先列挙する。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>ペイン</th>
+<th>強度</th>
+<th>データ出典</th>
+<th>NB（FLS-1000）の現状解決度</th>
+<th>PB 差別化余地</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>IQ-OQ ドキュメント・GMP バリデーション文書が同梱されない</td>
+<td><strong>高</strong></td>
+<td>3C §1-3（製薬 QA VOC、業界一般）、§2-3 全社で記載なし</td>
+<td>× 未解決（業界空白）</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>2</td>
+<td>USB/LAN/クラウド等のデータ可搬性が無く、滅菌記録を電子的に持ち出せない</td>
+<td><strong>高</strong></td>
+<td>3C §1-4②、§2-3 全社で記載なし</td>
+<td>× 未解決（業界空白）</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>3</td>
+<td>本体価格が ¥1,080,000 と高く、大学・食品検査の予算枠（¥40-90 万ボリュームゾーン）を超える</td>
+<td><strong>高</strong></td>
+<td>POS（¥40-90 万が 60%）、3C §2-2 価格</td>
+<td>△ NB 内では LPS-700 ¥980,000、HVA-110LB ¥742,000 等の廉価帯あり</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>4</td>
+<td>滅菌バッグ・インジケータ等の消耗品が本体購買と分離しており、購買・在庫管理が二重化</td>
+<td><strong>高</strong></td>
+<td>3C §1-4⑤、§3-1（プロシェア SPS 1〜7 保有）</td>
+<td>× NB 各社は本体単売</td>
+<td>★★★（PB 独占機会）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>多言語 UI（英語・中国語等）がなく、留学生・海外人材ラボで操作教育コスト発生</td>
+<td>中</td>
+<td>3C §1-4④、§2-3 全社で記載なし</td>
+<td>× 未解決</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>6</td>
+<td>100L 容量が欲しいが設置面積（床面積）が足りない</td>
+<td>中</td>
+<td>SNS（『100L 縦型が欲しいが設置スペース足りない』）、3C §1-3</td>
+<td>△ hirayama HG（短身缶体）、alp 横型 MCY-40L 等で部分対応／FLS-1000 自体は未対応</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>7</td>
+<td>タッチパネルの文字が小さく視認性が低い（アクセシブル UI 不足）</td>
+<td>中</td>
+<td>SNS（『タッチパネル文字が小さい』）、3C §1-3</td>
+<td>△ tomys LPS/MPS/BSX で 7" 液晶化進行中／FLS-1000 はデジタル温度＋アナログ圧力で旧式</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>8</td>
+<td>蓋が重く女性 1 人で開閉できない／取り出し時の蒸気が怖い</td>
+<td>中</td>
+<td>SNS（『蓋が重い』『女性 1 人だと開閉できない』『蒸気が怖い』、女性発信 60%）</td>
+<td>○ PB コンセプト前提では「NB が satisfy 済み」と提示（ただし FLS-1000 のスペック</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</body></html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>④ 4P 設計レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>アズワン PB 100L オートクレーブ：4P 仕様策定</h1>
+<hr />
+<h2>0. 優先ターゲット選定</h2>
+<p><strong>選定ターゲット：T-B 食品検査ラボ（S5）</strong></p>
+<p>選定理由：3 候補（T-A 製薬 CDMO / T-B 食品検査ラボ / T-C バイオベンチャー）を「狙いやすさ × 戦略適合性 × NB 弱点補強度」で比較した結果、T-B を選定する。第一に、POS 上「100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長」（3C §1-1）の中核需要層であり<strong>量的なボリュームが見込める</strong>。第二に、HACCP / ISO 22000 の制度的要請により「滅菌記録の電子化＋帳票化」が現場ペインとして顕在化しており、NB 各社が IQ-OQ・データ可搬性のいずれも明示訴求していない（3C §2-5、KSF #1, #2）<strong>業界空白を正面から取れる</strong>。第三に、培地調製〜廃棄滅菌の<strong>日次運用＝消耗品（プロシェア滅菌バッグ SPS-1〜7）の月次定常消費</strong>と親和性が極めて高く、アズワン PB のみが実装可能な「ハード＋消耗品サブスク」モデルの戦略適合性が最大化される（3C §3-1、STP §3 T-B）。T-A は査察ハードルが高く立ち上がり遅、T-C は規模がまだ小さく初動 ROI が読みにくいため、PB 第一弾は T-B で量を取り、横展開で T-A / T-C に広げる順序が合理的。</p>
+<p>製品仮称：<strong>「AS ONE プロシェア・オートクレーブ 100L FS（Food Safety）モデル」</strong>（以下 PB-FS100）</p>
+<hr />
+<h2>1. Product</h2>
+<h3>1-1. 機能仕様：NB 継承 vs PB 追加（弱点補強）</h3>
+<table>
+<thead>
+<tr>
+<th>機能項目</th>
+<th>NB（FLS-1000）の features</th>
+<th>PB-FS100 の扱い／追加機能</th>
+<th>区分</th>
+<th>開発難易度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>缶体容量・寸法</td>
+<td>100L 級／缶体 Φ450×678（3C §2-2）</td>
+<td><strong>同一継承</strong></td>
+<td>継承</td>
+<td>低</td>
+</tr>
+<tr>
+<td>最高圧力・滅菌温度</td>
+<td>0.193MPa／105〜123℃</td>
+<td><strong>同一継承</strong></td>
+<td>継承</td>
+<td>低</td>
+</tr>
+<tr>
+<td>ヒーター出力</td>
+<td>3.5kW 高速昇温（3C §2-3 tomys）</td>
+<td><strong>同一継承</strong></td>
+<td>継承</td>
+<td>低</td>
+</tr>
+<tr>
+<td>蓋・人間工学（woman-friendly / 片手開閉 / ローテーブル）</td>
+<td>PB コンセプト前提で NB satisfy 済み（STP §0）</td>
+<td><strong>同一継承</strong>（PB 独自軸にしない）</td>
+<td>継承</td>
+<td>低</td>
+</tr>
+<tr>
+<td>安全装置（インターロック・空焚防止・過温・過圧）</td>
+<td>業界標準（alp 等で明示／3C §2-3）</td>
+<td><strong>同一継承</strong></td>
+<td>継承</td>
+<td>低</td>
+</tr>
+<tr>
+<td>UI 表示</td>
+<td>デジタル温度＋アナログ圧力（旧式／KSF #7）</td>
+<td><strong>5 インチカラータッチパネル化</strong>＋文字大表示モード（アクセシブル UI）</td>
+<td><strong>PB 追加（弱点補強）</strong></td>
+<td>中</td>
+</tr>
+<tr>
+<td>データ可搬性</td>
+<td>データに記載なし＝非対応（3C §2-3）</td>
+<td><strong>USB-A ポート（CSV ログ自動書出）＋ LAN（HL7 不要・FTP/SMB）</strong></td>
+<td><strong>PB 追加（弱点補強）</strong></td>
+<td>中</td>
+</tr>
+<tr>
+<td>クラウド通知</td>
+<td>NB 全社で明示なし（KSF #2）</td>
+<td><strong>スマホ通知（滅菌完了 / エラー）オプション</strong>（Wi-Fi ドングル＋アズワン提供クラウド）</td>
+<td><strong>PB 追加（弱点補強）</strong></td>
+<td>中〜高</td>
+</tr>
+<tr>
+<td>HACCP / ISO 22000 帳票</td>
+<td>NB 各社で記載なし（STP §3 T-B）</td>
+<td><strong>HACCP 帳票テンプレ標準同梱</strong>（PDF 自動生成、ロット番号・温度履歴・F0 値）</td>
+<td><strong>PB 追加（独占機会）</strong></td>
+<td>中</td>
+</tr>
+<tr>
+<td>IQ-OQ ドキュメント</td>
+<td>NB 全社で記載なし＝業界空白（KSF #1）</td>
+<td><strong>IQ-OQ 簡易版を標準同梱</strong>（製本＋PDF、有償フル版は T-A 向け別 SKU）</td>
+<td><strong>PB 追加（弱点補強）</strong></td>
+<td>中</td>
+</tr>
+<tr>
+<td>多言語 UI</td>
+<td>NB 全社で記載なし（KSF #5）</td>
+<td><strong>日英中 3 言語切替</strong>（食品検査ラボでの留学生・技能実習生対応）</td>
+<td><strong>PB 追加（弱点補強）</strong></td>
+<td>低〜中</td>
+</tr>
+<tr>
+<td>消耗品同梱</td>
+<td>NB は本体単売（KSF #4）</td>
+<td><strong>プロシェア滅菌バッグ SPS-1〜7 から 3 規格を初回 200 枚×3 同梱</strong>＋定期便（後述 Price 参照）</td>
+<td><strong>PB 追加（独占機会）</strong></td>
+<td>低（既存 PB 在庫流用）</td>
+</tr>
+<tr>
+<td>滅菌コース</td>
+<td>NB（LPS 系）5 プリセット</td>
+<td><strong>食品検査特化 4 コース</strong>（培地調製／器具滅菌／廃棄物滅菌／寒天溶解）＋カスタム 4 枠</td>
+<td><strong>PB 仕様調整</strong></td>
+<td>低</td>
+</tr>
+<tr>
+<td>保守・校正</td>
+<td>NB 記載なし</td>
+<td><strong>年次校正サービス＋温度センサ交換キット定期便</strong>をオプション化</td>
+<td><strong>PB 追加</strong></td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<h3>1-2. PB 追加機能の 3 案比較（独自軸の絞り込み）</h3>
+<table>
+<thead>
+<tr>
+<th>案</th>
+<th>追加機能の中核</th>
+<th>狙いやすさ</th>
+<th>戦略適合性</th>
+<th>NB 弱点補強度</th>
+<th>採否</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>案 α</td>
+<td>フル GMP/IQ-OQ + 21 CFR Part 11 電子署名</td>
+<td>△（査察対応で食品ラボにはオーバースペック）</td>
+<td>◯</td>
+<td>◎</td>
+<td>× T-A 向け SKU として温存</td>
+</tr>
+<tr>
+<td>案 β</td>
+<td><strong>USB/LAN ログ + HACCP 帳票 + 消耗品サブスク + 多言語</strong>（食品検査特化）</td>
+<td>◎</td>
+<td>◎</td>
+<td>◎</td>
+<td><strong>◎ 採用</strong></td>
+</tr>
+<tr>
+<td>案 γ</td>
+<td>クラウド AI 異常検知＋遠隔保守</td>
+<td>△（要 IoT 基盤投資大）</td>
+<td>△</td>
+<td>◯</td>
+<td>× 第二弾以降に温存</td>
+</tr>
+</tbody>
+</table>
+<p>→ <strong>案 β</strong> を採用。クラウド通知のみ「オプション」として α/γ の橋渡しに残す。</p>
+<h3>1-3. 開発リスク</h3>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>内容</th>
+<th>緩和策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OEM 仕様変更コスト</td>
+<td>tomys 側の UI 基板・通信モジュール追加（FLS-1000 ベース改修）</td>
+<td>初期ロット 300 台コミットで開発費按分、UI は既存 LPS-700 の 7"液晶基板を 5" 化転用提案</td>
+</tr>
+<tr>
+<td>HACCP 帳票テンプレの法的妥当性</td>
+<td>自治体・認証機関ごとに微差</td>
+<td>一般財団法人系の食品分析センター 1 社と監修契約（コスト数百万円規模、データに記載なし＝推定）</td>
+</tr>
+<tr>
+<td>クラウド通知の運用責任</td>
+<td>通信断・データ消失時の責任分界</td>
+<td>クラウドは「補助通知」位置付け、本体 USB ログを正本とする契約条項</td>
+</tr>
+<tr>
+<td>消耗品サブスクの在庫リスク</td>
+<td>プロシェア SPS の月次出荷予測</td>
+<td>初期は四半期定期便（柔軟スキップ可）、PB 既存倉庫の安全在庫で吸収</td>
+</tr>
+<tr>
+<td>多言語 UI の翻訳精度</td>
+<td>中国語フォント・専門用語</td>
+<td>社内中国法人または翻訳監修会社で2段階レビュー</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Price</h2>
+<h3>2-1. 価格設計</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>金額（税別）</th>
+<th>NB 比</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NB ベース機種 FLS-1000</strong></td>
+<td>¥1,080,000</td>
+<td>基準</td>
+<td>3C §2-2</td>
+</tr>
+<tr>
+<td><strong>PB-FS100 本体標準価格</strong></td>
+<td><strong>¥864,000</strong></td>
+<td><strong>-20%</strong></td>
+<td>PB コンセプト前提の -15〜25% 中央値</td>
+</tr>
+<tr>
+<td>PB-FS100 + クラウド通知オプション</td>
+<td>¥918,000</td>
+<td>-15%</td>
+<td>Wi-Fi ドングル＋初年度クラウド利用料込</td>
+</tr>
+<tr>
+<td>消耗品サブスク（プロシェア定期便）</td>
+<td>¥9,800 / 月</td>
+<td>追加収益</td>
+<td>SPS から 3 規格×200 枚／四半期、解約自由</td>
+</tr>
+<tr>
+<td>年次校正サービス</td>
+<td>¥38,000 / 年</td>
+<td>追加収益</td>
+<td>オンサイト 1 回</td>
+</tr>
+<tr>
+<td>IQ-OQ フル版（T-A 向け別 SKU 予告）</td>
+<td>+¥180,000</td>
+<td>別売</td>
+<td>食品検査向けは簡易版を本体同梱</td>
+</tr>
+</tbody>
+</table>
+<h3>2-2. 原価・粗利仮説</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>金額</th>
+<th>構成比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OEM 仕入原価（tomys、UI・通信モジュール追加込）</td>
+<td>¥520,000</td>
+<td>60.2%</td>
+</tr>
+<tr>
+<td>消耗品初回同梱（SPS 3規格×200枚）</td>
+<td>¥18,000</td>
+<td>2.1%</td>
+</tr>
+<tr>
+<td>IQ-OQ 簡易版・HACCP テンプレ・マニュアル印刷</td>
+<td>¥8,000</td>
+<td>0.9%</td>
+</tr>
+<tr>
+<td>物流・代理店マージン引当</td>
+<td>¥130,000</td>
+<td>15.0%</td>
+</tr>
+<tr>
+<td><strong>本体粗利（標準価格 ¥864,000 ベース）</strong></td>
+<td><strong>¥188,000</strong></td>
+<td><strong>21.8%</strong></td>
+</tr>
+<tr>
+<td>サブスク粗利（月額 ¥9,800、原価率 50% 想定）×24 ヶ月平均継続</td>
+<td>¥117,600</td>
+<td>LTV 加算</td>
+</tr>
+<tr>
+<td><strong>本体 + サブスク 24 ヶ月 LTV 粗利</strong></td>
+<td><strong>¥305,600</strong></td>
+<td>実質粗利率 28.7%（ハード+サブスク合算）</td>
+</tr>
+</tbody>
+</table>
+<p>※ OEM 原価・物流マージンは業界一般想定（提供データに直接記載なし＝推定）。</p>
+<h3>2-3. 競合との価格ポジション</h3>
+<table>
+<thead>
+<tr>
+<th>機種</th>
+<th>価格</th>
+<th>PB-FS100 比</th>
+<th>コメント</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FLS-1000（NB ベース）</td>
+<td>¥1,080,000</td>
+<td>+25%</td>
+<td>PB は -20% で量販帯へ</td>
+</tr>
+<tr>
+<td>tomys LPS-700</td>
+<td>¥980,000</td>
+<td>+13%</td>
+<td>UI モダン、ただし HACCP/サブスクなし</td>
+</tr>
+<tr>
+<td>hirayama HV-110Ⅱ</td>
+<td>¥990,000</td>
+<td>+15%</td>
+<td>5コース×8メモリ、データ可搬性なし</td>
+</tr>
+<tr>
+<td>hirayama HV-110ⅡLB</td>
+<td>¥965,000</td>
+<td>+12%</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>yamato HVA-110LB</td>
+<td>¥742,000</td>
+<td><strong>-14%</strong></td>
+<td>100L 級最安、ただし機能限定・3コース</td>
+</tr>
+<tr>
+<td><strong>PB-FS100</strong></td>
+<td><strong>¥864,000</strong></td>
+<td>基準</td>
+<td>¥742K 機にスペックで勝ち、¥980K 帯に価格で勝つ「中央突破」ポジション</td>
+</tr>
+</tbody>
+</table>
+<p>→ ¥742K（yamato HVA-110LB）と ¥980K（tomys LPS-700）の<strong>価格谷間 ¥850K 帯</strong>を取り、機能（HACCP 帳票・サブスク・多言語）で差別化。</p>
+<hr />
+<h2>3. Place</h2>
+<h3>3-1. 流通チャネル</h3>
+<table>
+<thead>
+<tr>
+<th>チャネル</th>
+<th>役割</th>
+<th>在庫方針</th>
+<th>優先度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>アズワン総合カタログ（紙＋AXEL）</td>
+<td>主力導線。100L 級として大型掲載</td>
+<td>常時掲載、年2回改訂</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>AXEL（EC）</td>
+<td>見積依頼→代理店アサイン</td>
+<td>在庫表示「3-5営業日出荷」</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>全国理科学・医療代理店網</td>
+<td>設置・搬入・保守一次対応</td>
+<td>主要 50 代理店にデモ機 1 台ずつ常設目標</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>食品検査機器専門商社</td>
+<td>食品分析センター・自治体衛生研究所への直販ルート</td>
+<td>専任商社 3〜5 社と協業（要選定）</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>アズワン特約：HACCP コンサル会社</td>
+<td>帳票テンプレ監修＋導入支援セット</td>
+<td>レフェラル契約</td>
+<td>★★</td>
+</tr>
+</tbody>
+</table>
+<h3>3-2. 必要在庫・SCM</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>数量・方針</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初回 OEM ロット</td>
+<td>300 台（tomys 発注、リードタイム 4 ヶ月想定／推定）</td>
+</tr>
+<tr>
+<td>安全在庫（中央倉庫）</td>
+<td>60 台（2 ヶ月分）</td>
+</tr>
+<tr>
+<td>デモ機</td>
+<td>主要 50 代理店 + アズワン直営ショールーム 3 拠点 = 計 53 台</td>
+</tr>
+<tr>
+<td>消耗品（プロシェア SPS）在庫</td>
+<td>既存 PB 在庫を流用、サブスク契約数 ×1.5 ヶ月分の安全在庫</td>
+</tr>
+<tr>
+<td>サブスク管理基盤</td>
+<td>AXEL の定期便機能を流用（新規開発不要、要確認）</td>
+</tr>
+</tbody>
+</table>
+<h3>3-3. 販促パートナー</h3>
+<ul>
+<li><strong>HACCP 認証コンサル会社</strong>：帳票テンプレ監修 + 導入セミナー共催</li>
+<li><strong>食品分析センター系の試験所</strong>：レフェレンス事例化</li>
+<li><strong>tomys（製造元）</strong>：保守 2 次対応・年次校正の技術バックアップ</li>
+</ul>
+<hr />
+<h2>4. Promotion</h2>
+<h3>4-1. 訴求コピー軸（複数案／本文は次フェーズ）</h3>
+<table>
+<thead>
+<tr>
+<th>軸 ID</th>
+<th>コピー軸（テーマ）</th>
+<th>主訴求要素</th>
+<th>想定媒体</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>軸 1</td>
+<td><strong>「HACCP 帳票、ボタン 1 つ」</strong></td>
+<td>USB ログ自動書出＋帳票テンプレ標準同梱</td>
+<td>カタログ見開き／Web LP</td>
+</tr>
+<tr>
+<td>軸 2</td>
+<td><strong>「滅菌バッグも一緒に届く」</strong></td>
+<td>プロシェア SPS サブスクで在庫切れゼロ</td>
+<td>代理店営業トーク／メルマガ</td>
+</tr>
+<tr>
+<td>軸 3</td>
+<td><strong>「100L、20% 安く、記録は電子で」</strong></td>
+<td>価格 -20% × データ可搬性</td>
+<td>AXEL バナー／展示会</td>
+</tr>
+<tr>
+<td>軸 4</td>
+<td><strong>「日本語・英語・中国語、現場のままで」</strong></td>
+<td>多言語 UI × アクセシブル文字大表示</td>
+<td>SNS（女性研究者・留学生クラスタ）</td>
+</tr>
+<tr>
+<td>軸 5</td>
+<td><strong>「滅菌完了、スマホで確認」</strong></td>
+<td>クラウド通知オプション（オプション訴求）</td>
+<td>Web LP セカンダリ</td>
+</tr>
+<tr>
+<td>軸 6</td>
+<td><strong>「FLS-1000 ベース、安心の人間工学を継承」</strong></td>
+<td>NB 既訴求の woman-friendly / 片手開閉 / ローテーブルを<strong>「継承」として言及</strong>（独自軸ではなく安心材料として配置）</td>
+<td>カタログ脚注／代理店資料</td>
+</tr>
+</tbody>
+</table>
+<p>→ <strong>メイン軸：軸 1 ＋ 軸 2 ＋ 軸 3 の三位一体</strong>（HACCP 帳票 × サブスク × 価格）。軸 6 は「NB 強みも捨てていない」安心材料として補助配置。</p>
+<h3>4-2. 販促媒体ミックス</h3>
+<table>
+<thead>
+<tr>
+<th>媒体</th>
+<th>役割</th>
+<th>投下優先度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>アズワン総合カタログ／AXEL（自社）</td>
+<td>主導線、見積獲得</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>食品衛生・微生物検査系専門誌（業界紙広告）</td>
+<td>食品検査ラボ管理者リーチ</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>HACCP セミナー共催（オンライン＋全国 6 都市）</td>
+<td>リード獲得・教育</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>展示会（FOOMA JAPAN、食品開発展、JASIS）</td>
+<td>デモ展示・帳票テンプレ実機体験</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>代理店向け営業ツール（動画・トークスクリプト）</td>
+<td>50 代理店の販売力均質化</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>SNS（X / LinkedIn）</td>
+<td>女性研究者・若手技師クラスタへの軸 4 投下</td>
+<td>★</td>
+</tr>
+</tbody>
+</table>
+<h3>4-3. 初動キャンペーン（発売後 6 ヶ月）</h3>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>施策</th>
+<th>KPI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0（発売日）</td>
+<td>カタログ巻頭特集 + AXEL 特設 LP 公開 + 全代理店一斉メルマガ</td>
+<td>LP 流入 5,000 UU / 月</td>
+</tr>
+<tr>
+<td>M0-M1</td>
+<td><strong>「HACCP 帳票テンプレ無料ダウンロード」リード獲得施策</strong>（メール登録で PDF サンプル配布）</td>
+<td>リード 800 件</td>
+</tr>
+<tr>
+<td>M1-M3</td>
+<td>HACCP セミナー全国 6 都市 + オンライン 3 回</td>
+<td>参加 600 名、商談化 120 件</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>FOOMA JAPAN 出展（実機デモ＋帳票自動生成体験）</td>
+<td>名刺 400 枚、商談化 60 件</td>
+</tr>
+<tr>
+<td>M3-M4</td>
+<td><strong>「初回 1 年サブスク半額」ローンチ特典</strong>（消耗品定期便）</td>
+<td>サブスク契約率 30%（販売台数比）</td>
+</tr>
+<tr>
+<td>M4-M6</td>
+<td>導入事例 3 社（食品分析センター・自治体衛生研／民間検査ラボ）公開</td>
+<td>事例 PV 3,000、商談化 40 件</td>
+</tr>
+<tr>
+<td>M6 終了時</td>
+<td>累計販売 180 台、サブスク継続 50 件、本体 LTV 粗利 ¥55M 目標</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>出典・注記</h3>
+<ul>
+<li>価格・スペックの NB 値：3C §2-2、§2-3。</li>
+<li>業界空白（IQ-OQ・データ可搬性・サブスク・多言語）：3C §2-5、KSF #1〜#5、STP §0。</li>
+<li>woman-friendly / 片手開閉 / ローテーブルは「NB が satisfy 済み」前提を維持し、PB 独自軸にしていない（STP §0 ルール遵守）。</li>
+<li>OEM 原価・物流マージン・初回ロット数・LTV 継続月数は<strong>業界一般想定（推定）</strong>。提供データに直接記載なし。</li>
+<li>クラウド基盤・サブスク管理基盤の社内既存有無、HACCP コンサル監修契約コストは<strong>データに記載なし</strong>。次フェーズで要実調。</li>
+</ul>
+</body></html>
