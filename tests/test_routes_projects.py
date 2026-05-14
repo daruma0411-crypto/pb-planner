@@ -217,3 +217,63 @@ def test_upload_scraped_invalid_bucket_returns_400(client, tmp_projects_dir):
 def test_upload_scraped_404_when_pid_missing(client):
     r = client.post("/api/projects/prj_nope/scraped/asone", json=[])
     assert r.status_code == 404
+
+
+def test_chat_history_empty_when_no_chat(client):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    r = client.get(f"/api/projects/{pid}/chat/history")
+    assert r.status_code == 200
+    assert r.get_json()["history"] == []
+
+
+def test_chat_history_404_when_pid_missing(client):
+    r = client.get("/api/projects/prj_nope/chat/history")
+    assert r.status_code == 404
+
+
+def test_chat_post_400_when_message_empty(client):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    r = client.post(f"/api/projects/{pid}/chat", json={"message": ""})
+    assert r.status_code == 400
+
+
+def test_chat_post_streams_response(client, monkeypatch):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+
+    class FakeStream:
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        @property
+        def text_stream(self):
+            return iter(["こんにちは", "、テスト応答です"])
+
+    class FakeMessages:
+        def stream(self, **kw): return FakeStream()
+
+    class FakeClient:
+        def __init__(self): self.messages = FakeMessages()
+
+    import anthropic
+    monkeypatch.setattr(anthropic, "Anthropic", lambda: FakeClient())
+
+    r = client.post(f"/api/projects/{pid}/chat", json={"message": "テスト質問"})
+    assert r.status_code == 200
+    body = r.get_data(as_text=True)
+    assert "こんにちは" in body
+    assert "done" in body
+
+
+def test_chat_delete_clears_history(client, tmp_projects_dir):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    # 履歴ファイル作成
+    import os, json as J
+    chat_path = os.path.join(tmp_projects_dir, pid, "chat.jsonl")
+    with open(chat_path, "w", encoding="utf-8") as f:
+        f.write(J.dumps({"role": "user", "content": "x"}, ensure_ascii=False) + "\n")
+    r = client.delete(f"/api/projects/{pid}/chat")
+    assert r.status_code == 200
+    assert not os.path.exists(chat_path)

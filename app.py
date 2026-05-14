@@ -1983,6 +1983,151 @@ def api_phases(pid):
 
 
 # ================================================================
+# 統括エージェント チャット
+# ================================================================
+
+@app.route('/api/projects/<pid>/chat', methods=['POST'])
+def api_project_chat(pid):
+    """案件コンテキスト + 全 5 フェーズレポートを把握した統括エージェントとチャット"""
+    try:
+        proj = _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    data = request.get_json(silent=True) or {}
+    user_msg = (data.get('message') or '').strip()
+    if not user_msg:
+        return jsonify({"error": "message required"}), 400
+
+    pdir = _pm._project_dir(pid)
+    chat_path = os.path.join(pdir, "chat.jsonl")
+    history = []
+    if os.path.exists(chat_path):
+        with open(chat_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        history.append(json.loads(line))
+                    except Exception:
+                        continue
+
+    # 5 フェーズの最新レポートを system prompt に注入
+    from report_helpers import latest_report_md
+    meta = proj["meta"]
+    sources = proj["sources"]
+    phase_mds = {p: (latest_report_md(pid, p) or "(未生成)") for p in ['3c', 'ksf', 'stp', '4p', 'finish']}
+
+    base_models = meta.get('base_model_candidates') or []
+    base_model_str = ", ".join(f"{b.get('maker','?')}/{b.get('model','?')}" for b in base_models) or "(未設定)"
+
+    system_prompt = f"""あなたはアズワン PB企画パイプラインの**統括コンサルタント**です。以下の案件と、すでに生成済みの 5 フェーズレポート全文を把握した上で、ユーザーの質問・確認・修正指示に答えてください。
+
+# 案件概要
+- 案件名: {meta.get('name','(名称なし)')}
+- 対象カテゴリ: {meta.get('category','')}
+- PB コンセプト: {meta.get('pb_concept','')}
+- ベース機種候補: {base_model_str}
+
+# 入力データソース
+- POS サマリ: {sources.get('pos',{}).get('summary_note','(未投入)')}
+- SNS サマリ: {sources.get('sns',{}).get('summary_note','(未投入)')}
+- スクレイピング: 案件 scraped/ 配下に asone/partner/competitor 全件（再質問あればファイル名で参照）
+
+# 生成済み 5 フェーズレポート全文
+
+## ① 3C 分析
+{phase_mds['3c']}
+
+## ② KSF 抽出
+{phase_mds['ksf']}
+
+## ③ STP 設計
+{phase_mds['stp']}
+
+## ④ 4P 設計
+{phase_mds['4p']}
+
+## ⑤ キャッチ + 商品マスタ
+{phase_mds['finish']}
+
+# 振る舞いルール
+1. レポートからの引用を優先。発言の根拠フェーズ（例: 「KSF #3」「STP の T1」）を明示
+2. ハルシネーション厳禁。レポートに無い情報は「データに記載なし」と明記
+3. 特定フェーズの再生成や軸変更が必要なら「再生成を提案します」と提案文を出す（実行は今のところ未実装、user に伝える）
+4. 出力は Markdown、簡潔に。長文の説明は段落分け
+5. 「これ違うのでは」「もっと深く」のような曖昧な質問には、どの箇所か逆質問してから具体提案
+"""
+
+    messages = history + [{"role": "user", "content": user_msg}]
+
+    def event_stream():
+        accumulated = []
+        try:
+            from anthropic import Anthropic
+            client = Anthropic()
+            with client.messages.stream(
+                model="claude-opus-4-7",
+                max_tokens=4000,
+                system=system_prompt,
+                messages=messages,
+            ) as stream:
+                for text in stream.text_stream:
+                    accumulated.append(text)
+                    yield f"data: {json.dumps({'text': text}, ensure_ascii=False)}\n\n"
+            assistant_msg = "".join(accumulated)
+            history.append({"role": "user", "content": user_msg})
+            history.append({"role": "assistant", "content": assistant_msg})
+            try:
+                with open(chat_path, "w", encoding="utf-8") as f:
+                    for h in history:
+                        f.write(json.dumps(h, ensure_ascii=False) + "\n")
+            except Exception as e:
+                yield f"data: {json.dumps({'warn': 'history save failed: '+str(e)}, ensure_ascii=False)}\n\n"
+            yield "data: {\"done\": true}\n\n"
+        except Exception as e:
+            import traceback
+            yield f"data: {json.dumps({'error': str(e), 'tb': traceback.format_exc()[:800]}, ensure_ascii=False)}\n\n"
+
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+@app.route('/api/projects/<pid>/chat/history', methods=['GET'])
+def api_project_chat_history(pid):
+    """チャット履歴取得"""
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    pdir = _pm._project_dir(pid)
+    chat_path = os.path.join(pdir, "chat.jsonl")
+    history = []
+    if os.path.exists(chat_path):
+        with open(chat_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        history.append(json.loads(line))
+                    except Exception:
+                        continue
+    return jsonify({"history": history})
+
+
+@app.route('/api/projects/<pid>/chat', methods=['DELETE'])
+def api_project_chat_clear(pid):
+    """チャット履歴クリア"""
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    pdir = _pm._project_dir(pid)
+    chat_path = os.path.join(pdir, "chat.jsonl")
+    if os.path.exists(chat_path):
+        os.remove(chat_path)
+    return jsonify({"ok": True})
+
+
+# ================================================================
 # エントリポイント
 # ================================================================
 
