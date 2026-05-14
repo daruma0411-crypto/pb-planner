@@ -42,18 +42,53 @@ def _scrape_axel(url: str, dest_path: str, **kw) -> int:
     return scraper_axel.scrape_to_jsonl(url, dest_path)
 
 
+def _copy_workspace_data(dirname: str, dest_path: str) -> int:
+    """workspace/data/<dirname>/products.jsonl を案件 scraped/<...>/products.jsonl にコピー。
+
+    既存スクレイパー（scripts/scraper_*.py）が事前に書き出したデータを
+    案件単位 DB に流し込むためのアダプタ。Railway 本番のように live fetch が
+    難しい環境でも、ローカルで取得した workspace データを git 経由で配布可能。
+    """
+    base = os.path.dirname(os.path.abspath(__file__))
+    src = os.path.join(base, "workspace", "data", dirname, "products.jsonl")
+    if not os.path.exists(src):
+        return 0
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    count = 0
+    with open(src, encoding="utf-8") as fin, open(dest_path, "w", encoding="utf-8") as fout:
+        for line in fin:
+            line = line.strip()
+            if line:
+                fout.write(line + "\n")
+                count += 1
+    return count
+
+
 def _yamato_adapter(url, dest_path, models=None):
-    from scripts import scraper_yamato  # noqa: F401
+    n = _copy_workspace_data("yamato_autoclave", dest_path)
+    if n > 0:
+        return n
     return _generic_via_base(url, dest_path, models)
 
 
 def _hirayama_adapter(url, dest_path, models=None):
-    from scripts import scraper_hirayama  # noqa: F401
+    n = _copy_workspace_data("hirayama_autoclave", dest_path)
+    if n > 0:
+        return n
     return _generic_via_base(url, dest_path, models)
 
 
 def _alp_adapter(url, dest_path, models=None):
-    from scripts import scraper_alp  # noqa: F401
+    n = _copy_workspace_data("alp_autoclave", dest_path)
+    if n > 0:
+        return n
+    return _generic_via_base(url, dest_path, models)
+
+
+def _tomys_adapter(url, dest_path, models=None):
+    n = _copy_workspace_data("tomys_autoclave", dest_path)
+    if n > 0:
+        return n
     return _generic_via_base(url, dest_path, models)
 
 
@@ -76,6 +111,7 @@ _SCRAPER_REGISTRY = {
     "yamato": _yamato_adapter,
     "hirayama": _hirayama_adapter,
     "alp": _alp_adapter,
+    "tomys": _tomys_adapter,
 }
 
 
@@ -118,9 +154,15 @@ def run_scraping(pid: str, async_: bool = True) -> None:
         if asone_urls:
             try:
                 count = 0
-                for u in asone_urls:
-                    dest = os.path.join(_scraped_dir(pid, "asone"), "products.jsonl")
-                    count += _scrape_axel(u, dest)
+                dest = os.path.join(_scraped_dir(pid, "asone"), "products.jsonl")
+                # workspace/data/asone_autoclave/ があればそれを優先（Railway 本番で
+                # axel.as-1.co.jp に届かない問題の回避）
+                ws_count = _copy_workspace_data("asone_autoclave", dest)
+                if ws_count > 0:
+                    count = ws_count
+                else:
+                    for u in asone_urls:
+                        count += _scrape_axel(u, dest)
                 _mark("asone", status="completed", count=count)
             except Exception as e:
                 progress["errors"].append({"source": "asone", "error": str(e), "tb": traceback.format_exc()})
