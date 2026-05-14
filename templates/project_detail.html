@@ -206,5 +206,131 @@ async function loadPhases() {
 loadPhases();
 setInterval(loadPhases, 5000);
 </script>
+
+<section style="background:#fef9f5; border: 2px solid #c4763a; margin-top: 1.5em;">
+  <h2>💬 統括エージェントと壁打ち</h2>
+  <p style="font-size:0.9em; color:#666; margin-top:0">
+    5 フェーズ全レポートを把握した AI コンサルタントに、質問・確認・修正提案を投げられます。
+    例：「Customer 1-1 の市場規模の出典は？」「KSF #3 のペイン強度を高にした根拠は？」「STP の T1 ターゲット、別軸で再検討して」
+  </p>
+  <div id="chat_log" style="max-height: 480px; overflow-y: auto; background:#fff; border:1px solid #ddd; border-radius:6px; padding:1em; margin: 0.5em 0; font-size:0.95em;">
+    <p style="color:#999">（履歴なし。下の入力欄から質問してください）</p>
+  </div>
+  <div style="display:flex; gap:0.5em; align-items:stretch;">
+    <textarea id="chat_input" rows="2" placeholder="質問・修正指示を入力（Ctrl+Enter または送信ボタン）" style="flex:1; padding:0.6em; font-size:0.95em; box-sizing:border-box;"></textarea>
+    <button id="chat_send_btn" style="padding:0 1.4em; background:#c4763a; color:#fff; border:0; border-radius:4px; cursor:pointer; font-size:0.95em;">送信</button>
+  </div>
+  <p style="font-size:0.8em; color:#999; margin-top:0.5em;">
+    <button id="chat_clear_btn" style="background:#888; padding:0.3em 0.8em; font-size:0.85em;">履歴クリア</button>
+    ※ 履歴は案件に紐づいて保存されます
+  </p>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+const chatLog = document.getElementById('chat_log');
+const chatInput = document.getElementById('chat_input');
+const chatSendBtn = document.getElementById('chat_send_btn');
+const chatClearBtn = document.getElementById('chat_clear_btn');
+
+function appendMsg(role, content) {
+  const wrap = document.createElement('div');
+  wrap.style.margin = '0.8em 0';
+  const label = document.createElement('div');
+  label.style.fontWeight = 'bold';
+  label.style.fontSize = '0.85em';
+  label.style.color = role === 'user' ? '#1f3a5f' : '#c4763a';
+  label.textContent = role === 'user' ? '🧑 あなた' : '🤖 統括コンサルタント';
+  const body = document.createElement('div');
+  body.style.padding = '0.6em 0.8em';
+  body.style.background = role === 'user' ? '#eef3f9' : '#fff8f0';
+  body.style.borderRadius = '6px';
+  body.style.marginTop = '0.2em';
+  body.innerHTML = marked.parse(content);
+  wrap.appendChild(label);
+  wrap.appendChild(body);
+  chatLog.appendChild(wrap);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  return body;
+}
+
+async function loadChatHistory() {
+  try {
+    const r = await fetch(`/api/projects/${pid}/chat/history`);
+    if (!r.ok) return;
+    const data = await r.json();
+    const history = data.history || [];
+    if (history.length === 0) return;
+    chatLog.innerHTML = '';
+    for (const m of history) {
+      appendMsg(m.role, m.content);
+    }
+  } catch (e) { console.warn('history load failed', e); }
+}
+
+async function sendChatMessage() {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+  chatInput.value = '';
+  chatSendBtn.disabled = true;
+  appendMsg('user', msg);
+  const replyBody = appendMsg('assistant', '_生成中..._');
+  replyBody.innerHTML = '<span style="color:#999">生成中...</span>';
+  let accum = '';
+  try {
+    const resp = await fetch(`/api/projects/${pid}/chat`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ message: msg }),
+    });
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let idx;
+      while ((idx = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, idx).trim();
+        buf = buf.slice(idx + 2);
+        if (line.startsWith('data:')) {
+          try {
+            const payload = JSON.parse(line.slice(5).trim());
+            if (payload.error) {
+              replyBody.innerHTML = `<span style="color:#c33">エラー: ${payload.error}</span>`;
+              return;
+            }
+            if (payload.text) {
+              accum += payload.text;
+              replyBody.innerHTML = marked.parse(accum);
+              chatLog.scrollTop = chatLog.scrollHeight;
+            }
+          } catch (e) { console.warn(e); }
+        }
+      }
+    }
+  } catch (e) {
+    replyBody.innerHTML = `<span style="color:#c33">通信エラー: ${e.message}</span>`;
+  } finally {
+    chatSendBtn.disabled = false;
+    chatInput.focus();
+  }
+}
+
+chatSendBtn.onclick = sendChatMessage;
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
+chatClearBtn.onclick = async () => {
+  if (!confirm('チャット履歴をクリアしますか？')) return;
+  await fetch(`/api/projects/${pid}/chat`, { method: 'DELETE' });
+  chatLog.innerHTML = '<p style="color:#999">（履歴クリア済み）</p>';
+};
+
+loadChatHistory();
+</script>
 </body>
 </html>
