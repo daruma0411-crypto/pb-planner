@@ -1,8 +1,8 @@
 {
   "id": "prj_20260514_120000_abcdef",
-  "name": "デモ案件：アズワン PB woman-friendly 100L オートクレーブ",
+  "name": "デモ案件：アズワン PB 100L オートクレーブ（FLS-1000 ベース・差別化軸を再探索）",
   "category": "autoclave",
-  "pb_concept": "100L クラス × 人間工学（女性研究者・若手職員配慮）",
+  "pb_concept": "FLS-1000 をベースに、NB が既に satisfy している軸（woman-friendly・片手開閉・ローテーブル）は継承しつつ、NB の弱点（バリデーション/IQ-OQ、データ可搬性 USB/LAN/クラウド、多言語、PB 価格圧縮 -15〜25%、サブスク・消耗品同梱）から真の差別化軸を STP/4P で 3 案以上比較して選定する。",
   "base_model_candidates": [
     {
       "maker": "tomys",
@@ -11,5 +11,5 @@
     }
   ],
   "created_at": "2026-05-14T12:00:00+09:00",
-  "updated_at": "2026-05-14T12:00:00+09:00"
+  "updated_at": "2026-05-14T18:00:00+09:00"
 }
