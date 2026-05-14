@@ -2414,12 +2414,31 @@ def api_report_pdf(pid, rid):
     if not os.path.exists(md_path):
         return jsonify({"error": "report not found"}), 404
     if not os.path.exists(pdf_path):
-        from pdf_exporter import md_to_pdf  # 遅延 import で WeasyPrint 失敗を起動時に出さない
-        with open(md_path, encoding="utf-8") as f:
-            md_text = f.read()
-        md_to_pdf(md_text, pdf_path)
+        try:
+            from pdf_exporter import md_to_pdf  # 遅延 import で WeasyPrint 失敗を起動時に出さない
+            with open(md_path, encoding="utf-8") as f:
+                md_text = f.read()
+            md_to_pdf(md_text, pdf_path)
+        except Exception as e:
+            return jsonify({"error": "pdf conversion failed",
+                            "detail": str(e),
+                            "fallback": f"/api/projects/{pid}/reports/{rid}/md"}), 500
     return send_file(pdf_path, mimetype="application/pdf",
                      as_attachment=True, download_name=f"{rid}.pdf")
+
+
+@app.route('/api/projects/<pid>/reports/<rid>/md', methods=['GET'])
+def api_report_md(pid, rid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    pdir = _pm._project_dir(pid)
+    md_path = os.path.join(pdir, "reports", f"{rid}.md")
+    if not os.path.exists(md_path):
+        return jsonify({"error": "report not found"}), 404
+    return send_file(md_path, mimetype="text/markdown; charset=utf-8",
+                     as_attachment=True, download_name=f"{rid}.md")
 
 
 @app.route('/api/projects/<pid>', methods=['DELETE'])
