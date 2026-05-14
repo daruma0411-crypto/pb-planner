@@ -156,31 +156,6 @@ def test_post_report_3c_returns_sse(client, monkeypatch):
     assert "[META]" in body
 
 
-@pytest.fixture
-def _can_pdf():
-    try:
-        import pdf_exporter  # noqa
-        from weasyprint import HTML  # noqa
-        return True
-    except (OSError, ImportError):
-        return False
-
-
-def test_get_report_pdf(client, tmp_projects_dir, _can_pdf):
-    if not _can_pdf:
-        pytest.skip("WeasyPrint unavailable on this platform")
-    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
-    pid = cr.get_json()["id"]
-    import os
-    rdir = os.path.join(tmp_projects_dir, pid, "reports")
-    os.makedirs(rdir, exist_ok=True)
-    with open(os.path.join(rdir, "3c_test.md"), "w", encoding="utf-8") as f:
-        f.write("# Test\n\nHello.\n")
-    resp = client.get(f"/api/projects/{pid}/reports/3c_test/pdf")
-    assert resp.status_code == 200
-    assert resp.data[:4] == b"%PDF"
-
-
 def test_delete_project_returns_200_and_removes(client):
     cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
     pid = cr.get_json()["id"]

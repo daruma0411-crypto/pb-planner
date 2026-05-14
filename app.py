@@ -1724,7 +1724,7 @@ def page_project_detail(pid):
 
 @app.route('/projects/<pid>/report', methods=['GET'])
 def page_report(pid):
-    return send_from_directory(_TEMPLATES_DIR, 'report_3c.html')
+    return send_from_directory(_TEMPLATES_DIR, 'report_phase.html')
 
 
 from scraper_orchestrator import run_scraping, get_progress  # noqa: E402
@@ -1771,27 +1771,43 @@ def api_generate_3c(pid):
 
 @app.route('/api/projects/<pid>/reports/<rid>/pdf', methods=['GET'])
 def api_report_pdf(pid, rid):
+    # 後方互換: PDF API は撤退（WeasyPrint 撤退）。HTML エンドポイントへ案内。
+    return jsonify({
+        "error": "PDF API is deprecated. Use /html endpoint or browser print.",
+        "html_url": f"/api/projects/{pid}/reports/{rid}/html",
+    }), 410
+
+
+@app.route('/api/projects/<pid>/reports/<rid>/html', methods=['GET'])
+def api_report_html(pid, rid):
     try:
         _pm.get_project(pid)
     except _pm.ProjectNotFound:
         return jsonify({"error": "not found"}), 404
     pdir = _pm._project_dir(pid)
     md_path = os.path.join(pdir, "reports", f"{rid}.md")
-    pdf_path = os.path.join(pdir, "reports", f"{rid}.pdf")
     if not os.path.exists(md_path):
         return jsonify({"error": "report not found"}), 404
-    if not os.path.exists(pdf_path):
-        try:
-            from pdf_exporter import md_to_pdf  # 遅延 import で WeasyPrint 失敗を起動時に出さない
-            with open(md_path, encoding="utf-8") as f:
-                md_text = f.read()
-            md_to_pdf(md_text, pdf_path)
-        except Exception as e:
-            return jsonify({"error": "pdf conversion failed",
-                            "detail": str(e),
-                            "fallback": f"/api/projects/{pid}/reports/{rid}/md"}), 500
-    return send_file(pdf_path, mimetype="application/pdf",
-                     as_attachment=True, download_name=f"{rid}.pdf")
+    import markdown as md_lib
+    with open(md_path, encoding="utf-8") as f:
+        md_text = f.read()
+    html_body = md_lib.markdown(md_text, extensions=["tables", "fenced_code"])
+    css = """
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif; font-size: 11pt; line-height: 1.7; color: #222; max-width: 900px; margin: 2em auto; padding: 0 1em; }
+h1 { font-size: 18pt; border-bottom: 2px solid #333; padding-bottom: 0.3em; }
+h2 { font-size: 14pt; border-bottom: 1px solid #888; padding-bottom: 0.2em; margin-top: 1.5em; }
+h3 { font-size: 12pt; margin-top: 1.2em; }
+table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+th, td { border: 1px solid #666; padding: 0.4em 0.6em; text-align: left; }
+th { background: #eee; }
+code { background: #f4f4f4; padding: 0.1em 0.3em; border-radius: 3px; }
+pre { background: #f4f4f4; padding: 0.6em; border-radius: 4px; overflow-x: auto; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } }
+"""
+    full_html = f"""<!DOCTYPE html><html lang='ja'><head><meta charset='utf-8'><title>{rid}</title><style>{css}</style></head><body>{html_body}</body></html>"""
+    return Response(full_html, mimetype="text/html",
+                    headers={"Content-Disposition": f"attachment; filename={rid}.html"})
 
 
 @app.route('/api/projects/<pid>/reports/<rid>/md', methods=['GET'])
@@ -1836,6 +1852,82 @@ def api_debug_fetch():
         import traceback
         return jsonify({"url": url, "ok": False, "error": str(e),
                         "tb": traceback.format_exc()[:1000]}), 500
+
+
+# ================================================================
+# 5 フェーズパイプライン: KSF / STP / 4P / Finish + 進捗 API
+# ================================================================
+from report_engine_ksf import generate_ksf_stream  # noqa: E402
+from report_engine_stp import generate_stp_stream  # noqa: E402
+from report_engine_4p import generate_4p_stream  # noqa: E402
+from report_engine_finish import generate_finish_stream  # noqa: E402
+from report_helpers import list_phase_reports  # noqa: E402
+
+
+def _sse_stream_endpoint(generator):
+    def event_stream():
+        try:
+            for chunk in generator:
+                yield f"data: {json.dumps({'text': chunk}, ensure_ascii=False)}\n\n"
+            yield "data: {\"done\": true}\n\n"
+        except RuntimeError as e:
+            yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+@app.route('/api/projects/<pid>/reports/ksf', methods=['POST'])
+def api_generate_ksf(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    return _sse_stream_endpoint(generate_ksf_stream(pid))
+
+
+@app.route('/api/projects/<pid>/reports/stp', methods=['POST'])
+def api_generate_stp(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    return _sse_stream_endpoint(generate_stp_stream(pid))
+
+
+@app.route('/api/projects/<pid>/reports/4p', methods=['POST'])
+def api_generate_4p(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    return _sse_stream_endpoint(generate_4p_stream(pid))
+
+
+@app.route('/api/projects/<pid>/reports/finish', methods=['POST'])
+def api_generate_finish(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    return _sse_stream_endpoint(generate_finish_stream(pid))
+
+
+@app.route('/api/projects/<pid>/phases', methods=['GET'])
+def api_phases(pid):
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    phases = list_phase_reports(pid)
+    return jsonify({
+        "phases": phases,
+        "status": {
+            "3c": "completed" if phases["3c"] else "pending",
+            "ksf": "completed" if phases["ksf"] else ("ready" if phases["3c"] else "locked"),
+            "stp": "completed" if phases["stp"] else ("ready" if phases["ksf"] else "locked"),
+            "4p": "completed" if phases["4p"] else ("ready" if phases["stp"] else "locked"),
+            "finish": "completed" if phases["finish"] else ("ready" if phases["4p"] else "locked"),
+        }
+    })
 
 
 # ================================================================

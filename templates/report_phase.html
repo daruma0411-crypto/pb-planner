@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="utf-8"><title id="page_title">レポート — PB企画プランナー</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", "Yu Gothic", sans-serif; max-width: 960px; margin: 2em auto; padding: 0 1em; color: #222; }
+.toolbar { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; margin: 1em 0; }
+.status { padding: 0.4em 0.8em; background: #ffd; border-radius: 4px; }
+button, a.btn { padding: 0.5em 1em; background: #2a7; color: #fff; border: 0; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 0.95em; }
+button:disabled { background: #aaa; cursor: not-allowed; }
+.btn-print { background: #555; }
+.btn-next { background: #c63; }
+#report { background: #fff; padding: 1.5em; border: 1px solid #ddd; border-radius: 6px; font-size: 1em; line-height: 1.7; }
+#report h1 { border-bottom: 2px solid #333; padding-bottom: 0.3em; font-size: 1.6em; }
+#report h2 { border-bottom: 1px solid #888; padding-bottom: 0.2em; margin-top: 1.5em; font-size: 1.3em; }
+#report h3 { margin-top: 1.2em; font-size: 1.1em; }
+#report table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
+#report th, #report td { border: 1px solid #666; padding: 0.4em 0.6em; text-align: left; }
+#report th { background: #eee; }
+#report code { background: #f4f4f4; padding: 0.1em 0.3em; border-radius: 3px; }
+#report pre { background: #f4f4f4; padding: 0.6em; border-radius: 4px; overflow-x: auto; }
+@media print {
+  body { max-width: 100%; margin: 0; padding: 0; color: #000; }
+  .toolbar, .nav { display: none !important; }
+  #report { border: none; padding: 0; }
+  #report h1 { page-break-before: avoid; }
+  #report h2 { page-break-before: auto; page-break-after: avoid; }
+  #report h3, #report h4 { page-break-after: avoid; }
+  table { page-break-inside: avoid; }
+  @page { size: A4; margin: 16mm; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<p class="nav"><a href="/projects" style="color:#666;text-decoration:none">← 案件一覧</a></p>
+<h1 id="phase_title">レポート</h1>
+<div class="toolbar">
+  <span class="status" id="status">準備中</span>
+  <button id="md_btn" disabled>Markdown ダウンロード</button>
+  <button id="html_btn" disabled>HTML ダウンロード</button>
+  <button class="btn-print" onclick="window.print()">ブラウザで印刷 (PDF 化)</button>
+  <a id="next_btn" class="btn btn-next" style="display:none">次のフェーズへ →</a>
+</div>
+<div id="report"></div>
+<script>
+const PHASE_INFO = {
+  '3c': { title: '3C 分析', api: '3c', next: 'ksf', next_label: 'KSF へ' },
+  'ksf': { title: 'KSF 抽出', api: 'ksf', next: 'stp', next_label: 'STP へ' },
+  'stp': { title: 'STP 設計', api: 'stp', next: '4p', next_label: '4P へ' },
+  '4p': { title: '4P 設計', api: '4p', next: 'finish', next_label: 'キャッチ+マスタへ' },
+  'finish': { title: 'キャッチ + 商品マスタ', api: 'finish', next: null, next_label: null },
+};
+const params = new URLSearchParams(location.search);
+const phase = params.get('phase') || '3c';
+const info = PHASE_INFO[phase] || PHASE_INFO['3c'];
+const pid = location.pathname.split('/')[2];
+document.title = info.title + ' — PB企画プランナー';
+document.getElementById('phase_title').textContent = info.title;
+document.getElementById('page_title').textContent = info.title + ' — PB企画プランナー';
+let reportId = null;
+let mdAccum = "";
+async function start() {
+  document.getElementById('status').textContent = '生成中...';
+  const body = phase === '3c' ? { base_model: JSON.parse(sessionStorage.getItem('base_model') || '{}') } : {};
+  const resp = await fetch(`/api/projects/${pid}/reports/${info.api}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body),
+  });
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let idx;
+    while ((idx = buf.indexOf('\n\n')) >= 0) {
+      const line = buf.slice(0, idx).trim();
+      buf = buf.slice(idx + 2);
+      if (line.startsWith('data:')) {
+        try {
+          const payload = JSON.parse(line.slice(5).trim());
+          if (payload.error) {
+            document.getElementById('status').textContent = 'エラー: ' + payload.error;
+            return;
+          }
+          if (payload.text) {
+            if (payload.text.startsWith('[META]')) {
+              reportId = payload.text.replace('[META]', '').trim();
+            } else {
+              mdAccum += payload.text;
+              document.getElementById('report').innerHTML = marked.parse(mdAccum);
+            }
+          }
+          if (payload.done) {
+            document.getElementById('status').textContent = '完了';
+            ['md_btn','html_btn'].forEach(id => document.getElementById(id).disabled = false);
+            document.getElementById('md_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${reportId}/md`;
+            document.getElementById('html_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${reportId}/html`;
+            if (info.next) {
+              const nb = document.getElementById('next_btn');
+              nb.style.display = 'inline-block';
+              nb.textContent = info.next_label + ' →';
+              nb.href = `/projects/${pid}/report?phase=${info.next}`;
+            }
+          }
+        } catch (e) { console.warn(e); }
+      }
+    }
+  }
+}
+start();
+</script>
+</body>
+</html>

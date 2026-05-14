@@ -175,5 +175,48 @@ function startReport() {
   location.href = `/projects/${pid}/report`;
 }
 </script>
+
+<section style="background:#f8f8f8; border: 2px solid #2a7;">
+  <h2>📋 フェーズ進捗（5 段階パイプライン）</h2>
+  <ol id="phase_list" style="font-size:1.05em; line-height: 2em;">
+    <li id="phase_3c">3C 分析 <span class="ph_status" data-phase="3c">―</span> <a class="ph_btn" data-phase="3c" style="display:none">実行 →</a></li>
+    <li id="phase_ksf">KSF 抽出 <span class="ph_status" data-phase="ksf">―</span> <a class="ph_btn" data-phase="ksf" style="display:none">実行 →</a></li>
+    <li id="phase_stp">STP 設計 <span class="ph_status" data-phase="stp">―</span> <a class="ph_btn" data-phase="stp" style="display:none">実行 →</a></li>
+    <li id="phase_4p">4P 設計 <span class="ph_status" data-phase="4p">―</span> <a class="ph_btn" data-phase="4p" style="display:none">実行 →</a></li>
+    <li id="phase_finish">キャッチ + 商品マスタ <span class="ph_status" data-phase="finish">―</span> <a class="ph_btn" data-phase="finish" style="display:none">実行 →</a></li>
+  </ol>
+  <p style="font-size:0.85em;color:#666">※ 前段フェーズが完了すると次が活性化。3C の実行は上のセクションでベース機種選択 → 「3C 生成画面へ」</p>
+</section>
+<script>
+async function loadPhases() {
+  const r = await fetch(`/api/projects/${pid}/phases`);
+  if (!r.ok) return;
+  const data = await r.json();
+  for (const phase of ['3c','ksf','stp','4p','finish']) {
+    const st = data.status[phase];
+    const span = document.querySelector(`.ph_status[data-phase="${phase}"]`);
+    const btn = document.querySelector(`.ph_btn[data-phase="${phase}"]`);
+    if (st === 'completed') {
+      span.textContent = '✓ 完了';
+      span.style.color = '#2a7';
+      btn.style.display = 'inline';
+      btn.textContent = 'レポートを開く →';
+      btn.href = `/projects/${pid}/report?phase=${phase}`;
+    } else if (st === 'ready') {
+      span.textContent = '→ 実行可能';
+      span.style.color = '#c63';
+      btn.style.display = 'inline';
+      btn.textContent = '実行 →';
+      btn.href = `/projects/${pid}/report?phase=${phase}`;
+    } else {
+      span.textContent = '🔒 前段未完了';
+      span.style.color = '#999';
+      btn.style.display = 'none';
+    }
+  }
+}
+loadPhases();
+setInterval(loadPhases, 5000);
+</script>
 </body>
 </html>

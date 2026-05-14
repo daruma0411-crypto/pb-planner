@@ -25,8 +25,7 @@ requests>=2.32.0
 pytest>=8.0.0
 pytest-mock>=3.12.0
 
-# ── PDF ─────────────────────────────────────────
-weasyprint>=62.0
+# ── Markdown → HTML (PDF は撤退、ブラウザ印刷で代替) ─────
 markdown>=3.5.0
 
 # ── Web Search ──────────────────────────────────
