@@ -35,16 +35,12 @@ button:disabled { background: #aaa; cursor: not-allowed; }
 <p class="nav"><a href="/projects" style="color:#666;text-decoration:none">← 案件一覧</a></p>
 <h1 id="phase_title">レポート</h1>
 <div class="toolbar">
-  <span class="status" id="status">準備中</span>
-  <button id="start_btn">生成開始</button>
+  <span class="status" id="status">確認中...</span>
   <button id="md_btn" disabled>Markdown ダウンロード</button>
   <button id="html_btn" disabled>HTML ダウンロード</button>
   <button class="btn-print" onclick="window.print()">ブラウザで印刷 (PDF 化)</button>
   <a id="next_btn" class="btn btn-next" style="display:none">次のフェーズへ →</a>
 </div>
-<p id="pre_info" style="background:#f8f8f8; padding:1em; border-radius:6px; color:#555;">
-  以下のボタンを押すと AI エージェントがレポートを生成します（30 秒〜2 分）。前段レポートを参照しながら段階的に出力されます。
-</p>
 <div id="report"></div>
 <script>
 const PHASE_INFO = {
@@ -63,6 +59,44 @@ document.getElementById('phase_title').textContent = info.title;
 document.getElementById('page_title').textContent = info.title + ' — PB企画プランナー';
 let reportId = null;
 let mdAccum = "";
+
+function _activateDownloads(rid) {
+  reportId = rid;
+  ['md_btn','html_btn'].forEach(id => document.getElementById(id).disabled = false);
+  document.getElementById('md_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${rid}/md`;
+  document.getElementById('html_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${rid}/html`;
+  if (info.next) {
+    const nb = document.getElementById('next_btn');
+    nb.style.display = 'inline-block';
+    nb.textContent = info.next_label + ' →';
+    nb.href = `/projects/${pid}/report?phase=${info.next}`;
+  }
+}
+
+async function loadExistingOrStart() {
+  // 既存レポートがあれば表示のみ、無ければ即生成開始
+  try {
+    const phRes = await fetch(`/api/projects/${pid}/phases`);
+    if (phRes.ok) {
+      const phData = await phRes.json();
+      const list = (phData.phases || {})[info.api] || [];
+      if (list.length > 0) {
+        const rid = list[list.length - 1];
+        const mdRes = await fetch(`/api/projects/${pid}/reports/${rid}/md`);
+        if (mdRes.ok) {
+          const md = await mdRes.text();
+          document.getElementById('report').innerHTML = marked.parse(md);
+          document.getElementById('status').textContent = '✓ 完了（既存）';
+          _activateDownloads(rid);
+          return;
+        }
+      }
+    }
+  } catch (e) { console.warn('既存確認失敗', e); }
+  // 既存なし → 新規生成
+  await start();
+}
+
 async function start() {
   document.getElementById('status').textContent = '生成中...';
   const body = phase === '3c' ? { base_model: JSON.parse(sessionStorage.getItem('base_model') || '{}') } : {};
@@ -98,27 +132,15 @@ async function start() {
             }
           }
           if (payload.done) {
-            document.getElementById('status').textContent = '完了';
-            ['md_btn','html_btn'].forEach(id => document.getElementById(id).disabled = false);
-            document.getElementById('md_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${reportId}/md`;
-            document.getElementById('html_btn').onclick = () => location.href = `/api/projects/${pid}/reports/${reportId}/html`;
-            if (info.next) {
-              const nb = document.getElementById('next_btn');
-              nb.style.display = 'inline-block';
-              nb.textContent = info.next_label + ' →';
-              nb.href = `/projects/${pid}/report?phase=${info.next}`;
-            }
+            document.getElementById('status').textContent = '✓ 完了';
+            if (reportId) _activateDownloads(reportId);
           }
         } catch (e) { console.warn(e); }
       }
     }
   }
 }
-document.getElementById('start_btn').onclick = async () => {
-  document.getElementById('start_btn').disabled = true;
-  document.getElementById('pre_info').style.display = 'none';
-  await start();
-};
+loadExistingOrStart();
 </script>
 </body>
 </html>
