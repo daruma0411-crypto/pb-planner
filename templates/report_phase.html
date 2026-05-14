@@ -36,11 +36,15 @@ button:disabled { background: #aaa; cursor: not-allowed; }
 <h1 id="phase_title">レポート</h1>
 <div class="toolbar">
   <span class="status" id="status">準備中</span>
+  <button id="start_btn">生成開始</button>
   <button id="md_btn" disabled>Markdown ダウンロード</button>
   <button id="html_btn" disabled>HTML ダウンロード</button>
   <button class="btn-print" onclick="window.print()">ブラウザで印刷 (PDF 化)</button>
   <a id="next_btn" class="btn btn-next" style="display:none">次のフェーズへ →</a>
 </div>
+<p id="pre_info" style="background:#f8f8f8; padding:1em; border-radius:6px; color:#555;">
+  以下のボタンを押すと AI エージェントがレポートを生成します（30 秒〜2 分）。前段レポートを参照しながら段階的に出力されます。
+</p>
 <div id="report"></div>
 <script>
 const PHASE_INFO = {
@@ -110,7 +114,11 @@ async function start() {
     }
   }
 }
-start();
+document.getElementById('start_btn').onclick = async () => {
+  document.getElementById('start_btn').disabled = true;
+  document.getElementById('pre_info').style.display = 'none';
+  await start();
+};
 </script>
 </body>
 </html>

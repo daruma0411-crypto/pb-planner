@@ -118,7 +118,11 @@ async function saveSources() {
     method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(sources),
   });
-  alert(r.ok ? '保存しました' : '保存失敗');
+  if (!r.ok) { alert('保存失敗'); return; }
+  // ソース保存後、スクレイピングも自動起動（裏で workspace データコピー）
+  await fetch(`/api/projects/${pid}/scrape`, {method: 'POST'}).catch(() => {});
+  alert('保存しました。バックグラウンドでデータ集約中（5-10 秒後に「フェーズ進捗」を更新）');
+  setTimeout(loadPhases, 8000);
 }
 
 fetch(`/api/projects/${pid}`).then(r => r.json()).then(proj => {
@@ -138,54 +142,23 @@ fetch(`/api/projects/${pid}`).then(r => r.json()).then(proj => {
 });
 </script>
 
-<section>
-  <h2>スクレイピング</h2>
-  <p><button onclick="startScraping()">スクレイピング開始</button></p>
-  <div id="progress"></div>
-</section>
-<script>
-async function startScraping() {
-  const r = await fetch(`/api/projects/${pid}/scrape`, {method: 'POST'});
-  if (!r.ok) { alert('起動失敗'); return; }
-  pollProgress();
-}
-async function pollProgress() {
-  const r = await fetch(`/api/projects/${pid}/progress`);
-  const p = await r.json();
-  document.getElementById('progress').innerHTML =
-    `<p>状態: ${p.status}</p><ul>` +
-    (p.items || []).map(it =>
-      `<li>${it.source}: ${it.status} (${it.count || 0} 件)</li>`).join('') +
-    `</ul>`;
-  if (p.status === 'running') setTimeout(pollProgress, 2000);
-}
-</script>
-
-<section>
-  <h2>3C 一発レポート</h2>
-  <label>ベース機種: <input id="base_model_input" placeholder="例: tomys/FLS-1000 (maker/model)"></label>
-  <p><button onclick="startReport()">3C 生成画面へ</button></p>
-</section>
-<script>
-function startReport() {
-  const v = document.getElementById('base_model_input').value.trim();
-  if (!v.includes('/')) { alert('maker/model 形式で入力してください'); return; }
-  const [maker, model] = v.split('/');
-  sessionStorage.setItem('base_model', JSON.stringify({ maker, model }));
-  location.href = `/projects/${pid}/report`;
-}
-</script>
-
 <section style="background:#f8f8f8; border: 2px solid #2a7;">
   <h2>📋 フェーズ進捗（5 段階パイプライン）</h2>
   <ol id="phase_list" style="font-size:1.05em; line-height: 2em;">
-    <li id="phase_3c">3C 分析 <span class="ph_status" data-phase="3c">―</span> <a class="ph_btn" data-phase="3c" style="display:none">実行 →</a></li>
+    <li id="phase_3c">
+      3C 分析 <span class="ph_status" data-phase="3c">―</span>
+      <span class="ph_extra" data-phase="3c" style="display:none">
+        ＿ ベース機種:
+        <input id="base_model_input" placeholder="例: tomys/FLS-1000 (maker/model)" style="width:240px;">
+      </span>
+      <a class="ph_btn" data-phase="3c" style="display:none">レポートを開く →</a>
+    </li>
     <li id="phase_ksf">KSF 抽出 <span class="ph_status" data-phase="ksf">―</span> <a class="ph_btn" data-phase="ksf" style="display:none">実行 →</a></li>
     <li id="phase_stp">STP 設計 <span class="ph_status" data-phase="stp">―</span> <a class="ph_btn" data-phase="stp" style="display:none">実行 →</a></li>
     <li id="phase_4p">4P 設計 <span class="ph_status" data-phase="4p">―</span> <a class="ph_btn" data-phase="4p" style="display:none">実行 →</a></li>
     <li id="phase_finish">キャッチ + 商品マスタ <span class="ph_status" data-phase="finish">―</span> <a class="ph_btn" data-phase="finish" style="display:none">実行 →</a></li>
   </ol>
-  <p style="font-size:0.85em;color:#666">※ 前段フェーズが完了すると次が活性化。3C の実行は上のセクションでベース機種選択 → 「3C 生成画面へ」</p>
+  <p style="font-size:0.85em;color:#666">※ 前段フェーズが完了すると次が活性化。各フェーズの画面で「生成開始」ボタンを押すと AI が走り出します。</p>
 </section>
 <script>
 async function loadPhases() {
@@ -196,22 +169,37 @@ async function loadPhases() {
     const st = data.status[phase];
     const span = document.querySelector(`.ph_status[data-phase="${phase}"]`);
     const btn = document.querySelector(`.ph_btn[data-phase="${phase}"]`);
+    const extra = document.querySelector(`.ph_extra[data-phase="${phase}"]`);
     if (st === 'completed') {
       span.textContent = '✓ 完了';
       span.style.color = '#2a7';
       btn.style.display = 'inline';
       btn.textContent = 'レポートを開く →';
       btn.href = `/projects/${pid}/report?phase=${phase}`;
+      if (extra) extra.style.display = 'none';
     } else if (st === 'ready') {
       span.textContent = '→ 実行可能';
       span.style.color = '#c63';
       btn.style.display = 'inline';
-      btn.textContent = '実行 →';
-      btn.href = `/projects/${pid}/report?phase=${phase}`;
+      btn.textContent = phase === '3c' ? '3C 生成画面へ →' : '実行 →';
+      if (extra) extra.style.display = 'inline';
+      btn.onclick = (e) => {
+        if (phase === '3c') {
+          e.preventDefault();
+          const v = document.getElementById('base_model_input').value.trim();
+          if (!v.includes('/')) { alert('ベース機種を maker/model 形式で入力してください (例: tomys/FLS-1000)'); return; }
+          const [maker, model] = v.split('/');
+          sessionStorage.setItem('base_model', JSON.stringify({ maker, model }));
+          location.href = `/projects/${pid}/report?phase=3c`;
+        } else {
+          btn.href = `/projects/${pid}/report?phase=${phase}`;
+        }
+      };
     } else {
       span.textContent = '🔒 前段未完了';
       span.style.color = '#999';
       btn.style.display = 'none';
+      if (extra) extra.style.display = 'none';
     }
   }
 }
