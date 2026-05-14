@@ -2450,6 +2450,27 @@ def api_delete_project(pid):
         return jsonify({"error": "not found"}), 404
 
 
+@app.route('/api/debug/fetch', methods=['GET'])
+def api_debug_fetch():
+    """本番から任意 URL を fetch する切り分け用エンドポイント"""
+    url = request.args.get('url')
+    if not url:
+        return jsonify({"error": "url required"}), 400
+    try:
+        from scripts.scraper_base import fetch
+        html = fetch(url)
+        return jsonify({
+            "url": url,
+            "ok": html is not None,
+            "len": len(html) if html else 0,
+            "head": html[:500] if html else None,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"url": url, "ok": False, "error": str(e),
+                        "tb": traceback.format_exc()[:1000]}), 500
+
+
 # ================================================================
 # エントリポイント
 # ================================================================
