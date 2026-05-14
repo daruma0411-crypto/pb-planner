@@ -168,3 +168,52 @@ def test_delete_project_returns_200_and_removes(client):
 def test_delete_project_404_when_missing(client):
     r = client.delete("/api/projects/prj_nope")
     assert r.status_code == 404
+
+
+def test_upload_scraped_asone_json_array(client, tmp_projects_dir):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    payload = [
+        {"maker": "アズワン", "model": "AZ-1", "name": "test1", "price": 50000, "specs": {"容量": "50L"}},
+        {"maker": "ナビス", "model": "NV-2", "name": "test2", "price": 80000, "specs": {"容量": "100L"}},
+    ]
+    r = client.post(f"/api/projects/{pid}/scraped/asone", json=payload)
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["written"] == 2
+    # ファイル検証
+    import os, json as J
+    dest = os.path.join(tmp_projects_dir, pid, "scraped", "asone", "products.jsonl")
+    assert os.path.exists(dest)
+    with open(dest, encoding="utf-8") as f:
+        lines = [J.loads(l) for l in f if l.strip()]
+    assert len(lines) == 2
+    assert lines[0]["model"] == "AZ-1"
+
+
+def test_upload_scraped_competitor_jsonl(client, tmp_projects_dir):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    jsonl_body = '\n'.join([
+        '{"maker":"yamato","model":"SX-700","name":"y1"}',
+        '{"maker":"yamato","model":"SX-300","name":"y2"}',
+    ])
+    r = client.post(f"/api/projects/{pid}/scraped/competitor:yamato",
+                    data=jsonl_body, headers={"Content-Type": "text/plain"})
+    assert r.status_code == 200
+    assert r.get_json()["written"] == 2
+
+
+def test_upload_scraped_invalid_bucket_returns_400(client, tmp_projects_dir):
+    cr = client.post("/api/projects", json={"name": "x", "category": "autoclave", "pb_concept": ""})
+    pid = cr.get_json()["id"]
+    # 不正な bucket 名 (regex に通らない) は 400 を返す
+    # path-traversal (../) は Werkzeug が URL 正規化で吸収するため別 path に到達
+    # する(=ルーティングレベルで防げる)。endpoint まで届く無効値は regex で弾く。
+    r = client.post(f"/api/projects/{pid}/scraped/unknown_bucket", json=[])
+    assert r.status_code == 400
+
+
+def test_upload_scraped_404_when_pid_missing(client):
+    r = client.post("/api/projects/prj_nope/scraped/asone", json=[])
+    assert r.status_code == 404

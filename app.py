@@ -1854,6 +1854,58 @@ def api_debug_fetch():
                         "tb": traceback.format_exc()[:1000]}), 500
 
 
+@app.route('/api/projects/<pid>/scraped/<bucket>', methods=['POST'])
+def api_upload_scraped(pid, bucket):
+    """スクレイピング結果を手動投入。
+    bucket: "asone" | "partner:<maker>" | "competitor:<maker>"
+    body: JSONL (text/plain) or JSON array
+    """
+    try:
+        _pm.get_project(pid)
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+    # bucket 検証
+    import re
+    if not re.match(r'^(asone|partner:[a-zA-Z0-9_-]+|competitor:[a-zA-Z0-9_-]+)$', bucket):
+        return jsonify({"error": "invalid bucket"}), 400
+    # 保存先 path 解決
+    pdir = _pm._project_dir(pid)
+    if bucket == "asone":
+        dest = os.path.join(pdir, "scraped", "asone", "products.jsonl")
+    elif bucket.startswith("partner:"):
+        maker = bucket.split(":", 1)[1]
+        dest = os.path.join(pdir, "scraped", "partner", f"{maker}.jsonl")
+    else:  # competitor
+        maker = bucket.split(":", 1)[1]
+        dest = os.path.join(pdir, "scraped", "competitor", maker, "products.jsonl")
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    # body 解析: JSONL (text/plain) or JSON array
+    ctype = request.headers.get('Content-Type', '')
+    written = 0
+    with open(dest, "w", encoding="utf-8") as f:
+        if ctype.startswith('application/json'):
+            data = request.get_json(silent=True) or []
+            if not isinstance(data, list):
+                return jsonify({"error": "expected JSON array"}), 400
+            for item in data:
+                f.write(json.dumps(item, ensure_ascii=False) + "\n")
+                written += 1
+        else:
+            # text/plain or jsonl: 1 行 1 JSON
+            raw = request.get_data(as_text=True)
+            for line in raw.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+                    written += 1
+                except Exception:
+                    continue
+    return jsonify({"ok": True, "written": written, "dest": dest})
+
+
 # ================================================================
 # 5 フェーズパイプライン: KSF / STP / 4P / Finish + 進捗 API
 # ================================================================
