@@ -59,3 +59,18 @@ def test_add_or_replace_sources_persists(tmp_projects_dir):
     add_or_replace_sources(pid, sources)
     proj = get_project(pid)
     assert proj["sources"] == sources
+
+
+def test_delete_project_removes_directory(tmp_projects_dir):
+    pid = create_project(name="x", category="autoclave", pb_concept="")
+    import os
+    assert os.path.exists(os.path.join(tmp_projects_dir, pid))
+    from project_manager import delete_project
+    delete_project(pid)
+    assert not os.path.exists(os.path.join(tmp_projects_dir, pid))
+
+
+def test_delete_project_raises_when_missing(tmp_projects_dir):
+    from project_manager import delete_project
+    with pytest.raises(ProjectNotFound):
+        delete_project("prj_nope")

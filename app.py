@@ -2422,6 +2422,15 @@ def api_report_pdf(pid, rid):
                      as_attachment=True, download_name=f"{rid}.pdf")
 
 
+@app.route('/api/projects/<pid>', methods=['DELETE'])
+def api_delete_project(pid):
+    try:
+        _pm.delete_project(pid)
+        return jsonify({"ok": True})
+    except _pm.ProjectNotFound:
+        return jsonify({"error": "not found"}), 404
+
+
 # ================================================================
 # エントリポイント
 # ================================================================

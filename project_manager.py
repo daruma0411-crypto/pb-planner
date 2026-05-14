@@ -117,3 +117,12 @@ def add_or_replace_sources(pid: str, sources: dict) -> None:
         meta = json.load(f)
     meta["updated_at"] = _now_iso()
     _atomic_write_json(mpath, meta)
+
+
+def delete_project(pid: str) -> None:
+    """案件ディレクトリごと削除"""
+    import shutil
+    pdir = _project_dir(pid)
+    if not os.path.exists(pdir):
+        raise ProjectNotFound(pid)
+    shutil.rmtree(pdir)
