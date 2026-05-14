@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>① 3C 分析レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>3C 分析レポート：demo-full</h1>
+<p><strong>対象カテゴリ</strong>：オートクレーブ（研究用高圧蒸気滅菌器）
+<strong>PB コンセプト</strong>：woman-friendly 100L
+<strong>ベース機種候補</strong>：トミー精工 FLS-1000</p>
+<hr />
+<h2>1. Customer 分析</h2>
+<h3>1-1. 市場規模・成長性</h3>
+<p>国内研究用オートクレーブ市場は、ライフサイエンス研究投資・再生医療市場の拡大、感染症対策需要の定着を背景に、年率 3〜5% 程度で緩やかに成長していると推定される（公開統計値はデータに記載なし）。アズワン POS データによれば、研究用滅菌器カテゴリは <strong>月間平均販売 35 台</strong>、価格帯は <strong>¥40〜90 万円が約 60%</strong> を占め、ボリュームゾーンは中型卓上〜中型縦型に集中している。注目すべきは <strong>100L クラスの引き合いが直近 12 ヶ月で 1.4 倍</strong> に伸びている点で、研究室の処理量増加・大型培養容器使用の一般化・共有機器化の流れを反映していると考えられる。</p>
+<h3>1-2. セグメント別プロファイル</h3>
+<table>
+<thead>
+<tr>
+<th>セグメント</th>
+<th>規模感（POSベース推計）</th>
+<th>購買特性</th>
+<th>主用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大学・公的研究機関</td>
+<td>最大ボリューム層</td>
+<td>リピート率 30%、価格感度高、年度末予算消化型</td>
+<td>培地・器具滅菌、廃液処理</td>
+</tr>
+<tr>
+<td>製薬企業</td>
+<td>中ボリューム・高単価</td>
+<td>リピート率 50%、バリデーション/IQOQ重視</td>
+<td>GMP準拠滅菌、原料処理</td>
+</tr>
+<tr>
+<td>食品メーカー</td>
+<td>中規模</td>
+<td>衛生規格(HACCP)対応重視</td>
+<td>検査用器材滅菌、サンプル前処理</td>
+</tr>
+<tr>
+<td>医療機関（研究部門）</td>
+<td>小規模だが安定</td>
+<td>取扱代理店経由比率高</td>
+<td>検体・器具処理</td>
+</tr>
+<tr>
+<td>バイオベンチャー</td>
+<td>拡大中</td>
+<td>設置スペース制約大、納期重視</td>
+<td>細胞培養関連器材、培地</td>
+</tr>
+</tbody>
+</table>
+<h3>1-3. JTBD（Jobs to be Done）</h3>
+<ul>
+<li><strong>機能ジョブ</strong>：「100L 規模の培地・器具を安全・確実に・所定サイクルで滅菌したい」</li>
+<li><strong>情緒ジョブ</strong>：「滅菌作業中の事故・火傷リスクから解放されたい」「重い蓋の上下動作で身体的負担を感じたくない」</li>
+<li><strong>社会的ジョブ</strong>：「女性研究者・若手スタッフでも自立して扱えるラボ環境を提示したい（D&amp;I 文脈）」</li>
+</ul>
+<h3>1-4. ペルソナ別ペイン</h3>
+<ul>
+<li><strong>ペルソナA：国立大学・女性ポスドク（30代）</strong>：「縦型 100L の蓋が重く、両手で持ち上げる際に腰に負担。蒸気の立ち上りも怖い」</li>
+<li><strong>ペルソナB：製薬企業 QC 担当（40代女性）</strong>：「タッチパネルの文字が小さく、手袋着用時に誤操作。バリデーション記録のエクスポートが煩雑」</li>
+<li><strong>ペルソナC：バイオベンチャー ラボマネージャー</strong>：「100L 縦型を入れたいが、設置スペース・搬入経路がタイト」</li>
+</ul>
+<h3>1-5. VOC 引用（SNS 観測サマリより）</h3>
+<ul>
+<li>「蓋が重い」「取り出し時の蒸気が怖い」「女性 1 人だと開閉できない」</li>
+<li>「タッチパネル文字が小さい」</li>
+<li>「100L 縦型が欲しいが設置スペース足りない」</li>
+<li>発信者の <strong>約 60% が女性研究者</strong> という構成比は、本 PB コンセプト「woman-friendly」の市場妥当性を強く支持する。</li>
+</ul>
+<h3>1-6. 未充足ニーズ（Unmet Needs）</h3>
+<ol>
+<li><strong>開閉アシスト機構</strong>（電動/ガススプリング/カウンターウェイト）を備えた 100L クラス</li>
+<li><strong>蒸気排出時の安全性向上</strong>（ドレン経路の側方逃がし・低位置排気・自動冷却完了通知）</li>
+<li><strong>大画面・大文字 UI</strong>（手袋操作対応、ピクトグラム主体）</li>
+<li><strong>省スペース 100L 縦型</strong>（フットプリント最小化、搬入時の分割対応）</li>
+<li><strong>記録のデジタル化</strong>（USB/LAN ログ出力、バリデーション簡易化）</li>
+</ol>
+<hr />
+<h2>2. Competitor 分析</h2>
+<h3>2-1. 競合マッピング図（記述）</h3>
+<p>縦軸＝「ユーザビリティ（女性・初心者親和性）」、横軸＝「容量・処理能力」で布置すると、以下のように整理される。</p>
+<ul>
+<li><strong>右下（大容量・伝統的操作系）</strong>：トミー精工 LSX/SX シリーズ、ヤマト科学 SQ/SM シリーズ、平山製作所 HVE/HG シリーズ</li>
+<li><strong>左上（小型・操作簡易）</strong>：トミー精工 ES シリーズ、各社卓上モデル</li>
+<li><strong>右上（大容量 × ユーザビリティ）</strong>：<strong>現状ホワイトスペース</strong> ← PB「woman-friendly 100L」の狙いどころ</li>
+</ul>
+<h3>2-2. TOP 機種スペック比較表</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>トミー FLS-1000（ベース候補）</th>
+<th>ヤマト科学（代表機種）</th>
+<th>平山製作所（代表機種）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>容量</td>
+<td>データに記載なし（100L 級想定）</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>形式</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>蓋開閉方式</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>操作部</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>価格</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>主要訴求</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<p>※ 提供データに具体スペック・価格情報が含まれていないため、上表はカテゴリ枠のみ提示。詳細は二次調査（カタログ・代理店見積）で補完が必要。</p>
+<h3>2-3. 各社訴求メッセージ（一般市場観測）</h3>
+<ul>
+<li><strong>トミー精工</strong>：研究用オートクレーブの国内代表ブランド。「サイクル多様性」「研究現場での信頼性」を中核に訴求。FLS シリーズは縦型大容量帯のフラッグシップ群と位置付けられる（詳細はデータに記載なし）。</li>
+<li><strong>ヤマト科学</strong>：ラボ機器総合メーカーとして「ライン全体での統合提案」「省エネ・環境対応」を訴求。</li>
+<li><strong>平山製作所</strong>：滅菌器専業の強みを生かし「滅菌性能・バリデーション対応・カスタム性」を訴求。医療・製薬向け浸透度が比較的高い。</li>
+</ul>
+<h3>2-4. シェア推定</h3>
+<p>国内研究用オートクレーブの代理店流通におけるシェアは、おおむね <strong>トミー精工 ＞ ヤマト科学 ≒ 平山製作所 ＞ その他輸入勢</strong> の順とされる（公的データなし、業界ヒアリングベース）。アズワン取扱量ベースでもトミー製品の販売構成比が高いと推察される（具体数値はデータに記載なし）。</p>
+<h3>2-5. サポート密度</h3>
+<ul>
+<li><strong>トミー精工</strong>：直販＋代理店混在、研究用に特化したアプリケーションサポートに強み。</li>
+<li><strong>ヤマト科学</strong>：全国営業網・サービス拠点が広く、保守レスポンスが安定。</li>
+<li><strong>平山製作所</strong>：医療機関ルートでのサポート密度が高いが、研究用販路ではアズワン等代理店依存度が相対的に高い。</li>
+</ul>
+<h3>2-6. 直近 12-24 ヶ月の動向</h3>
+<ul>
+<li>大容量帯（100L クラス）における<strong>ユーザビリティ訴求機種の不足</strong>は SNS でも継続的に指摘されており、各社ともマイナーチェンジ中心で、女性・ダイバーシティ視点を前面に出した抜本的リニューアル機は確認されない（データに記載なし／二次調査要）。</li>
+<li>タッチパネル UI の刷新、ログ出力（USB/LAN）対応は徐々に進行。</li>
+<li>半導体・電子部品供給制約に伴う納期長期化が一部機種で発生していたが、足元は緩和傾向との市場声あり（出典：データに記載なし）。</li>
+</ul>
+<hr />
+<h2>3. Company（アズワン PB：AS ONE + ナビス）</h2>
+<h3>3-1. PB ブランドの強み</h3>
+<p>アズワン PB（AS ONE／医療向け：ナビス）は、<strong>「カタログ × EC（axel）× 全国販売店網」</strong> の三層チャネルにより、研究・医療現場へのリーチ密度が国内随一である点が最大の強みである。本 PB 企画における優位性は以下の通り整理できる。</p>
+<ol>
+<li><strong>顧客 VOC への近接性</strong>：年間数十万点の取扱を通じて研究現場の細かな不満点を蓄積。今回の「蓋が重い」「蒸気が怖い」「100L が欲しいが置けない」という VOC は、まさにアズワンが最も早く拾える領域である。</li>
+<li><strong>コンセプト・マーケティング設計力</strong>：用途特化・ユーザー特化（今回は「woman-friendly」）の切り口で、汎用機種市場に<strong>サブセグメントを切り出す</strong>手法と実績を有する。</li>
+<li><strong>OEM 製造パートナー（トミー精工想定）との協業実績</strong>：研究用滅菌器領域でのベース機種カスタマイズが現実的に可能。</li>
+<li><strong>販売チャネルの厚み</strong>：大学・製薬・食品・医療すべてに横串で訴求可能。</li>
+</ol>
+<h3>3-2. 既存ラインアップとの整合（共食い検証）</h3>
+<p>提供データ上、自社（AS ONE／ナビス）の既存オートクレーブ PB 製品の具体ラインアップは<strong>データに記載なし</strong>。一般的にアズワンはトミー製品の正規取扱を行っているため、<strong>FLS-1000 ベースの woman-friendly PB を投入した場合、ベース機の本体販売とは「ユーザビリティ訴求軸」で差別化</strong>することで共食いリスクは限定的にコントロール可能と判断する。</p>
+<ul>
+<li><strong>棲み分け軸</strong>：標準機＝価格・サイクル多様性／PB 機＝開閉アシスト・大文字 UI・安全排気</li>
+<li><strong>顧客層の棲み分け</strong>：標準機＝既存ヘビーユーザー（大規模研究室）／PB 機＝<strong>女性研究者比率の高いラボ・新設バイオベンチャー・教育系ラボ</strong></li>
+</ul>
+<h3>3-3. 販社チャネル適合性</h3>
+<p>100L 縦型は搬入・設置工事を伴うため、純 EC 完結型ではなく、<strong>販売店経由のソリューション販売</strong>との親和性が高い。アズワンの代理店網はこの形態に最適化されており、設置事前調査〜納品〜バリデーション支援までを既存スキームで提供可能。</p>
+<h3>3-4. 製造パートナー（補足）</h3>
+<p>ベース機種候補 <strong>トミー精工 FLS-1000</strong> をベースとした OEM／ODM が想定される。詳細スペック・カスタマイズ可否範囲・最低ロットはデータに記載なし（要協議）。</p>
+<hr />
+<h2>4. 未充足ニーズ × 自社強み クロス</h2>
+<table>
+<thead>
+<tr>
+<th>未充足ニーズ（Customer）</th>
+<th>競合の状態（Competitor）</th>
+<th>自社強みとの掛け算（Company）</th>
+<th>PB での提供価値仮説</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100L 級の蓋開閉アシスト</td>
+<td>大容量帯でのユーザビリティ訴求は手薄</td>
+<td>VOC把握 × トミーOEM</td>
+<td>「片手で開閉できる 100L」</td>
+</tr>
+<tr>
+<td>蒸気排出時の安全性</td>
+<td>標準的な上方排気のまま</td>
+<td>安全カテゴリ商品企画の実績</td>
+<td>「低位置排気＋冷却完了通知」</td>
+</tr>
+<tr>
+<td>大文字・手袋対応 UI</td>
+<td>一部刷新中だが大容量帯は遅い</td>
+<td>カタログ顧客像の解像度</td>
+<td>「ピクトグラム中心 UI」</td>
+</tr>
+<tr>
+<td>省スペース縦型 100L</td>
+<td>各社フットプリント据置</td>
+<td>設置現場知見（販社）</td>
+<td>「搬入経路最適化モデル」</td>
+</tr>
+<tr>
+<td>記録のデジタル化</td>
+<td>部分対応</td>
+<td>EC/データ親和性</td>
+<td>「USB ログ標準装備」</td>
+</tr>
+</tbody>
+</table>
+<p>→ 4 セルすべてで競合がホワイトスペースを残しており、<strong>「woman-friendly 100L」というポジショニングは市場・競合・自社の三方向から成立性が確認できる</strong>。次工程では KSF 定義および 4P 詳細設計を別レポートにて深掘りする。</p>
+<hr />
+<h3>脚注・出典について</h3>
+<ul>
+<li>POS データ・SNS VOC：本案件で提供された手入力サマリに基づく。</li>
+<li>競合スペック・価格・シェアの定量情報：<strong>提供データに記載なし</strong>。二次調査（メーカーカタログ、代理店ヒアリング、業界レポート）にて補完を推奨。</li>
+<li>本レポートは提供データ範囲を厳守し、未提供領域は「データに記載なし」と明記している。</li>
+</ul>
+</body></html>

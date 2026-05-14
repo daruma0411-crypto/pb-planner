@@ -1,0 +1,308 @@
+<!DOCTYPE html><html lang="ja"><head>
+<meta charset="utf-8">
+<title>③ STP 設計レポート — demo-full 案件 — PB企画プランナー</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans CJK JP', sans-serif;
+       font-size: 11pt; line-height: 1.75; color: #222;
+       max-width: 920px; margin: 2em auto; padding: 0 1.5em; }
+h1 { font-size: 22pt; border-bottom: 3px solid #1f3a5f; padding-bottom: 0.3em; margin-top: 0; color: #1f3a5f; }
+h2 { font-size: 16pt; border-bottom: 1.5px solid #6b7280; padding-bottom: 0.2em; margin-top: 1.8em; color: #1f3a5f; }
+h3 { font-size: 13pt; margin-top: 1.4em; color: #1f3a5f; }
+h4 { font-size: 12pt; margin-top: 1.1em; }
+strong { color: #c4763a; }
+table { border-collapse: collapse; width: 100%; margin: 0.9em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #6b7280; padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
+th { background: #e5e7eb; color: #1f3a5f; }
+code { background: #f4f4f4; padding: 0.1em 0.35em; border-radius: 3px; font-family: 'Consolas', monospace; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 0.7em 1em; border-radius: 4px; overflow-x: auto; font-size: 10pt; }
+blockquote { border-left: 4px solid #c4763a; margin-left: 0; padding-left: 1em; color: #555; }
+hr { border: none; border-top: 1px solid #ddd; margin: 1.6em 0; }
+ul, ol { margin: 0.6em 0; padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+.toolbar { background: #1f3a5f; color: #fff; padding: 0.8em 1.5em; margin: -2em -1.5em 1.5em; }
+.toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
+.toolbar a:hover { text-decoration: underline; }
+@media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+</style>
+</head><body>
+<div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<h1>demo-full：STP・空白地帯マップ レポート</h1>
+<p>対象カテゴリ：オートクレーブ（研究用高圧蒸気滅菌器）
+PB コンセプト：woman-friendly 100L
+ベース機種候補：トミー精工 FLS-1000</p>
+<hr />
+<h2>1. Segmentation</h2>
+<h3>軸の設定</h3>
+<ul>
+<li><strong>軸X：組織タイプ × 購買特性</strong>（大学／製薬QC／食品／バイオベンチャー／医療機関研究部門）</li>
+<li><strong>軸Y：ラボの物理・人的制約プロファイル</strong>（① 設置スペース潤沢 × 男女混在／② 設置スペース潤沢 × 女性比率高・若手中心／③ 設置スペース逼迫（新設・狭小））</li>
+</ul>
+<h3>セグメンテーション・マトリクス</h3>
+<table>
+<thead>
+<tr>
+<th>軸Y ＼ 軸X</th>
+<th>大学・公的研究機関</th>
+<th>製薬企業 QC</th>
+<th>食品メーカー</th>
+<th>バイオベンチャー</th>
+<th>医療機関（研究部門）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① スペース潤沢 × 男女混在</td>
+<td>S1：大規模ラボ（既存ヘビーユーザー）</td>
+<td>S2：GMP対応 QC ライン</td>
+<td>S3：HACCP対応検査部門</td>
+<td>データに記載なし</td>
+<td>S4：基幹病院研究部門</td>
+</tr>
+<tr>
+<td>② スペース潤沢 × 女性比率高・若手中心</td>
+<td>S5：D&amp;I 推進大学ラボ／女性 PI 主宰研究室</td>
+<td>S6：女性比率高い QC チーム</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+</tr>
+<tr>
+<td>③ スペース逼迫（新設・狭小）</td>
+<td>S7：新設・改修中の大学ラボ</td>
+<td>データに記載なし</td>
+<td>データに記載なし</td>
+<td>S8：新興バイオベンチャー（ラボマネ主導）</td>
+<td>データに記載なし</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>補足：3C/KSF に登場しないセル（食品×②、医療×② など）は需要シグナル不明のため「データに記載なし」と明記。以降の評価対象は S1〜S8 とする。</p>
+</blockquote>
+<hr />
+<h2>2. Targeting</h2>
+<h3>2-1. セグメント別評価（狙いやすさ × 戦略適合性）</h3>
+<p>「狙いやすさ」＝VOC 把握度・チャネル適合性・顧客リーチ容易度
+「戦略適合性」＝woman-friendly 100L コンセプトとの一致度・成長性・共食いリスクの低さ</p>
+<table>
+<thead>
+<tr>
+<th>Seg</th>
+<th>概要</th>
+<th>狙いやすさ</th>
+<th>戦略適合性</th>
+<th>総合</th>
+<th>主たる根拠</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>大規模大学ラボ（既存ヘビー）</td>
+<td>◎</td>
+<td>△</td>
+<td>△</td>
+<td>標準 FLS と共食いリスク高（3C 3-2）</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>製薬 QC（男女混在）</td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+<td>リピート率50%・バリデーション需要（3C 1-2）</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>食品 HACCP</td>
+<td>○</td>
+<td>△</td>
+<td>△</td>
+<td>woman-friendly 訴求の必然性が VOC で薄い</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>基幹病院研究部門</td>
+<td>△</td>
+<td>△</td>
+<td>△</td>
+<td>ナビス導線あるが100L 縦型需要のシグナル不明</td>
+</tr>
+<tr>
+<td><strong>S5</strong></td>
+<td><strong>D&amp;I 推進大学ラボ／女性 PI 研究室</strong></td>
+<td>◎</td>
+<td>◎</td>
+<td><strong>◎</strong></td>
+<td>発信者60%女性・社会的ジョブ直撃（3C 1-3, 1-5）</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>製薬 女性比率高 QC</td>
+<td>○</td>
+<td>◎</td>
+<td>○</td>
+<td>ペルソナB 直撃だが組織数が限定的（推定）</td>
+</tr>
+<tr>
+<td><strong>S7</strong></td>
+<td><strong>新設・改修中の大学ラボ</strong></td>
+<td>○</td>
+<td>◎</td>
+<td><strong>◎</strong></td>
+<td>省スペース×D&amp;I×年度末予算消化が重なる</td>
+</tr>
+<tr>
+<td><strong>S8</strong></td>
+<td><strong>新興バイオベンチャー</strong></td>
+<td>◎</td>
+<td>◎</td>
+<td><strong>◎</strong></td>
+<td>100L 引き合い1.4倍・設置制約最大（3C 1-2, 1-4）</td>
+</tr>
+</tbody>
+</table>
+<h3>2-2. 優先ターゲット 3 パターン</h3>
+<table>
+<thead>
+<tr>
+<th>優先度</th>
+<th>ターゲット</th>
+<th>主要 JTBD</th>
+<th>キーペイン</th>
+<th>想定チャネル</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T1（本命）</strong></td>
+<td><strong>S5：D&amp;I 推進大学ラボ／女性 PI 研究室</strong></td>
+<td>「女性・若手でも自立運用できる 100L 滅菌環境を提示したい」（社会的ジョブ）</td>
+<td>#1, #2, #3, #7</td>
+<td>アズワンカタログ＋大学代理店、年度末予算</td>
+</tr>
+<tr>
+<td><strong>T2（成長フロンティア）</strong></td>
+<td><strong>S8：新興バイオベンチャー</strong></td>
+<td>「狭いラボに 100L を入れ、誰でも安全に回したい」（機能＋情緒ジョブ）</td>
+<td>#1, #4, #5, #6</td>
+<td>axel EC＋販売店ソリューション販売（3C 3-3）</td>
+</tr>
+<tr>
+<td><strong>T3（収益安定軸）</strong></td>
+<td><strong>S2／S6：製薬 QC（特に女性比率高チーム）</strong></td>
+<td>「バリデーション記録を簡単に、誤操作なく回したい」</td>
+<td>#3, #6, #9</td>
+<td>代理店経由のバリデーション込み提案</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. Positioning</h2>
+<h3>T1 向けポジショニング・ステートメント</h3>
+<blockquote>
+<p><strong>「誰に」</strong>：女性 PI／女性研究者比率の高い大学・公的研究機関ラボに
+<strong>「何を」</strong>：『100L クラスでも 1 人で・片手で・安全に開閉できる、業界初の woman-friendly 仕様オートクレーブ』を提供する
+<strong>「なぜ独自か」</strong>：大容量×ユーザビリティ帯は競合各社のホワイトスペース（3C 2-1）であり、開閉アシスト＋大文字 UI＋低位置排気を一体で備える NB は確認されない（KSF K1〜K3 充足）</p>
+</blockquote>
+<h3>T2 向けポジショニング・ステートメント</h3>
+<blockquote>
+<p><strong>「誰に」</strong>：設置スペース・搬入経路に制約のある新興バイオベンチャー／新設ラボに
+<strong>「何を」</strong>：『搬入経路最適化＋省フットプリント設計＋USB ログ標準装備の 100L 縦型』を、設置事前調査からバリデーション支援までワンストップで提供する
+<strong>「なぜ独自か」</strong>：アズワンの全国販社網による搬入・設置スキーム（KSF K4）と OEM カスタマイズ（K1）の組み合わせは、専業 NB 単独では実現困難</p>
+</blockquote>
+<h3>T3 向けポジショニング・ステートメント</h3>
+<blockquote>
+<p><strong>「誰に」</strong>：GMP/バリデーション運用下の製薬 QC（特に手袋着用・女性比率の高い現場）に
+<strong>「何を」</strong>：『手袋でも誤操作しない大文字・ピクトグラム UI ＋ USB/LAN ログ標準装備の 100L バリデーション対応機』
+<strong>「なぜ独自か」</strong>：UI 刷新は業界で部分進行中だが、大容量帯×手袋運用×ログ標準装備を同時に満たす機種は「データに記載なし」＝市場確認できず</p>
+</blockquote>
+<hr />
+<h2>4. 空白地帯マップ（KSF × ターゲット）</h2>
+<h3>クロス表：KSF 充足度を各ターゲット視点で再評価</h3>
+<table>
+<thead>
+<tr>
+<th>KSF ＼ Target</th>
+<th>T1：D&amp;I 大学ラボ</th>
+<th>T2：バイオベンチャー</th>
+<th>T3：製薬 QC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K1 開閉アシスト機構（100L 級）</td>
+<td><strong>■空白①</strong> 競合不在</td>
+<td>■空白① 競合不在</td>
+<td>部分需要</td>
+</tr>
+<tr>
+<td>K2 手袋・小柄者前提 UI</td>
+<td><strong>■空白②</strong> 競合不在</td>
+<td>部分需要</td>
+<td><strong>■空白③</strong> 競合不在</td>
+</tr>
+<tr>
+<td>K3 安全排気＋冷却完了通知＋D&amp;I 一体訴求</td>
+<td><strong>■空白①</strong> 競合不在</td>
+<td>部分需要</td>
+<td>部分需要</td>
+</tr>
+<tr>
+<td>K4 搬入・設置・バリデーション支援</td>
+<td>自社優位</td>
+<td><strong>■空白①／②／③に共通する自社強み</strong></td>
+<td>自社優位</td>
+</tr>
+</tbody>
+</table>
+<h3>空白地帯 3 パターン</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>空白地帯の名称</th>
+<th>クロス位置</th>
+<th>空白の根拠（3C/KSF より）</th>
+<th>提案する打ち手の方向性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WS-1</strong></td>
+<td><strong>「D&amp;I × 大容量×開閉アシスト」空白</strong></td>
+<td>T1 × K1+K3</td>
+<td>大容量帯でユーザビリティ訴求機種が不足（3C 2-6）、女性・D&amp;I 視点の抜本リニューアル機は確認されない（3C 2-6）。woman-friendly を正面に出す NB は KSF レポート K1〜K3 でも観測なし</td>
+<td>「片手で開閉できる 100L」＋「低位置側方排気」＋「D&amp;I 公式コピー」をパッケージ化し、女性 PI 研究室の年度末予算に合わせて発売</td>
+</tr>
+<tr>
+<td><strong>WS-2</strong></td>
+<td><strong>「省スペース 100L × 搬入ソリューション」空白</strong></td>
+<td>T2 × K1+K4</td>
+<td>各社フットプリント据置（3C 4 表）、新興バイオベンチャーの設置制約は VOC で顕在（3C 1-4 ペルソナC）。搬入経路最適化を機種仕様まで落とし込んだ NB は「データに記載なし」</td>
+<td>分割搬入対応・最小フットプリント設計＋アズワン販社による搬入経路事前調査をセット販売</td>
+</tr>
+<tr>
+<td><strong>WS-3</strong></td>
+<td><strong>「手袋運用 UI × ログ標準装備 × 大容量」空白</strong></td>
+<td>T3 × K2+K3</td>
+<td>UI 刷新・ログ出力対応は「徐々に進行」中で大容量帯は遅延（3C 2-6）。手袋運用×大文字 UI×USB/LAN 標準を同時充足する機種は確認されず（KSF #3, #6）</td>
+<td>製薬 QC 向けに「バリデーション簡易パック」（大文字 UI＋USB ログ＋冷却完了通知）として展開</td>
+</tr>
+</tbody>
+</table>
+<h3>空白地帯の優先順位（推奨）</h3>
+<ol>
+<li><strong>WS-1（D&amp;I × 大容量）</strong>：PB コンセプト「woman-friendly 100L」と完全一致。最も独自性が高くブランドストーリー化しやすい。</li>
+<li><strong>WS-2（省スペース × 搬入）</strong>：100L 引き合い 1.4 倍の成長を最も直接的に取り込める。KSF K4（自社強み◎）と最も合致。</li>
+<li><strong>WS-3（製薬 QC 向け）</strong>：単価・粗利寄与は高いが、woman-friendly の正面訴求とは可逆性（KSF 論点 Q3）の議論が必要。第二弾派生機としての位置づけが妥当。</li>
+</ol>
+<hr />
+<h3>留意事項（ハルシネーション抑止）</h3>
+<ul>
+<li>競合機種の具体スペック・価格・シェアの定量値は <strong>3C/KSF レポートで「データに記載なし」</strong> とされており、本レポートでも同様の扱いとする。空白地帯の「競合不在」判定は VOC・3C 競合マッピング・KSF 充足度を根拠とした<strong>推定</strong>であり、二次調査（カタログ・代理店ヒアリング）での確証取得を推奨する。</li>
+<li>セグメンテーション・マトリクス内「データに記載なし」セルは、需要シグナル未観測のため評価対象外とした。今後の市場調査で観測された場合は追補する。</li>
+<li>価格帯・販売台数・粗利の定量シミュレーションは本レポートのスコープ外（STP 論点 Q4 に紐づく次工程：4P Price 設計）。</li>
+</ul>
+</body></html>
