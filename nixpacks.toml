@@ -8,3 +8,12 @@ aptPkgs = [
     "fonts-noto-cjk",
     "fonts-noto-cjk-extra",
 ]
+nixPkgs = [
+    "pango",
+    "cairo",
+    "gdk-pixbuf",
+    "glib",
+    "harfbuzz",
+    "fontconfig",
+    "noto-fonts-cjk-sans",
+]
