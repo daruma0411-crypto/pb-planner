@@ -27,8 +27,12 @@ def test_get_project_returns_meta(tmp_projects_dir):
     pid = create_project(name="x", category="autoclave", pb_concept="y")
     proj = get_project(pid)
     assert proj["meta"]["id"] == pid
-    assert proj["sources"] == {"asone": {"filter_urls": []},
-                                "partner": [], "competitor": []}
+    assert proj["sources"] == {
+        "asone": {"filter_urls": []},
+        "partner": [], "competitor": [],
+        "pos": {"csv_text": "", "summary_note": ""},
+        "sns": {"queries": [], "accounts": [], "summary_note": ""},
+    }
 
 
 def test_get_project_raises_when_missing(tmp_projects_dir):

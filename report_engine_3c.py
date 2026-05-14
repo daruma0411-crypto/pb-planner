@@ -91,6 +91,32 @@ def build_prompt(meta: dict, base_model: dict, data: dict, web_results: list[dic
         parts.append(f"\n### {maker}\n")
         parts.append(_format_products(items))
 
+    # POS / SNS（次フェーズで実データ投入予定。現状は手入力サマリ or 空）
+    sources = data.get("_sources", {})
+    pos = sources.get("pos", {})
+    sns = sources.get("sns", {})
+
+    parts.append("\n\n## 顧客（アズワン）POS データ\n")
+    if pos.get("summary_note") or pos.get("csv_text"):
+        if pos.get("summary_note"):
+            parts.append(f"- 手入力サマリ: {pos['summary_note']}")
+        if pos.get("csv_text"):
+            # CSV を最大 2000 字で要約
+            parts.append(f"- CSV 抜粋:\n```\n{pos['csv_text'][:2000]}\n```")
+    else:
+        parts.append("（POS データ未投入 — Customer セクションの市場規模・販売動向はデータに記載なしと明記）")
+
+    parts.append("\n\n## SNS の声\n")
+    if sns.get("summary_note") or sns.get("queries") or sns.get("accounts"):
+        if sns.get("summary_note"):
+            parts.append(f"- 手入力サマリ: {sns['summary_note']}")
+        if sns.get("queries"):
+            parts.append(f"- 監視クエリ: {', '.join(sns['queries'])}")
+        if sns.get("accounts"):
+            parts.append(f"- 監視アカウント: {', '.join(sns['accounts'])}")
+    else:
+        parts.append("（SNS データ未投入 — VOC は一般傾向のみで構成）")
+
     if web_results:
         parts.append("\n\n## Web 検索結果（顧客・市場・VOC）\n")
         for r in web_results:
@@ -120,6 +146,7 @@ def generate_3c_stream(pid: str, base_model: dict, save_report: bool = True):
     """
     proj = _pm.get_project(pid)
     data = load_project_data(pid)
+    data["_sources"] = proj["sources"]
     web_results = _collect_web_results(
         proj["meta"]["category"],
         [c["maker"] for c in proj["sources"].get("competitor", [])],

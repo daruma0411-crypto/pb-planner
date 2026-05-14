@@ -44,6 +44,21 @@ button.secondary { background: #888; }
   <button onclick="addCompetitorRow()">+ 競合追加</button>
 </section>
 
+<section>
+  <h2>POS データ（顧客アズワン）</h2>
+  <p>※ 次フェーズで実データ連携予定。現状は手入力サマリで OK。</p>
+  <label>手入力サマリ: <textarea id="pos_summary" rows="3" style="width:100%"></textarea></label>
+  <label>CSV テキスト貼り付け（任意）: <textarea id="pos_csv" rows="4" style="width:100%; font-family:monospace; font-size:0.85em"></textarea></label>
+</section>
+
+<section>
+  <h2>SNS の声</h2>
+  <p>※ 次フェーズで実データ連携予定。現状は手入力サマリ・クエリ・アカウント。</p>
+  <label>手入力サマリ: <textarea id="sns_summary" rows="3" style="width:100%"></textarea></label>
+  <label>監視クエリ（カンマ区切り）: <input id="sns_queries"></label>
+  <label>監視アカウント（カンマ区切り）: <input id="sns_accounts"></label>
+</section>
+
 <p><button onclick="saveSources()">ソースを保存</button></p>
 
 <script>
@@ -73,6 +88,7 @@ function addCompetitorRow(d={maker:'',url:'',models:''}) {
   ));
 }
 function readSources() {
+  const sp = (s) => s.split(',').map(x => x.trim()).filter(Boolean);
   return {
     asone: { filter_urls: Array.from(document.querySelectorAll('.asone_url')).map(i => i.value).filter(Boolean) },
     partner: Array.from(document.querySelectorAll('#partner_tbl tbody tr')).map(tr => ({
@@ -85,6 +101,15 @@ function readSources() {
       url: tr.querySelector('.c_url').value,
       models: tr.querySelector('.c_models').value.split(',').map(s => s.trim()).filter(Boolean),
     })).filter(x => x.maker || x.url),
+    pos: {
+      summary_note: document.getElementById('pos_summary').value,
+      csv_text: document.getElementById('pos_csv').value,
+    },
+    sns: {
+      summary_note: document.getElementById('sns_summary').value,
+      queries: sp(document.getElementById('sns_queries').value),
+      accounts: sp(document.getElementById('sns_accounts').value),
+    },
   };
 }
 async function saveSources() {
@@ -104,6 +129,12 @@ fetch(`/api/projects/${pid}`).then(r => r.json()).then(proj => {
   if ((proj.sources.partner || []).length === 0) addPartnerRow();
   (proj.sources.competitor || []).forEach(c => addCompetitorRow({ ...c, models: (c.models || []).join(',') }));
   if ((proj.sources.competitor || []).length === 0) addCompetitorRow();
+  const sp = proj.sources;
+  document.getElementById('pos_summary').value = (sp.pos && sp.pos.summary_note) || '';
+  document.getElementById('pos_csv').value = (sp.pos && sp.pos.csv_text) || '';
+  document.getElementById('sns_summary').value = (sp.sns && sp.sns.summary_note) || '';
+  document.getElementById('sns_queries').value = ((sp.sns && sp.sns.queries) || []).join(', ');
+  document.getElementById('sns_accounts').value = ((sp.sns && sp.sns.accounts) || []).join(', ');
 });
 </script>
 

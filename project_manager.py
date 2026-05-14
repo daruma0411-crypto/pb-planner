@@ -40,7 +40,13 @@ def _project_dir(pid: str) -> str:
 
 
 def _empty_sources() -> dict:
-    return {"asone": {"filter_urls": []}, "partner": [], "competitor": []}
+    return {
+        "asone": {"filter_urls": []},
+        "partner": [],
+        "competitor": [],
+        "pos": {"csv_text": "", "summary_note": ""},
+        "sns": {"queries": [], "accounts": [], "summary_note": ""},
+    }
 
 
 def _atomic_write_json(path: str, obj: dict) -> None:

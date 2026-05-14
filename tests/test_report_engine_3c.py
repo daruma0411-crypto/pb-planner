@@ -76,3 +76,37 @@ def test_generate_3c_stream_yields_chunks(tmp_projects_dir, monkeypatch):
     text = "".join(c for c in chunks if not c.startswith("[META]"))
     assert "Customer" in text
     assert "Competitor" in text
+
+
+def test_build_prompt_includes_pos_sns_placeholder(tmp_projects_dir):
+    pid = create_project(name="x", category="autoclave", pb_concept="")
+    _seed_project(tmp_projects_dir, pid)
+    data = load_project_data(pid)
+    data["_sources"] = {
+        "asone": {"filter_urls": []}, "partner": [], "competitor": [],
+        "pos": {"csv_text": "", "summary_note": ""},
+        "sns": {"queries": [], "accounts": [], "summary_note": ""},
+    }
+    prompt = build_prompt(meta={"name": "x", "category": "autoclave", "pb_concept": ""},
+                          base_model={"maker": "tomys", "model": "MDL-1"},
+                          data=data, web_results=[])
+    assert "POS" in prompt or "POS データ" in prompt
+    assert "SNS" in prompt
+    assert "未投入" in prompt
+
+
+def test_build_prompt_includes_pos_sns_data_when_present(tmp_projects_dir):
+    pid = create_project(name="x", category="autoclave", pb_concept="")
+    _seed_project(tmp_projects_dir, pid)
+    data = load_project_data(pid)
+    data["_sources"] = {
+        "asone": {"filter_urls": []}, "partner": [], "competitor": [],
+        "pos": {"csv_text": "", "summary_note": "月平均35台、50-80万円帯が60%"},
+        "sns": {"queries": ["オートクレーブ 重い"], "accounts": [], "summary_note": "女性研究者の負担訴求が多い"},
+    }
+    prompt = build_prompt(meta={"name": "x", "category": "autoclave", "pb_concept": ""},
+                          base_model={"maker": "tomys", "model": "MDL-1"},
+                          data=data, web_results=[])
+    assert "月平均35台" in prompt
+    assert "女性研究者の負担訴求" in prompt
+    assert "オートクレーブ 重い" in prompt
