@@ -126,23 +126,15 @@ def generate_3c_stream(pid: str, base_model: dict, save_report: bool = True):
     )
     prompt = build_prompt(proj["meta"], base_model, data, web_results)
 
-    client = Anthropic()
-    accumulated = []
-    with client.messages.stream(
-        model=MODEL_ID,
-        max_tokens=8000,
-        messages=[{"role": "user", "content": prompt}],
-    ) as stream:
-        from datetime import datetime, timezone, timedelta
-        JST = timezone(timedelta(hours=9))
-        ts = datetime.now(JST).strftime("%Y%m%d_%H%M%S")
-        report_id = f"3c_{ts}"
-        yield f"[META] {report_id}\n"
-        for text in stream.text_stream:
-            accumulated.append(text)
-            yield text
+    from datetime import datetime, timezone, timedelta
+    JST = timezone(timedelta(hours=9))
+    ts = datetime.now(JST).strftime("%Y%m%d_%H%M%S")
+    report_id = f"3c_{ts}"
+    accumulated: list[str] = []
 
-    if save_report:
+    def _save():
+        if not save_report or not accumulated:
+            return
         reports_dir = os.path.join(_pm._project_dir(pid), "reports")
         os.makedirs(reports_dir, exist_ok=True)
         md_text = "".join(accumulated)
@@ -156,3 +148,18 @@ def generate_3c_stream(pid: str, base_model: dict, save_report: bool = True):
         }
         with open(os.path.join(reports_dir, f"{report_id}.meta.json"), "w", encoding="utf-8") as f:
             json.dump(meta, f, ensure_ascii=False, indent=2)
+
+    client = Anthropic()
+    try:
+        yield f"[META] {report_id}\n"
+        with client.messages.stream(
+            model=MODEL_ID,
+            max_tokens=8000,
+            messages=[{"role": "user", "content": prompt}],
+        ) as stream:
+            for text in stream.text_stream:
+                accumulated.append(text)
+                yield text
+    finally:
+        # GeneratorExit / StopIteration / 例外いずれでも保存（クライアント切断対策）
+        _save()
