@@ -189,15 +189,15 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <hr />
 <h2>2. 商品マスタ JSON</h2>
 <pre><code class="language-json">{
-  &quot;asone_part_no&quot;: {
+  &quot;アズワン品番&quot;: {
     &quot;value&quot;: &quot;1-XXXX-01&quot;,
     &quot;note&quot;: &quot;アズワン採番規則に従う仮番。AXEL 登録時に確定。データに記載なし＝仮置き&quot;
   },
-  &quot;jan_code&quot;: {
+  &quot;JANコード&quot;: {
     &quot;value&quot;: &quot;4571XXXXXXXXX&quot;,
     &quot;note&quot;: &quot;アズワン JAN プレフィックス想定の仮番。製造ロット確定後採番。データに記載なし＝仮置き&quot;
   },
-  &quot;maker_part_no&quot;: {
+  &quot;メーカー型番&quot;: {
     &quot;value&quot;: &quot;PB-FS100&quot;,
     &quot;note&quot;: &quot;4P §0 で命名「AS ONE プロシェア・オートクレーブ 100L FS モデル」の型番略号&quot;
   },
@@ -205,11 +205,11 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
     &quot;value&quot;: &quot;AS ONE プロシェア・オートクレーブ 100L FS（Food Safety）モデル&quot;,
     &quot;note&quot;: &quot;4P §0 製品仮称&quot;
   },
-  &quot;catch_copy&quot;: {
+  &quot;キャッチコピー&quot;: {
     &quot;value&quot;: &quot;滅菌記録は、ボタン一つで HACCP 帳票へ。&quot;,
     &quot;note&quot;: &quot;本レポート §1-4 推奨案 1&quot;
   },
-  &quot;sub_catch_copy&quot;: {
+  &quot;sub_キャッチコピー&quot;: {
     &quot;value&quot;: &quot;100L、20% 安く、記録は電子で。プロシェア滅菌バッグ定期便付き。&quot;,
     &quot;note&quot;: &quot;本レポート §1-4 サブキャッチ（案 2 + 案 3 統合）／4P §4-1 三位一体軸&quot;
   },
@@ -219,11 +219,11 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
     &quot;tax&quot;: &quot;税別&quot;,
     &quot;note&quot;: &quot;4P §2-1。NB FLS-1000 ¥1,080,000 比 -20%。価格谷間 ¥850K 帯ポジション（4P §2-3）&quot;
   },
-  &quot;base_model&quot;: {
+  &quot;ベース機種&quot;: {
     &quot;value&quot;: &quot;トミー精工 FLS-1000&quot;,
     &quot;note&quot;: &quot;3C §2-2、4P §0。OEM 製造元：トミー精工&quot;
   },
-  &quot;spec_diff&quot;: {
+  &quot;仕様差分&quot;: {
     &quot;_priority&quot;: &quot;★最重要フィールド：NB（FLS-1000）からの差分のみを列挙&quot;,
     &quot;_continued_from_NB&quot;: {
       &quot;缶体容量&quot;: &quot;100L 級 / Φ450×678（NB 同等）&quot;,
@@ -315,7 +315,7 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
     &quot;secondary&quot;: &quot;S8 バイオベンチャー（多言語 UI 訴求で横展開）&quot;,
     &quot;note&quot;: &quot;STP §2、4P §0&quot;
   },
-  &quot;bundle_options&quot;: {
+  &quot;bundle_オプション&quot;: {
     &quot;subscription&quot;: {
       &quot;name&quot;: &quot;プロシェア滅菌バッグ定期便&quot;,
       &quot;price_per_month&quot;: 9800,
@@ -351,7 +351,7 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
     &quot;note&quot;: &quot;4P §3-1 AXEL 在庫表示方針&quot;
   },
   &quot;data_provenance_notes&quot;: [
-    &quot;asone_part_no / jan_code / 保証期間は提供データに記載なし＝仮置きまたは推定&quot;,
+    &quot;アズワン品番 / JANコード / 保証期間は提供データに記載なし＝仮置きまたは推定&quot;,
     &quot;OEM 原価・物流マージン・LTV 継続月数は 4P §2-2 で業界一般想定（推定）と明記済&quot;,
     &quot;woman-friendly 等の NB 訴求軸は『継承』として扱い、PB 独自軸として表記していない（STP §0 遵守）&quot;
   ]
@@ -537,17 +537,17 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 </thead>
 <tbody>
 <tr>
-<td>asone_part_no</td>
+<td>アズワン品番</td>
 <td>1-XXXX-01</td>
 <td>仮番（データに記載なし）</td>
 </tr>
 <tr>
-<td>jan_code</td>
+<td>JANコード</td>
 <td>4571XXXXXXXXX</td>
 <td>仮番（データに記載なし）</td>
 </tr>
 <tr>
-<td>maker_part_no</td>
+<td>メーカー型番</td>
 <td>PB-FS100</td>
 <td>4P §0</td>
 </tr>
@@ -557,12 +557,12 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <td>4P §0</td>
 </tr>
 <tr>
-<td>catch_copy</td>
+<td>キャッチコピー</td>
 <td>滅菌記録は、ボタン一つで HACCP 帳票へ。</td>
 <td>§1-4 推奨案 1</td>
 </tr>
 <tr>
-<td>sub_catch_copy</td>
+<td>sub_キャッチコピー</td>
 <td>100L、20% 安く、記録は電子で。プロシェア滅菌バッグ定期便付き。</td>
 <td>§1-4</td>
 </tr>
@@ -572,7 +572,7 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <td>4P §2-1</td>
 </tr>
 <tr>
-<td>base_model</td>
+<td>ベース機種</td>
 <td>トミー精工 FLS-1000</td>
 <td>3C §2-2</td>
 </tr>
@@ -603,7 +603,7 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 </tr>
 </tbody>
 </table>
-<h3>4-2. spec_diff（NB 比差分）— ★最重要</h3>
+<h3>4-2. 仕様差分（NB 比差分）— ★最重要</h3>
 <table>
 <thead>
 <tr>
