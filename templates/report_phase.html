@@ -18,6 +18,16 @@ button:disabled { background: #aaa; cursor: not-allowed; }
 #report th { background: #eee; }
 #report code { background: #f4f4f4; padding: 0.1em 0.3em; border-radius: 3px; }
 #report pre { background: #f4f4f4; padding: 0.6em; border-radius: 4px; overflow-x: auto; }
+mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-radius: 3px; font-weight: bold; border-bottom: 2px solid #c4263a; }
+.hl-card { background: #fff8f5; border: 2px solid #c4763a; border-radius: 8px; padding: 1em 1.4em; margin: 1.5em 0; }
+.hl-card-title { font-size: 1.05em; font-weight: bold; color: #c4763a; margin-bottom: 0.6em; }
+.hl-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+.hl-item { background: #fff; border-left: 4px solid #c4263a; padding: 0.6em 0.9em; border-radius: 4px; }
+.hl-no { display: inline-block; background: #c4263a; color: #fff; border-radius: 50%; width: 1.5em; height: 1.5em; text-align: center; line-height: 1.5em; font-weight: bold; margin-bottom: 0.4em; }
+.hl-label { font-weight: bold; font-size: 1em; color: #1f3a5f; margin-bottom: 0.3em; }
+.hl-desc { font-size: 0.85em; color: #444; line-height: 1.6; }
+.hl-note { font-size: 0.8em; color: #888; margin-top: 0.6em; margin-bottom: 0; }
+@media (max-width: 700px) { .hl-list { grid-template-columns: 1fr; } }
 @media print {
   body { max-width: 100%; margin: 0; padding: 0; color: #000; }
   .toolbar, .nav { display: none !important; }
@@ -50,6 +60,62 @@ const PHASE_INFO = {
   '4p': { title: '4P 設計', api: '4p', next: 'finish', next_label: 'キャッチ+マスタへ' },
   'finish': { title: 'キャッチ + 商品マスタ', api: 'finish', next: null, next_label: null },
 };
+const HIGHLIGHTS = {
+  '3c': [
+    { keyword: '100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長', label: '🎯 POS 実データ駆動の市場機会発見',
+      desc: 'アズワン社内 POS の生数値 (1.4 倍) を引き、「¥90-110 万に PB を降ろせばボリューム化」という具体ターゲットを定量根拠で導いた。一般的な「成熟市場」記述で止まらない。' },
+    { keyword: 'データ可搬性 / GMP IQ-OQ / 多言語 / サブスク', label: '🎯 全社網羅の空白地帯確定',
+      desc: 'スクレイピング 101 件を網羅的に読み「いずれのメーカーデータにも見当たらず」と 4 軸を一気に業界空白として確定。データから「無いこと」を発見するのは AI ならでは。' },
+  ],
+  'ksf': [
+    { keyword: '× 未解決(業界空白)', label: '🎯 NB 現状解決度を可視化',
+      desc: 'ペイン表に「NB(FLS-1000)の現状解決度」列を追加し、× 未解決 / △ 部分対応 / ○ NB satisfy 済を明示。PB 差別化余地★★★を機械的に算出して優先順位付け。' },
+    { keyword: 'NB が未解決のペインを優先列挙', label: '🎯 ハルシネーション抑止の自己宣言',
+      desc: '「人間工学系ペインは NB satisfy 済前提として強度を下方修正」を明文化。AI が自分の判定基準を晒すことで透明性確保、後段の意思決定者が監査可能に。' },
+  ],
+  'stp': [
+    { keyword: '滅菌記録の外部要件強度', label: '🎯 軸の発明：NB 弱点軸×購買行動軸',
+      desc: '既存の「組織タイプ × 容量」軸を捨て「滅菌記録要件 × 消耗品月次回転」という NB 弱点と購買行動の組合せに再設計。S5 食品検査 / S8 バイオベンチャーが最優先で浮上。' },
+    { keyword: 'PB は「価格 -20%」のみでは独自性が弱く、優先順位を落とす', label: '🎯 最大ボリュームを意図的に外す判断',
+      desc: '大学 (S7) は最大ボリュームだが NB(HVA-110LB ¥742K 等) が同軸訴求済みで「価格だけでは勝てない」と判定、優先度を下げる。データ駆動で「勝てない戦場を選ばない」を明示。' },
+  ],
+  '4p': [
+    { keyword: '価格谷間 ¥850K 帯', label: '🎯 価格谷間「中央突破」ポジショニング',
+      desc: 'NB 全社の価格表から ¥742K(yamato) と ¥980K(tomys LPS) の谷 ¥850K 帯を発見し、PB-FS100 ¥864K を投入。機能で ¥742K に勝ち、価格で ¥980K に勝つ二面攻撃。' },
+    { keyword: '本体 + サブスク 24 ヶ月 LTV 粗利', label: '🎯 LTV ベースの粗利設計',
+      desc: 'ハード単発粗利 21.8% にサブスク LTV を加算して 28.7%(24 ヶ月)。「機器売り切り」から「LTV 最大化」へモデル転換、消耗品サブスクで継続収益を定量化。' },
+  ],
+  'finish': [],
+};
+function applyHighlights(phase) {
+  const list = HIGHLIGHTS[phase] || [];
+  if (list.length === 0) return;
+  const reportEl = document.getElementById('report');
+  let html = reportEl.innerHTML;
+  for (const { keyword } of list) {
+    // mark で囲む（1 件目のみ置換）
+    const escKw = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + escKw + ')', '');
+    if (re.test(html)) {
+      html = html.replace(re, '<mark class="hl">$1</mark>');
+    }
+  }
+  reportEl.innerHTML = html;
+}
+function renderHighlightCard(phase) {
+  const list = HIGHLIGHTS[phase] || [];
+  if (list.length === 0) return '';
+  const items = list.map((h, i) =>
+    `<div class="hl-item"><div class="hl-no">${i+1}</div>` +
+    `<div class="hl-label">${h.label}</div>` +
+    `<div class="hl-desc">${h.desc}</div></div>`
+  ).join('');
+  return `<div class="hl-card">
+    <div class="hl-card-title">🌟 このレポートの「おー」ポイント</div>
+    <div class="hl-list">${items}</div>
+    <p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p>
+  </div>`;
+}
 const params = new URLSearchParams(location.search);
 const phase = params.get('phase') || '3c';
 const info = PHASE_INFO[phase] || PHASE_INFO['3c'];
@@ -57,6 +123,14 @@ const pid = location.pathname.split('/')[2];
 document.title = info.title + ' — PB企画プランナー';
 document.getElementById('phase_title').textContent = info.title;
 document.getElementById('page_title').textContent = info.title + ' — PB企画プランナー';
+// 「光るポイント」解説カードをタイトル直下に挿入
+(function injectHlCard() {
+  const card = renderHighlightCard(phase);
+  if (card) {
+    const h1 = document.getElementById('phase_title');
+    h1.insertAdjacentHTML('afterend', card);
+  }
+})();
 let reportId = null;
 let mdAccum = "";
 
@@ -86,6 +160,7 @@ async function loadExistingOrStart() {
         if (mdRes.ok) {
           const md = await mdRes.text();
           document.getElementById('report').innerHTML = marked.parse(md);
+          applyHighlights(phase);
           document.getElementById('status').textContent = '✓ 完了（既存）';
           _activateDownloads(rid);
           return;
@@ -132,6 +207,7 @@ async function start() {
             }
           }
           if (payload.done) {
+            applyHighlights(phase);
             document.getElementById('status').textContent = '✓ 完了';
             if (reportId) _activateDownloads(reportId);
           }
