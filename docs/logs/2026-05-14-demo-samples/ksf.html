@@ -24,13 +24,25 @@ li { margin: 0.2em 0; }
 .toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
 .toolbar a:hover { text-decoration: underline; }
 @media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+
+mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-radius: 3px; font-weight: bold; border-bottom: 2px solid #c4263a; }
+.hl-card { background: #fff8f5; border: 2px solid #c4763a; border-radius: 8px; padding: 1em 1.4em; margin: 1.5em 0; }
+.hl-card-title { font-size: 14pt; font-weight: bold; color: #c4763a; margin-bottom: 0.6em; }
+.hl-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+.hl-item { background: #fff; border-left: 4px solid #c4263a; padding: 0.6em 0.9em; border-radius: 4px; }
+.hl-no { display: inline-block; background: #c4263a; color: #fff; border-radius: 50%; width: 1.5em; height: 1.5em; text-align: center; line-height: 1.5em; font-weight: bold; margin-bottom: 0.4em; }
+.hl-label { font-weight: bold; font-size: 11pt; color: #1f3a5f; margin-bottom: 0.3em; }
+.hl-desc { font-size: 10pt; color: #444; line-height: 1.6; }
+.hl-note { font-size: 9.5pt; color: #888; margin-top: 0.6em; margin-bottom: 0; }
+@media (max-width: 700px) { .hl-list { grid-template-columns: 1fr; } }
 </style>
 </head><body>
 <div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<div class="hl-card"><div class="hl-card-title">🌟 このレポートの「おー」ポイント</div><div class="hl-list"><div class="hl-item"><div class="hl-no">1</div><div class="hl-label">🎯 NB 現状解決度を可視化</div><div class="hl-desc">ペイン表に「NB（FLS-1000）の現状解決度」列を追加し、× 未解決 / △ 部分対応 / ○ NB satisfy 済を明示。PB 差別化余地★★★を機械的に算出して優先順位付け。</div></div><div class="hl-item"><div class="hl-no">2</div><div class="hl-label">🎯 ハルシネーション抑止の自己宣言</div><div class="hl-desc">「人間工学系ペインは NB satisfy 済前提として強度を下方修正」を明文化。AI が自分の判定基準を晒すことで透明性を確保、後段の意思決定者が監査可能に。</div></div></div><p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p></div>
 <h1>アズワン PB 100L オートクレーブ：ペイン抽出・KSF・STP 論点整理</h1>
 <hr />
 <h2>1. 既存 NB に対する顧客ペイン 10 個</h2>
-<p><strong>前提整理</strong>：ベース機種 FLS-1000 の design_concept / features 欄には、woman-friendly / 片手開閉 / ローテーブル等の具体訴求文は本データ内に明示記載なし（3C §2-3 tomys、§3-3）。PB コンセプト前提では「NB が既に satisfy 済み」とされているため、本ペイン表では<strong>人間工学系ペインは「NB 側で一定程度カバー済み（前提）」として強度を下方修正</strong>し、NB が未解決のペインを優先列挙する。</p>
+<p><strong>前提整理</strong>：ベース機種 FLS-1000 の design_concept / features 欄には、woman-friendly / 片手開閉 / ローテーブル等の具体訴求文は本データ内に明示記載なし（3C §2-3 tomys、§3-3）。PB コンセプト前提では「NB が既に satisfy 済み」とされているため、本ペイン表では<strong>人間工学系ペインは「NB 側で一定程度カバー済み（前提）」として強度を下方修正</strong>し、<mark class="hl">NB が未解決のペインを優先列挙</mark>する。</p>
 <table>
 <thead>
 <tr>
@@ -48,7 +60,7 @@ li { margin: 0.2em 0; }
 <td>IQ-OQ ドキュメント・GMP バリデーション文書が同梱されない</td>
 <td><strong>高</strong></td>
 <td>3C §1-3（製薬 QA VOC、業界一般）、§2-3 全社で記載なし</td>
-<td>× 未解決（業界空白）</td>
+<td><mark class="hl">× 未解決（業界空白）</mark></td>
 <td>★★★</td>
 </tr>
 <tr>

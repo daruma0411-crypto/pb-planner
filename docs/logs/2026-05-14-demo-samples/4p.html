@@ -24,9 +24,21 @@ li { margin: 0.2em 0; }
 .toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
 .toolbar a:hover { text-decoration: underline; }
 @media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+
+mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-radius: 3px; font-weight: bold; border-bottom: 2px solid #c4263a; }
+.hl-card { background: #fff8f5; border: 2px solid #c4763a; border-radius: 8px; padding: 1em 1.4em; margin: 1.5em 0; }
+.hl-card-title { font-size: 14pt; font-weight: bold; color: #c4763a; margin-bottom: 0.6em; }
+.hl-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+.hl-item { background: #fff; border-left: 4px solid #c4263a; padding: 0.6em 0.9em; border-radius: 4px; }
+.hl-no { display: inline-block; background: #c4263a; color: #fff; border-radius: 50%; width: 1.5em; height: 1.5em; text-align: center; line-height: 1.5em; font-weight: bold; margin-bottom: 0.4em; }
+.hl-label { font-weight: bold; font-size: 11pt; color: #1f3a5f; margin-bottom: 0.3em; }
+.hl-desc { font-size: 10pt; color: #444; line-height: 1.6; }
+.hl-note { font-size: 9.5pt; color: #888; margin-top: 0.6em; margin-bottom: 0; }
+@media (max-width: 700px) { .hl-list { grid-template-columns: 1fr; } }
 </style>
 </head><body>
 <div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<div class="hl-card"><div class="hl-card-title">🌟 このレポートの「おー」ポイント</div><div class="hl-list"><div class="hl-item"><div class="hl-no">1</div><div class="hl-label">🎯 価格谷間「中央突破」ポジショニング</div><div class="hl-desc">NB 全社の価格表から ¥742K（yamato）と ¥980K（tomys LPS）の「谷」¥850K 帯を発見し、PB-FS100 ¥864K を投入。「機能で ¥742K に勝ち、価格で ¥980K に勝つ」二面攻撃。</div></div><div class="hl-item"><div class="hl-no">2</div><div class="hl-label">🎯 LTV ベースの粗利設計</div><div class="hl-desc">ハード単発粗利 21.8% に消耗品サブスク LTV を加算して 28.7%（24 ヶ月）。サブスク追加で粗利 +6.9pt を定量化、PB の収益モデルを「機器売り切り」から「LTV 最大化」へ転換する具体案。</div></div></div><p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p></div>
 <h1>アズワン PB 100L オートクレーブ：4P 仕様策定</h1>
 <hr />
 <h2>0. 優先ターゲット選定</h2>
@@ -316,7 +328,7 @@ li { margin: 0.2em 0; }
 <td>LTV 加算</td>
 </tr>
 <tr>
-<td><strong>本体 + サブスク 24 ヶ月 LTV 粗利</strong></td>
+<td><strong><mark class="hl">本体 + サブスク 24 ヶ月 LTV 粗利</mark></strong></td>
 <td><strong>¥305,600</strong></td>
 <td>実質粗利率 28.7%（ハード+サブスク合算）</td>
 </tr>
@@ -372,7 +384,7 @@ li { margin: 0.2em 0; }
 </tr>
 </tbody>
 </table>
-<p>→ ¥742K（yamato HVA-110LB）と ¥980K（tomys LPS-700）の<strong>価格谷間 ¥850K 帯</strong>を取り、機能（HACCP 帳票・サブスク・多言語）で差別化。</p>
+<p>→ ¥742K（yamato HVA-110LB）と ¥980K（tomys LPS-700）の<strong><mark class="hl">価格谷間 ¥850K 帯</mark></strong>を取り、機能（HACCP 帳票・サブスク・多言語）で差別化。</p>
 <hr />
 <h2>3. Place</h2>
 <h3>3-1. 流通チャネル</h3>

@@ -24,15 +24,27 @@ li { margin: 0.2em 0; }
 .toolbar a { color: #fff; text-decoration: none; margin-right: 1.5em; font-weight: bold; }
 .toolbar a:hover { text-decoration: underline; }
 @media print { body { max-width: 100%; margin: 0; padding: 0; } .toolbar { display: none; } }
+
+mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-radius: 3px; font-weight: bold; border-bottom: 2px solid #c4263a; }
+.hl-card { background: #fff8f5; border: 2px solid #c4763a; border-radius: 8px; padding: 1em 1.4em; margin: 1.5em 0; }
+.hl-card-title { font-size: 14pt; font-weight: bold; color: #c4763a; margin-bottom: 0.6em; }
+.hl-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+.hl-item { background: #fff; border-left: 4px solid #c4263a; padding: 0.6em 0.9em; border-radius: 4px; }
+.hl-no { display: inline-block; background: #c4263a; color: #fff; border-radius: 50%; width: 1.5em; height: 1.5em; text-align: center; line-height: 1.5em; font-weight: bold; margin-bottom: 0.4em; }
+.hl-label { font-weight: bold; font-size: 11pt; color: #1f3a5f; margin-bottom: 0.3em; }
+.hl-desc { font-size: 10pt; color: #444; line-height: 1.6; }
+.hl-note { font-size: 9.5pt; color: #888; margin-top: 0.6em; margin-bottom: 0; }
+@media (max-width: 700px) { .hl-list { grid-template-columns: 1fr; } }
 </style>
 </head><body>
 <div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
+<div class="hl-card"><div class="hl-card-title">🌟 このレポートの「おー」ポイント</div><div class="hl-list"><div class="hl-item"><div class="hl-no">1</div><div class="hl-label">🎯 POS 実データ駆動の市場機会発見</div><div class="hl-desc">アズワン社内 POS の生数値（1.4 倍）を引き、「価格帯 ¥90-110 万に PB を降ろせばボリューム化」という具体ターゲットを定量根拠で導いている。一般的な「成熟市場」記述で止まらない。</div></div><div class="hl-item"><div class="hl-no">2</div><div class="hl-label">🎯 全社網羅の空白地帯確定</div><div class="hl-desc">スクレイピング 101 件を網羅的に読み、「いずれのメーカーデータにも見当たらず」と 4 軸を一気に業界空白として確定。データから「無いこと」を発見するのは AI ならではの強み。</div></div></div><p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p></div>
 <h1>3C 分析レポート</h1>
 <h2>デモ案件：アズワン PB 100L オートクレーブ（FLS-1000 ベース・差別化軸を再探索）</h2>
 <hr />
 <h2>1. Customer 分析</h2>
 <h3>1-1. 市場規模・成長性</h3>
-<p>国内研究用オートクレーブ市場は、ライフサイエンス研究投資の継続的拡大、再生医療・細胞培養分野の伸長、製薬企業の GMP 投資、食品微生物検査の強化を背景に、年率 3〜5% 程度の成長が見込まれる成熟＋拡張市場である（一般的市場観、定量裏付けデータは本案件データに記載なし）。アズワン社内 POS では <strong>「研究用滅菌器カテゴリで月間平均 35 台販売」「100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長」</strong>（POSデータ手入力サマリ）と明示されており、<strong>中〜大容量帯（85〜120L）が現在の成長ドライバ</strong>であることが裏付けられる。価格帯では ¥40-90 万がボリュームゾーン（POS 約 60%）で、100L クラスはこのレンジ上限〜超に位置し、PB として ¥90-110 万帯に降ろせれば一気にボリューム化できる蓋然性が高い。</p>
+<p>国内研究用オートクレーブ市場は、ライフサイエンス研究投資の継続的拡大、再生医療・細胞培養分野の伸長、製薬企業の GMP 投資、食品微生物検査の強化を背景に、年率 3〜5% 程度の成長が見込まれる成熟＋拡張市場である（一般的市場観、定量裏付けデータは本案件データに記載なし）。アズワン社内 POS では <strong>「研究用滅菌器カテゴリで月間平均 35 台販売」「<mark class="hl">100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長</mark>」</strong>（POSデータ手入力サマリ）と明示されており、<strong>中〜大容量帯（85〜120L）が現在の成長ドライバ</strong>であることが裏付けられる。価格帯では ¥40-90 万がボリュームゾーン（POS 約 60%）で、100L クラスはこのレンジ上限〜超に位置し、PB として ¥90-110 万帯に降ろせれば一気にボリューム化できる蓋然性が高い。</p>
 <h3>1-2. セグメント別プロファイル</h3>
 <table>
 <thead>
@@ -361,7 +373,7 @@ li { margin: 0.2em 0; }
 <ul>
 <li><strong>100L クラスへの引き合い 1.4 倍</strong>（自社 POS）→ メーカー各社が 100L 級ライン拡充。hirayama HV-110Ⅱ / ⅡLB の併売、yamato HVA-110LB の継続販売、alp CLG-DVP40L / 40L の 117L 帯が該当。</li>
 <li>7 インチ液晶＋メモリ化が tomys LPS/MPS/BSX で進行 → <strong>UI モダナイズが NB の主戦場</strong>。</li>
-<li><strong>データ可搬性 / GMP IQ-OQ / 多言語 / サブスク</strong> の明示訴求はいずれのメーカーデータにも見当たらず、<strong>業界全体の空白地帯</strong>として残存。</li>
+<li><strong><mark class="hl">データ可搬性 / GMP IQ-OQ / 多言語 / サブスク</mark></strong> の明示訴求はいずれのメーカーデータにも見当たらず、<strong>業界全体の空白地帯</strong>として残存。</li>
 </ul>
 <hr />
 <h2>3. Company（アズワン PB ＝ AS ONE + ナビス）分析</h2>
