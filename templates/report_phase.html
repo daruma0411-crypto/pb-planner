@@ -123,14 +123,6 @@ const pid = location.pathname.split('/')[2];
 document.title = info.title + ' — PB企画プランナー';
 document.getElementById('phase_title').textContent = info.title;
 document.getElementById('page_title').textContent = info.title + ' — PB企画プランナー';
-// 「光るポイント」解説カードをタイトル直下に挿入
-(function injectHlCard() {
-  const card = renderHighlightCard(phase);
-  if (card) {
-    const h1 = document.getElementById('phase_title');
-    h1.insertAdjacentHTML('afterend', card);
-  }
-})();
 let reportId = null;
 let mdAccum = "";
 
