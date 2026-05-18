@@ -40,6 +40,11 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
 <div class="hl-card"><div class="hl-card-title">🌟 このレポートの「おー」ポイント</div><div class="hl-list"><div class="hl-item"><div class="hl-no">1</div><div class="hl-label">🎯 軸の発明：NB 弱点軸×購買行動軸</div><div class="hl-desc">既存の「組織タイプ × 容量」軸を捨て、「滅菌記録要件 × 消耗品月次回転」という NB 弱点と購買行動を組み合わせた 2 軸に再設計。結果として S5 食品検査 / S8 バイオベンチャーが最優先で浮上。</div></div><div class="hl-item"><div class="hl-no">2</div><div class="hl-label">🎯 最大ボリュームを意図的に外す判断</div><div class="hl-desc">大学 (S7) は最大ボリュームだが NB（HVA-110LB ¥742K 等）が同軸訴求済みで「価格だけでは勝てない」と判定して優先度を下げる。データ駆動で「勝てない戦場を選ばない」を明示。</div></div></div><p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p></div>
 <h1>アズワン PB 100L オートクレーブ：STP 分析と空白地帯マップ</h1>
+<blockquote>
+<p><strong>⚠ 本レポートのデータ前提</strong>
+POS データ・SNS の声は <strong>デモ用サンプル値</strong>（実 PoC では貴社実データに置換）。
+スクレイピング 101 件（asone 25/トミー精工 12/ヤマト科学 14/平山 27/アルプ 23）は <strong>実 EC データ</strong>。</p>
+</blockquote>
 <hr />
 <h2>0. 前提整理（ハルシネーション防止チェック）</h2>
 <table>
@@ -233,13 +238,13 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <tr>
 <td><strong>T-A</strong></td>
 <td><strong>S1 製薬・CDMO 試作ラボ</strong>（40代QA担当）</td>
-<td>リピート率 50%、IQ-OQ × データ可搬性は業界全社空白（KSF #1, #2）</td>
+<td>リピート率 50%（※ サンプル）、IQ-OQ × データ可搬性は業界全社空白（KSF #1, #2）</td>
 <td>GMP/IQ-OQ・USB/LAN・電子署名</td>
 </tr>
 <tr>
 <td><strong>T-B</strong></td>
 <td><strong>S5 食品検査ラボ</strong>（ラボ管理者）</td>
-<td>100L 引き合い 1.4 倍の中核、HACCP 記録要求が制度的に強まる、消耗品（滅菌バッグ）月次定常消費とサブスク親和性極大</td>
+<td>100L 引き合い 1.4 倍（※ サンプル）の中核、HACCP 記録要求が制度的に強まる、消耗品（滅菌バッグ）月次定常消費とサブスク親和性極大</td>
 <td>HACCP記録テンプレ・USBログ・滅菌バッグ定期同梱</td>
 </tr>
 <tr>

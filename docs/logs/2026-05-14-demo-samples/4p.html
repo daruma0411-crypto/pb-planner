@@ -40,10 +40,15 @@ mark.hl { background: #fff4f0; color: #c4263a; padding: 0.1em 0.25em; border-rad
 <div class="toolbar"><a href="3c.html">① 3C 分析</a> <a href="ksf.html">② KSF 抽出</a> <a href="stp.html">③ STP 設計</a> <a href="4p.html">④ 4P 設計</a> <a href="finish.html">⑤ キャッチ + マスタ</a> <a href="index.html" style="float:right">📋 一覧</a></div>
 <div class="hl-card"><div class="hl-card-title">🌟 このレポートの「おー」ポイント</div><div class="hl-list"><div class="hl-item"><div class="hl-no">1</div><div class="hl-label">🎯 価格谷間「中央突破」ポジショニング</div><div class="hl-desc">NB 全社の価格表から ¥742K（yamato）と ¥980K（tomys LPS）の「谷」¥850K 帯を発見し、PB-FS100 ¥864K を投入。「機能で ¥742K に勝ち、価格で ¥980K に勝つ」二面攻撃。</div></div><div class="hl-item"><div class="hl-no">2</div><div class="hl-label">🎯 LTV ベースの粗利設計</div><div class="hl-desc">ハード単発粗利 21.8% に消耗品サブスク LTV を加算して 28.7%（24 ヶ月）。サブスク追加で粗利 +6.9pt を定量化、PB の収益モデルを「機器売り切り」から「LTV 最大化」へ転換する具体案。</div></div></div><p class="hl-note">↓ 本文中で <mark class="hl">赤字ハイライト</mark> されている箇所を参照</p></div>
 <h1>アズワン PB 100L オートクレーブ：4P 仕様策定</h1>
+<blockquote>
+<p><strong>⚠ 本レポートのデータ前提</strong>
+POS データ・SNS の声は <strong>デモ用サンプル値</strong>（実 PoC では貴社実データに置換）。
+スクレイピング 101 件（asone 25/トミー精工 12/ヤマト科学 14/平山 27/アルプ 23）は <strong>実 EC データ</strong>。</p>
+</blockquote>
 <hr />
 <h2>0. 優先ターゲット選定</h2>
 <p><strong>選定ターゲット：T-B 食品検査ラボ（S5）</strong></p>
-<p>選定理由：3 候補（T-A 製薬 CDMO / T-B 食品検査ラボ / T-C バイオベンチャー）を「狙いやすさ × 戦略適合性 × NB 弱点補強度」で比較した結果、T-B を選定する。第一に、POS 上「100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長」（3C §1-1）の中核需要層であり<strong>量的なボリュームが見込める</strong>。第二に、HACCP / ISO 22000 の制度的要請により「滅菌記録の電子化＋帳票化」が現場ペインとして顕在化しており、NB 各社が IQ-OQ・データ可搬性のいずれも明示訴求していない（3C §2-5、KSF #1, #2）<strong>業界空白を正面から取れる</strong>。第三に、培地調製〜廃棄滅菌の<strong>日次運用＝消耗品（プロシェア滅菌バッグ SPS-1〜7）の月次定常消費</strong>と親和性が極めて高く、アズワン PB のみが実装可能な「ハード＋消耗品サブスク」モデルの戦略適合性が最大化される（3C §3-1、STP §3 T-B）。T-A は査察ハードルが高く立ち上がり遅、T-C は規模がまだ小さく初動 ROI が読みにくいため、PB 第一弾は T-B で量を取り、横展開で T-A / T-C に広げる順序が合理的。</p>
+<p>選定理由：3 候補（T-A 製薬 CDMO / T-B 食品検査ラボ / T-C バイオベンチャー）を「狙いやすさ × 戦略適合性 × NB 弱点補強度」で比較した結果、T-B を選定する。第一に、POS 上「100L クラスの引き合いが直近 12 ヶ月で 1.4 倍に伸長（※ デモ用サンプル数値、実 PoC では貴社 POS から取得）」（3C §1-1）の中核需要層であり<strong>量的なボリュームが見込める</strong>。第二に、HACCP / ISO 22000 の制度的要請により「滅菌記録の電子化＋帳票化」が現場ペインとして顕在化しており、NB 各社が IQ-OQ・データ可搬性のいずれも明示訴求していない（3C §2-5、KSF #1, #2）<strong>業界空白を正面から取れる</strong>。第三に、培地調製〜廃棄滅菌の<strong>日次運用＝消耗品（プロシェア滅菌バッグ SPS-1〜7）の月次定常消費</strong>と親和性が極めて高く、アズワン PB のみが実装可能な「ハード＋消耗品サブスク」モデルの戦略適合性が最大化される（3C §3-1、STP §3 T-B）。T-A は査察ハードルが高く立ち上がり遅、T-C は規模がまだ小さく初動 ROI が読みにくいため、PB 第一弾は T-B で量を取り、横展開で T-A / T-C に広げる順序が合理的。</p>
 <p>製品仮称：<strong>「AS ONE プロシェア・オートクレーブ 100L FS（Food Safety）モデル」</strong>（以下 PB-FS100）</p>
 <hr />
 <h2>1. Product</h2>
